@@ -14,7 +14,7 @@ def convert_file(input_file_string, bitrate):
         print(f"Error: invalid input file: {file_path}")
         return
 
-    # Create output_file name by adding "_norm" to input_file name.
+    # Create output_file name by adding ".n" to input_file name.
     output_file = input_file.with_name(f"{input_file.stem}.n.mp4")
 
     # Execute command sequence.
