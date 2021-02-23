@@ -1,10 +1,11 @@
+import argparse
 import ffmpeg
 import sys
 
 from pathlib import Path
 
 
-def convert_file(input_file_string):
+def convert_file(input_file_string, bitrate):
     # Get full path to input file.
     #   .expanduser() expands out possible "~"
     #   .resolve() expands relative paths and symlinks
@@ -14,7 +15,7 @@ def convert_file(input_file_string):
         return
 
     # Create output_file name by adding "_norm" to input_file name.
-    output_file = input_file.with_name(f"{input_file.stem}.n{input_file.suffix}")
+    output_file = input_file.with_name(f"{input_file.stem}.n.mp4")
 
     # Execute command sequence.
     stream = ffmpeg.input(str(input_file))
@@ -22,14 +23,28 @@ def convert_file(input_file_string):
         stream,
         str(output_file),
         # Set output video bitrate to 500kbps for projection.
-        video_bitrate=500000,
+        video_bitrate=bitrate,
         # Set output audio bitrate to 128kbps for projection.
         audio_bitrate=128000,
         format='mp4',
     )
     ffmpeg.run(stream)
 
+parser = argparse.ArgumentParser()
+parser.add_argument(
+    '-t', '--tutorial',
+    dest='vidbps',
+    action='store_const',
+    const=100000,
+    default=500000,
+    help="Use a lower bitrate for a short tutorial video."
+)
+parser.add_argument(
+    "video",
+    nargs='+',
+    help="Space-separated list of video files to normalize."
+)
 
-input_files = sys.argv[1:]
-for input_file in input_files:
-    convert_file(input_file)
+args = parser.parse_args()
+for input_file in args.video:
+    convert_file(input_file, args.vidbps)
