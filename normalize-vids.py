@@ -38,6 +38,8 @@ def build_command(infile, outfile, bitrate):
         str(outfile),
         # Set output video bitrate to 500kbps for projection.
         video_bitrate=bitrate,
+        maxrate=bitrate,
+        bufsize=100000,
         # Set output audio bitrate to 128kbps for projection.
         audio_bitrate=128000,
         format='mp4',
