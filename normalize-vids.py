@@ -21,9 +21,12 @@ def convert_file(input_file_string, bitrate):
     # Create output_file name by adding ".n" to input_file name.
     #   Output to same directory as input_file.
     output_file = input_file.with_name(f"{input_file.stem}.n.mp4")
+    stream = build_command(input_file, output_file, bitrate)
+    ffmpeg.run(stream)
 
+def build_command(infile, outfile, bitrate):
     # Execute command sequence.
-    stream = ffmpeg.input(str(input_file))
+    stream = ffmpeg.input(str(infile))
     video = stream['v']
     audio = stream['a']
     # Set video max height to 720p (nominal HD).
@@ -32,16 +35,51 @@ def convert_file(input_file_string, bitrate):
     video = ffmpeg.filter(video, 'fps', 25)
     stream = ffmpeg.output(
         video, audio,
-        str(output_file),
+        str(outfile),
         # Set output video bitrate to 500kbps for projection.
         video_bitrate=bitrate,
         # Set output audio bitrate to 128kbps for projection.
         audio_bitrate=128000,
         format='mp4',
     )
-    ffmpeg.run(stream)
+    return stream
 
+def show_command(bitrate):
+    stream = build_command('<infile>', '<outfile.mp4>', bitrate)
+    print(f"NOTE: If you run the ffmpeg command directly, the term after -filter_complex need to be quoted because of special characters:\n")
+    print(f"ffmpeg {' '.join(ffmpeg.get_args(stream))}\n")
+    exit(0)
+
+def show_properties(infile):
+    try:
+        probe = ffmpeg.probe(infile)
+    except ffmpeg._run.Error:
+        print("Error: Not an audio or video file?")
+        exit(1)
+    print()
+    for stream in probe['streams']:
+        for k, v in stream.items():
+            skip = ['disposition', 'tags']
+            if k in skip:
+                continue
+            print(f"{k:<24} {v}")
+        print()
+
+
+# Build arguments and options list.
 parser = argparse.ArgumentParser()
+parser.add_argument(
+    '-c', '--command',
+    action='store_true',
+    help="Print the equivalent ffmpeg bash command."
+)
+parser.add_argument(
+    '-i', '--info',
+    nargs=1,
+    dest='infovid',
+    metavar='video',
+    help="Show audio and video properties of given file."
+)
 parser.add_argument(
     '-t', '--tutorial',
     dest='vidbps',
@@ -52,10 +90,22 @@ parser.add_argument(
 )
 parser.add_argument(
     "video",
-    nargs='+',
+    nargs='*',
     help="Space-separated list of video files to normalize."
 )
 
 args = parser.parse_args()
-for input_file in args.video:
-    convert_file(input_file, args.vidbps)
+if args.command:
+    # Show the ffmpeg bash command and exit.
+    show_command(args.vidbps)
+    exit(0)
+
+if args.infovid:
+    # Show the video file info and exit.
+    show_properties(args.infovid[0])
+    exit(0)
+
+if args.video:
+    # Attempt to normalize all passed video files.
+    for input_file in args.video:
+        convert_file(input_file, args.vidbps)
