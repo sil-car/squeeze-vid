@@ -10,3 +10,7 @@ Test with various input formats:
 
 # Testing inline MP4
 ![video](Wasta-System-Monitor.n.mp4)
+
+<video loop="true" autoplay="autoplay" controls>
+<source src="Wasta-System-Monitor.n.mp4" type="video/mp4" />
+</video>
