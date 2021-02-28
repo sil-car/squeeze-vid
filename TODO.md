@@ -7,3 +7,6 @@ Test with various input formats:
 - [x] MP4
 - [x] MPEG
 - [x] WEBM
+
+# Testing inline MP4
+![video](Wasta-System-Monitor.n.mp4)
