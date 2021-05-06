@@ -3,10 +3,10 @@
 A script for outputting videos with a standardized frame rate and size appropriate for downloading in CAR and projecting on the wall.
 
 Property | Default Video | Tutorial Video
----< | ---< | ---<
+--- | --- | ---
 Height | 720p | 720p
 Video bitrate | 500 kbps | 200 kbps
-Frame rate: 24 fps | 10 fps
+Frame rate | 25 fps | 10 fps
 
 ### Usage
 ```bash
