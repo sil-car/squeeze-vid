@@ -79,6 +79,18 @@ def convert_file(input_file_string, rates):
     stream = build_convert_command(input_file, output_file, rates)
     ffmpeg.run(stream, overwrite_output=True, capture_stdout=True)
 
+def trim_file(input_file_string, endpoints):
+    # Validate input file.
+    input_file = validate_file(input_file_string)
+    if not input_file:
+        return
+
+    # Create output_file name by adding "x" to input_file name.
+    #   Output to same directory as input_file.
+    output_file = input_file.with_name(f"{input_file.stem}.k.mp4")
+    stream = build_trim_command(input_file, output_file, endpoints)
+    ffmpeg.run(stream, overwrite_output=True, capture_stdout=True)
+
 def build_convert_command(infile, outfile, rates):
     # Get stream details.
     audio_streams, video_streams, audio, video = split_into_streams(infile)
@@ -166,7 +178,25 @@ def build_speed_command(infile, outfile, factor):
             str(outfile),
             format=format,
         )
+    return stream
 
+def build_trim_command(infile, outfile, endpoints):
+    # Get stream details.
+    # stream = ffmpeg.input(str(infile))
+    audio_streams, video_streams, audio, video = split_into_streams(infile)
+
+    # Define other output constants.
+    bufsize = 100000
+    audio = ffmpeg.filter(audio, 'atrim', start=endpoints[0], end=endpoints[1])
+    video = ffmpeg.filter(video, 'trim', start=endpoints[0], end=endpoints[1])
+
+    # Output correct stream.
+    if video_streams and audio_streams:
+        stream = ffmpeg.output(video, audio, str(outfile))
+    elif video_streams and not audio_streams:
+        stream = ffmpeg.output(video, str(outfile))
+    elif audio_streams and not video_streams:
+        stream = ffmpeg.output(audio, str(outfile))
     return stream
 
 def show_command(args):
@@ -210,6 +240,12 @@ def main():
         help="Use lower bitrate and fewer fps for short tutorial videos."
     )
     parser.add_argument(
+        '-k', '--trim',
+        nargs=2,
+        type=int,
+        help="Trim the file to content between given timestamps (s)."
+    )
+    parser.add_argument(
         "video",
         nargs='*',
         help="Space-separated list of video files to normalize."
@@ -224,12 +260,15 @@ def main():
         if args.info:
             # Show the video file info.
             show_properties(input_file)
-        if args.speed:
+        elif args.speed:
             # Attempt to change the playback speed of all passed video files.
             change_playback_speed(input_file, args.speed)
-            exit(0)
-        # Attempt to normalize all passed video files.
-        convert_file(input_file, args.rates)
+        elif args.trim:
+            # Trim the file using given timestamps.
+            trim_file(input_file, args.trim)
+        else:
+            # Attempt to normalize all passed video files.
+            convert_file(input_file, args.rates)
 
 
 if __name__ == '__main__':
