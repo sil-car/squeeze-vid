@@ -19,6 +19,16 @@ def validate_file(input_file_string):
         return None
     return input_file
 
+def parse_timestamp(timestamp):
+    """
+    Return timestamp string as a float of total seconds.
+    """
+    parts = timestamp.split(':')
+    seconds = 0.0
+    for i in range(len(parts)):
+        seconds += float(parts[-(i+1)])*60**i if len(parts) > i else 0
+    return seconds
+
 def get_properties(infile):
     if infile == '<infile>':
         # Dummy file for printing command.
@@ -85,7 +95,10 @@ def trim_file(input_file_string, endpoints):
     if not input_file:
         return
 
-    # Create output_file name by adding "x" to input_file name.
+    # Convert timestamp(s) to seconds.
+    endpoints = [parse_timestamp(e) for e in endpoints[:]]
+
+    # Create output_file name by adding "k" to input_file name.
     #   Output to same directory as input_file.
     output_file = input_file.with_name(f"{input_file.stem}.k.mp4")
     stream = build_trim_command(input_file, output_file, endpoints)
@@ -242,7 +255,7 @@ def main():
     parser.add_argument(
         '-k', '--trim',
         nargs=2,
-        type=int,
+        type=str,
         help="Trim the file to content between given timestamps (s)."
     )
     parser.add_argument(
