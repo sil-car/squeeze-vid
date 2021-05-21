@@ -26,6 +26,9 @@ def parse_timestamp(timestamp):
     parts = timestamp.split(':')
     seconds = 0.0
     for i in range(len(parts)):
+        # Convert empty placeholder to zero.
+        if parts[-(i+1)] == '':
+            parts[-(i+1)] = 0
         seconds += float(parts[-(i+1)])*60**i if len(parts) > i else 0
     return seconds
 
@@ -67,14 +70,14 @@ def split_into_streams(infile):
     audio = stream.audio #stream['a']
     return audio_streams, video_streams, audio, video
 
-def change_playback_speed(input_file_string, factor):
+def change_playback_speed(input_file_string, factor, rates):
     # Validate input_file.
     input_file = validate_file(input_file_string)
     if not input_file:
         return
 
-    output_file = input_file.with_name(f"{input_file.stem}-{str(factor)}.mp4")
-    stream = build_speed_command(input_file, output_file, factor)
+    output_file = input_file.with_name(f"{input_file.stem}.{str(factor)}.mp4")
+    stream = build_speed_stream(input_file, output_file, factor, rates)
     ffmpeg.run(stream, overwrite_output=True, capture_stdout=True)
 
 def convert_file(input_file_string, rates):
@@ -86,32 +89,65 @@ def convert_file(input_file_string, rates):
     # Create output_file name by adding ".n" to input_file name.
     #   Output to same directory as input_file.
     output_file = input_file.with_name(f"{input_file.stem}.n.mp4")
-    stream = build_convert_command(input_file, output_file, rates)
+    stream = build_convert_stream(input_file, output_file, rates)
     ffmpeg.run(stream, overwrite_output=True, capture_stdout=True)
 
-def trim_file(input_file_string, endpoints):
+def trim_file(input_file_string, endpoints, rates):
     # Validate input file.
     input_file = validate_file(input_file_string)
     if not input_file:
         return
 
     # Convert timestamp(s) to seconds.
-    endpoints = [parse_timestamp(e) for e in endpoints[:]]
+    endpoints = [parse_timestamp(e) for e in endpoints]
 
     # Create output_file name by adding "k" to input_file name.
     #   Output to same directory as input_file.
     output_file = input_file.with_name(f"{input_file.stem}.k.mp4")
-    stream = build_trim_command(input_file, output_file, endpoints)
+    stream = build_trim_stream(input_file, output_file, endpoints, rates)
     ffmpeg.run(stream, overwrite_output=True, capture_stdout=True)
 
-def build_convert_command(infile, outfile, rates):
-    # Get stream details.
-    audio_streams, video_streams, audio, video = split_into_streams(infile)
-
-    # Define other output constants.
+def generate_output_stream(vstreams, astreams, video, audio, rates, outfile):
+    # Define output constants.
     bufsize = 100000
     audio_bitrate = 128000
     format = 'mp4'
+
+    if vstreams and astreams:
+        stream = ffmpeg.output(
+            video, audio,
+            str(outfile),
+            # Set output video bitrate to 500kbps for projection.
+            video_bitrate=rates[0],
+            maxrate=rates[0],
+            bufsize=bufsize,
+            # Set output audio bitrate to 128kbps for projection.
+            audio_bitrate=audio_bitrate,
+            format=format,
+        )
+    elif vstreams and not astreams:
+        stream = ffmpeg.output(
+            video,
+            str(outfile),
+            # Set output video bitrate to 500kbps for projection.
+            video_bitrate=rates[0],
+            maxrate=rates[0],
+            bufsize=bufsize,
+            format=format,
+        )
+    elif astreams and not vstreams: # audio-only stream
+        stream = ffmpeg.output(
+            audio,
+            str(outfile),
+            # Set output audio bitrate to 128kbps for projection.
+            audio_bitrate=audio_bitrate,
+            format=format,
+        )
+    return stream
+
+def build_convert_stream(infile, outfile, rates):
+    # Get stream details.
+    audio_streams, video_streams, audio, video = split_into_streams(infile)
 
     # Determine frame rate of input video.
     fps = rates[1] # default value
@@ -127,45 +163,12 @@ def build_convert_command(infile, outfile, rates):
     video = ffmpeg.filter(video, 'fps', fps)
 
     # Output correct stream.
-    if video_streams and audio_streams:
-        stream = ffmpeg.output(
-            video, audio,
-            str(outfile),
-            # Set output video bitrate to 500kbps for projection.
-            video_bitrate=rates[0],
-            maxrate=rates[0],
-            bufsize=bufsize,
-            # Set output audio bitrate to 128kbps for projection.
-            audio_bitrate=audio_bitrate,
-            format=format,
-        )
-    elif video_streams and not audio_streams:
-        stream = ffmpeg.output(
-            video,
-            str(outfile),
-            # Set output video bitrate to 500kbps for projection.
-            video_bitrate=rates[0],
-            maxrate=rates[0],
-            bufsize=bufsize,
-            format=format,
-        )
-    elif audio_streams and not video_streams: # audio-only stream
-        stream = ffmpeg.output(
-            audio,
-            str(outfile),
-            # Set output audio bitrate to 128kbps for projection.
-            audio_bitrate=audio_bitrate,
-            format=format,
-        )
+    stream = generate_output_stream(video_streams, audio_streams, video, audio, rates, outfile)
     return stream
 
-def build_speed_command(infile, outfile, factor):
+def build_speed_stream(infile, outfile, factor, rates):
     # Get stream details.
     audio_streams, video_streams, audio, video = split_into_streams(infile)
-
-    # Define other output constants.
-    bufsize = 100000
-    format = 'mp4'
 
     # Set playback timestamps.
     video = ffmpeg.filter(video, 'setpts', f"{str(1 / factor)}*PTS")
@@ -173,50 +176,31 @@ def build_speed_command(infile, outfile, factor):
     audio = ffmpeg.filter(audio, 'atempo', f"{str(factor)}")
 
     # Output correct stream.
-    if video_streams and audio_streams:
-        stream = ffmpeg.output(
-            video, audio,
-            str(outfile),
-            format=format,
-        )
-    elif video_streams and not audio_streams:
-        stream = ffmpeg.output(
-            video,
-            str(outfile),
-            format=format,
-        )
-    elif audio_streams and not video_streams:
-        stream = ffmpeg.output(
-            audio,
-            str(outfile),
-            format=format,
-        )
+    stream = generate_output_stream(video_streams, audio_streams, video, audio, rates, outfile)
     return stream
 
-def build_trim_command(infile, outfile, endpoints):
-    # Get stream details.
-    # stream = ffmpeg.input(str(infile))
-    audio_streams, video_streams, audio, video = split_into_streams(infile)
+def build_trim_stream(infile, outfile, endpoints, rates):
+    # Get input file details.
+    file_info = get_properties(infile)
+    if file_info == 'placeholder':
+        audio_streams = ['placeholder']
+        video_streams = ['placeholder']
+    else:
+        audio_streams = [a for a in file_info if a['codec_type'] == 'audio']
+        video_streams = [v for v in file_info if v['codec_type'] == 'video']
 
-    # Define other output constants.
-    bufsize = 100000
-    audio = ffmpeg.filter(audio, 'atrim', start=endpoints[0], end=endpoints[1])
-    video = ffmpeg.filter(video, 'trim', start=endpoints[0], end=endpoints[1])
+    # Get stream details.
+    stream = ffmpeg.input(str(infile), **{'ss': endpoints[0]}, **{'to': endpoints[1]})
 
     # Output correct stream.
-    if video_streams and audio_streams:
-        stream = ffmpeg.output(video, audio, str(outfile))
-    elif video_streams and not audio_streams:
-        stream = ffmpeg.output(video, str(outfile))
-    elif audio_streams and not video_streams:
-        stream = ffmpeg.output(audio, str(outfile))
+    stream = ffmpeg.output(stream, str(outfile))
     return stream
 
 def show_command(args):
     if args.speed:
-        stream = build_speed_command('<infile>', '<outfile>.mp4', args.speed)
+        stream = build_speed_stream('<infile>', '<outfile>.mp4', args.speed)
     else:
-        stream = build_convert_command('<infile>', '<outfile.mp4>', args.rates)
+        stream = build_convert_stream('<infile>', '<outfile.mp4>', args.rates)
     print(f"NOTE: If you run the ffmpeg command directly, the argument after -filter_complex needs to be quoted.\n")
     print(f"ffmpeg {' '.join(ffmpeg.get_args(stream))}\n")
 
@@ -275,10 +259,10 @@ def main():
             show_properties(input_file)
         elif args.speed:
             # Attempt to change the playback speed of all passed video files.
-            change_playback_speed(input_file, args.speed)
+            change_playback_speed(input_file, args.speed, args.rates)
         elif args.trim:
             # Trim the file using given timestamps.
-            trim_file(input_file, args.trim)
+            trim_file(input_file, args.trim, args.rates)
         else:
             # Attempt to normalize all passed video files.
             convert_file(input_file, args.rates)
