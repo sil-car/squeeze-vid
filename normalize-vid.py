@@ -21,7 +21,7 @@ def validate_file(input_file_string):
 
 def parse_timestamp(timestamp):
     """
-    Return timestamp string as a float of total seconds.
+    Return timestamp string HH:MM:SS as a float of total seconds.
     """
     parts = timestamp.split(':')
     seconds = 0.0
@@ -240,7 +240,7 @@ def main():
         '-k', '--trim',
         nargs=2,
         type=str,
-        help="Trim the file to content between given timestamps (s)."
+        help="Trim the file to content between given timestamps (HH:MM:SS)."
     )
     parser.add_argument(
         "video",
