@@ -1,13 +1,27 @@
 #!/usr/bin/env python3
 
+import sys
+from pathlib import Path
+
+# Ensure that virutal environment is activated.
+bin_dir = Path(sys.prefix)
+if bin_dir.name == 'usr':
+    script_dir = Path(__file__).parent
+    env_full_path = script_dir.resolve() / 'env'
+    if env_full_path.is_dir():
+        activate_path = env_full_path / 'bin' / 'activate'
+    else:
+        print(f"ERROR: Virtual environment not found at \"{env_full_path}\"")
+        exit(1)
+    # Virtual environment not activated.
+    print("ERROR: Need to activate virtual environment:")
+    print(f"$ . {activate_path}")
+    exit(1)
+
 import argparse
 import ffmpeg
 # ffmpeg API: https://kkroening.github.io/ffmpeg-python
 # ffmpeg Ex: https://github.com/kkroening/ffmpeg-python
-import sys
-
-from pathlib import Path
-
 
 def validate_file(input_file_string):
     # Get full path to input file.
@@ -205,6 +219,7 @@ def show_command(args):
     print(f"ffmpeg {' '.join(ffmpeg.get_args(stream))}\n")
 
 def main():
+
     # Build arguments and options list.
     description = "Convert video file to MP4, ensuring baseline video quality:\n\
   * Default:  720p, 500 Kbps, 25 fps for projected video\n\
