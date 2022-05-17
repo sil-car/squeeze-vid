@@ -29,7 +29,7 @@ def validate_file(input_file_string):
     #   .resolve() expands relative paths and symlinks
     input_file = Path(input_file_string).expanduser().resolve()
     if not input_file.is_file():
-        print(f"Error: invalid input file: {file_path}")
+        # print(f"Error: invalid input file: {input_file_string}")
         return None
     return input_file
 
@@ -68,6 +68,25 @@ def show_properties(infile):
             print(f"{k:<24} {v}")
         print()
 
+def get_outfile(input_file, details):
+    # Output to same directory as input_file; i.e. only change the filename, not the path.
+    if details.get('function') == 'change_playback_speed':
+        # Use speed factor and suffix in outfile.
+        return input_file.with_name(f"{input_file.stem}_{str(details.get('factor'))}x{input_file.suffix}")
+    elif details.get('function') == 'convert_file':
+        vbitrate = round(details.get('video_bitrate')/1000)
+        abitrate = round(details.get('audio_bitrate')/1000)
+        if details.get('suffix') == '.mp4':
+            # Use video_bitrate, framerate, audio_bitrate, and suffix in outfile.
+            specs_str = f"v{vbitrate}kbps_{details.get('framerate')}fps_a{abitrate}kbps"
+        elif details.get('suffix') == '.mp3':
+            # Use audio_bitrate and suffix in outfile.
+            specs_str = f"a{round(abitrate)}kbps"
+        return input_file.with_name(f"{input_file.stem}_{specs_str}{details.get('suffix')}")
+    elif details.get('function') == 'trim_file':
+        # Use duration and suffix in outfile.
+        return input_file.with_name(f"{input_file.stem}_{details.get('duration')}s{details.get('suffix')}")
+
 def split_into_streams(infile):
     # Get input file details.
     file_info = get_properties(infile)
@@ -84,52 +103,42 @@ def split_into_streams(infile):
     audio = stream.audio #stream['a']
     return audio_streams, video_streams, audio, video
 
-def change_playback_speed(input_file_string, factor, rates):
-    # Validate input_file.
-    input_file = validate_file(input_file_string)
-    if not input_file:
-        return
-
-    output_file = input_file.with_name(f"{input_file.stem}.{str(factor)}.mp4")
+def change_playback_speed(input_file, factor, rates):
+    details = {
+        'factor': factor,
+        'function': 'change_playback_speed',
+        'suffix': input_file.suffix,
+    }
+    output_file = get_outfile(input_file, details)
     stream = build_speed_stream(input_file, output_file, factor, rates)
     ffmpeg.run(stream, overwrite_output=True, capture_stdout=True)
 
-def convert_file(input_file_string, rates, output_format='mp4'):
-    # Validate input_file.
-    input_file = validate_file(input_file_string)
-    if not input_file:
-        return
-
-    audio_bitrate = rates[0]
-    video_bitrate = rates[1]
-    framerate = rates[2]
-
-    if output_format == 'mp4':
-        # Create output_file name by adding specs to input_file name.
-        #   Output to same directory as input_file.
-        specs_str = f"v{round(video_bitrate/1000)}kbps_{framerate}fps_a{round(audio_bitrate/1000)}kbps"
-        output_file = input_file.with_name(f"{input_file.stem}_{specs_str}.mp4")
+def convert_file(input_file, rates, output_format='.mp4'):
+    details = {
+        'audio_bitrate': rates[0],
+        'framerate': rates[2],
+        'function': 'convert_file',
+        'suffix': output_format,
+        'video_bitrate': rates[1],
+    }
+    output_file = get_outfile(input_file, details)
+    if output_format == '.mp4':
         stream = build_video_stream(input_file, output_file, rates)
-    elif output_format == 'mp3':
-        # Output to same directory as input_file.
-        specs_str = f"a{round(audio_bitrate/1000)}kbps"
-        output_file = input_file.with_name(f"{input_file.stem}_{specs_str}.mp3")
+    elif output_format == '.mp3':
         stream = build_audio_stream(input_file, output_file, rates)
     ffmpeg.run(stream, overwrite_output=True, capture_stdout=True)
 
-def trim_file(input_file_string, endpoints, rates):
-    # Validate input file.
-    input_file = validate_file(input_file_string)
-    if not input_file:
-        return
-
+def trim_file(input_file, endpoints, rates):
     # Convert timestamp(s) to seconds.
     endpoints = [parse_timestamp(e) for e in endpoints]
     duration = endpoints[1] -  endpoints[0]
 
-    # Create output_file name by adding "k" to input_file name.
-    #   Output to same directory as input_file.
-    output_file = input_file.with_name(f"{input_file.stem}_{duration}s.mp4")
+    details = {
+        'duration': duration,
+        'function': 'trim_file',
+        'suffix': input_file.suffix,
+    }
+    output_file = get_outfile(input_file, details)
     stream = build_trim_stream(input_file, output_file, endpoints, rates)
     ffmpeg.run(stream, overwrite_output=True, capture_stdout=True)
 
@@ -210,7 +219,10 @@ def build_speed_stream(infile, outfile, factor, rates):
     audio_streams, video_streams, audio, video = split_into_streams(infile)
 
     # Set playback timestamps.
-    video = ffmpeg.filter(video, 'setpts', f"{str(1 / factor)}*PTS")
+    if Path(infile).suffix == '.mp3':
+        video = None
+    else:
+        video = ffmpeg.filter(video, 'setpts', f"{str(1 / factor)}*PTS")
     # Adjust audio speed.
     audio = ffmpeg.filter(audio, 'atempo', f"{str(factor)}")
 
@@ -237,7 +249,7 @@ def build_trim_stream(infile, outfile, endpoints, rates):
 
 def show_command(args):
     if args.speed:
-        stream = build_speed_stream('<infile>', '<outfile>.mp4', args.speed)
+        stream = build_speed_stream('<infile>', '<outfile>.mp4', args.speed, args.rates)
     else:
         stream = build_video_stream('<infile>', '<outfile.mp4>', args.rates)
     print(f"NOTE: If you run the ffmpeg command directly, the argument after -filter_complex needs to be quoted.\n")
@@ -270,7 +282,7 @@ def main():
     parser.add_argument(
         '-s', '--speed',
         type=float,
-        help="Change the playback speed of the video using the given factor (0 to 1).",
+        help="Change the playback speed of the video using the given factor (0.5 to 100).",
     )
     parser.add_argument(
         '-t', '--tutorial',
@@ -296,8 +308,14 @@ def main():
     if args.command:
         # Show the ffmpeg bash command.
         show_command(args)
+        exit()
 
-    for input_file in args.video:
+    for input_file_string in args.video:
+        # Validate input_file.
+        input_file = validate_file(input_file_string)
+        if not input_file:
+            print(f"Skipped invalid input file: {input_file_string}")
+            continue
         if args.info:
             # Show the video file info.
             show_properties(input_file)
@@ -309,10 +327,10 @@ def main():
             trim_file(input_file, args.trim, args.rates)
         elif args.audio:
             # Convert file(s) to normalized MP3.
-            convert_file(input_file, args.rates, output_format='mp3')
+            convert_file(input_file, args.rates, output_format='.mp3')
         else:
             # Attempt to normalize all passed video files.
-            convert_file(input_file, args.rates, output_format='mp4')
+            convert_file(input_file, args.rates, output_format=Path(input_file).suffix)
 
 
 if __name__ == '__main__':
