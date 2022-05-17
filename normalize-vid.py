@@ -94,16 +94,27 @@ def change_playback_speed(input_file_string, factor, rates):
     stream = build_speed_stream(input_file, output_file, factor, rates)
     ffmpeg.run(stream, overwrite_output=True, capture_stdout=True)
 
-def convert_file(input_file_string, rates):
+def convert_file(input_file_string, rates, output_format='mp4'):
     # Validate input_file.
     input_file = validate_file(input_file_string)
     if not input_file:
         return
 
-    # Create output_file name by adding ".n" to input_file name.
-    #   Output to same directory as input_file.
-    output_file = input_file.with_name(f"{input_file.stem}.n.mp4")
-    stream = build_convert_stream(input_file, output_file, rates)
+    audio_bitrate = rates[0]
+    video_bitrate = rates[1]
+    framerate = rates[2]
+
+    if output_format == 'mp4':
+        # Create output_file name by adding specs to input_file name.
+        #   Output to same directory as input_file.
+        specs_str = f"v{round(video_bitrate/1000)}kbps_{framerate}fps_a{round(audio_bitrate/1000)}kbps"
+        output_file = input_file.with_name(f"{input_file.stem}_{specs_str}.mp4")
+        stream = build_video_stream(input_file, output_file, rates)
+    elif output_format == 'mp3':
+        # Output to same directory as input_file.
+        specs_str = f"a{round(audio_bitrate/1000)}kbps"
+        output_file = input_file.with_name(f"{input_file.stem}_{specs_str}.mp3")
+        stream = build_audio_stream(input_file, output_file, rates)
     ffmpeg.run(stream, overwrite_output=True, capture_stdout=True)
 
 def trim_file(input_file_string, endpoints, rates):
@@ -114,17 +125,19 @@ def trim_file(input_file_string, endpoints, rates):
 
     # Convert timestamp(s) to seconds.
     endpoints = [parse_timestamp(e) for e in endpoints]
+    duration = endpoints[1] -  endpoints[0]
 
     # Create output_file name by adding "k" to input_file name.
     #   Output to same directory as input_file.
-    output_file = input_file.with_name(f"{input_file.stem}.k.mp4")
+    output_file = input_file.with_name(f"{input_file.stem}_{duration}s.mp4")
     stream = build_trim_stream(input_file, output_file, endpoints, rates)
     ffmpeg.run(stream, overwrite_output=True, capture_stdout=True)
 
 def generate_output_stream(vstreams, astreams, video, audio, rates, outfile):
     # Define output constants.
     bufsize = 100000
-    audio_bitrate = 128000
+    audio_bitrate = rates[0]
+    video_bitrate = rates[1]
     format = 'mp4'
 
     if vstreams and astreams:
@@ -132,8 +145,8 @@ def generate_output_stream(vstreams, astreams, video, audio, rates, outfile):
             video, audio,
             str(outfile),
             # Set output video bitrate to 500kbps for projection.
-            video_bitrate=rates[0],
-            maxrate=rates[0],
+            video_bitrate=video_bitrate,
+            maxrate=video_bitrate,
             bufsize=bufsize,
             # Set output audio bitrate to 128kbps for projection.
             audio_bitrate=audio_bitrate,
@@ -144,12 +157,13 @@ def generate_output_stream(vstreams, astreams, video, audio, rates, outfile):
             video,
             str(outfile),
             # Set output video bitrate to 500kbps for projection.
-            video_bitrate=rates[0],
-            maxrate=rates[0],
+            video_bitrate=video_bitrate,
+            maxrate=video_bitrate,
             bufsize=bufsize,
             format=format,
         )
     elif astreams and not vstreams: # audio-only stream
+        format = 'mp3'
         stream = ffmpeg.output(
             audio,
             str(outfile),
@@ -159,17 +173,28 @@ def generate_output_stream(vstreams, astreams, video, audio, rates, outfile):
         )
     return stream
 
-def build_convert_stream(infile, outfile, rates):
+def build_audio_stream(infile, outfile, rates):
+    # Get stream details.
+    audio_streams, video_streams, audio, video = split_into_streams(infile)
+
+    # Remove video streams.
+    video_streams = None
+
+    # Output correct stream.
+    stream = generate_output_stream(video_streams, audio_streams, video, audio, rates, outfile)
+    return stream
+
+def build_video_stream(infile, outfile, rates):
     # Get stream details.
     audio_streams, video_streams, audio, video = split_into_streams(infile)
 
     # Determine frame rate of input video.
-    fps = rates[1] # default value
+    fps = rates[2] # default value
     if video_streams and type(video_streams[0]) != str:
         # Determine maxiumum frame rate from first video stream in input file.
         avg_fps_str = video_streams[0]['avg_frame_rate'] # picks 1st video stream in list
         avg_fps = round(int(avg_fps_str.split('/')[0]) / int(avg_fps_str.split('/')[1]))
-        fps = min([avg_fps, rates[1]])
+        fps = min([avg_fps, fps])
 
     # Define video max height to 720p (nominal HD).
     video = ffmpeg.filter(video, 'scale', -1, 'min(720, ih)')
@@ -214,12 +239,11 @@ def show_command(args):
     if args.speed:
         stream = build_speed_stream('<infile>', '<outfile>.mp4', args.speed)
     else:
-        stream = build_convert_stream('<infile>', '<outfile.mp4>', args.rates)
+        stream = build_video_stream('<infile>', '<outfile.mp4>', args.rates)
     print(f"NOTE: If you run the ffmpeg command directly, the argument after -filter_complex needs to be quoted.\n")
     print(f"ffmpeg {' '.join(ffmpeg.get_args(stream))}\n")
 
 def main():
-
     # Build arguments and options list.
     description = "Convert video file to MP4, ensuring baseline video quality:\n\
   * Default:  720p, 500 Kbps, 25 fps for projected video\n\
@@ -228,6 +252,11 @@ def main():
         description=description,
         formatter_class=argparse.RawDescriptionHelpFormatter,
         )
+    parser.add_argument(
+        '-a', '--audio',
+        action='store_true',
+        help="Convert file(s) to MP3 audio."
+    )
     parser.add_argument(
         '-c', '--command',
         action='store_true',
@@ -247,8 +276,8 @@ def main():
         '-t', '--tutorial',
         dest='rates',
         action='store_const',
-        const=(200000, 10),
-        default=(500000, 25),
+        const=(128000, 200000, 10),
+        default=(128000, 500000, 25),
         help="Use lower bitrate and fewer fps for short tutorial videos."
     )
     parser.add_argument(
@@ -278,9 +307,12 @@ def main():
         elif args.trim:
             # Trim the file using given timestamps.
             trim_file(input_file, args.trim, args.rates)
+        elif args.audio:
+            # Convert file(s) to normalized MP3.
+            convert_file(input_file, args.rates, output_format='mp3')
         else:
             # Attempt to normalize all passed video files.
-            convert_file(input_file, args.rates)
+            convert_file(input_file, args.rates, output_format='mp4')
 
 
 if __name__ == '__main__':
