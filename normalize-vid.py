@@ -103,7 +103,7 @@ def split_into_streams(infile):
     audio = stream.audio #stream['a']
     return audio_streams, video_streams, audio, video
 
-def change_playback_speed(input_file, factor, rates):
+def change_playback_speed(input_file, factor, rates, cmd):
     details = {
         'factor': factor,
         'function': 'change_playback_speed',
@@ -111,9 +111,12 @@ def change_playback_speed(input_file, factor, rates):
     }
     output_file = get_outfile(input_file, details)
     stream = build_speed_stream(input_file, output_file, factor, rates)
+    if cmd:
+        print_command(stream)
+        return
     ffmpeg.run(stream, overwrite_output=True, capture_stdout=True)
 
-def convert_file(input_file, rates, output_format='.mp4'):
+def convert_file(input_file, rates, cmd, output_format='.mp4'):
     details = {
         'audio_bitrate': rates[0],
         'framerate': rates[2],
@@ -126,9 +129,12 @@ def convert_file(input_file, rates, output_format='.mp4'):
         stream = build_video_stream(input_file, output_file, rates)
     elif output_format == '.mp3':
         stream = build_audio_stream(input_file, output_file, rates)
+    if cmd:
+        print_command(stream)
+        return
     ffmpeg.run(stream, overwrite_output=True, capture_stdout=True)
 
-def trim_file(input_file, endpoints, rates):
+def trim_file(input_file, endpoints, rates, cmd):
     # Convert timestamp(s) to seconds.
     endpoints = [parse_timestamp(e) for e in endpoints]
     duration = endpoints[1] -  endpoints[0]
@@ -140,6 +146,9 @@ def trim_file(input_file, endpoints, rates):
     }
     output_file = get_outfile(input_file, details)
     stream = build_trim_stream(input_file, output_file, endpoints, rates)
+    if cmd:
+        print_command(stream)
+        return
     ffmpeg.run(stream, overwrite_output=True, capture_stdout=True)
 
 def generate_output_stream(vstreams, astreams, video, audio, rates, outfile):
@@ -247,13 +256,13 @@ def build_trim_stream(infile, outfile, endpoints, rates):
     stream = ffmpeg.output(stream, str(outfile))
     return stream
 
-def show_command(args):
-    if args.speed:
-        stream = build_speed_stream('<infile>', '<outfile>.mp4', args.speed, args.rates)
-    else:
-        stream = build_video_stream('<infile>', '<outfile.mp4>', args.rates)
-    print(f"NOTE: If you run the ffmpeg command directly, the argument after -filter_complex needs to be quoted.\n")
-    print(f"ffmpeg {' '.join(ffmpeg.get_args(stream))}\n")
+def print_command(stream):
+    command = ffmpeg.get_args(stream)
+    for i, item in enumerate(ffmpeg.get_args(stream)):
+        if item == '-filter_complex':
+            command[i+1] = f"\"{command[i+1]}\""
+            break
+    print(f"ffmpeg {' '.join(command)}\n")
 
 def main():
     # Build arguments and options list.
@@ -305,10 +314,6 @@ def main():
     )
 
     args = parser.parse_args()
-    if args.command:
-        # Show the ffmpeg bash command.
-        show_command(args)
-        exit()
 
     for input_file_string in args.video:
         # Validate input_file.
@@ -316,21 +321,22 @@ def main():
         if not input_file:
             print(f"Skipped invalid input file: {input_file_string}")
             continue
+
         if args.info:
             # Show the video file info.
             show_properties(input_file)
         elif args.speed:
             # Attempt to change the playback speed of all passed video files.
-            change_playback_speed(input_file, args.speed, args.rates)
+            change_playback_speed(input_file, args.speed, args.rates, args.command)
         elif args.trim:
             # Trim the file using given timestamps.
-            trim_file(input_file, args.trim, args.rates)
+            trim_file(input_file, args.trim, args.rates, args.command)
         elif args.audio:
             # Convert file(s) to normalized MP3.
-            convert_file(input_file, args.rates, output_format='.mp3')
+            convert_file(input_file, args.rates, args.command, output_format='.mp3')
         else:
             # Attempt to normalize all passed video files.
-            convert_file(input_file, args.rates, output_format=Path(input_file).suffix)
+            convert_file(input_file, args.rates, args.command, output_format=Path(input_file).suffix)
 
 
 if __name__ == '__main__':
