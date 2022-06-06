@@ -1,22 +1,17 @@
 #!/usr/bin/env python3
 
+import os
 import sys
 from pathlib import Path
 
 # Ensure that virutal environment is activated.
-bin_dir = Path(sys.prefix)
-if bin_dir.name == 'usr':
-    script_dir = Path(__file__).parent
-    env_full_path = script_dir.resolve() / 'env'
-    if env_full_path.is_dir():
-        activate_path = env_full_path / 'bin' / 'activate'
-    else:
-        print(f"ERROR: Virtual environment not found at \"{env_full_path}\"")
-        exit(1)
-    # Virtual environment not activated.
-    print("ERROR: Need to activate virtual environment:")
-    print(f"$ . {activate_path}")
+repo_root = Path(__file__).resolve().parent # script is assumed to be at top of repo
+auto_activate_file = Path(f"{(repo_root)}/env/bin/auto_activate.py")
+if not auto_activate_file.is_file():
+    print(f"ERROR: {auto_activate_file} doesn't exist.")
     exit(1)
+with open(auto_activate_file) as f:
+    exec(f.read(), {'__file__': auto_activate_file})
 
 import argparse
 import ffmpeg
@@ -115,6 +110,7 @@ def change_playback_speed(input_file, factor, rates, cmd):
         print_command(stream)
         return
     ffmpeg.run(stream, overwrite_output=True, capture_stdout=True)
+    return output_file
 
 def convert_file(input_file, rates, cmd, output_format='.mp4'):
     details = {
@@ -133,8 +129,9 @@ def convert_file(input_file, rates, cmd, output_format='.mp4'):
         print_command(stream)
         return
     ffmpeg.run(stream, overwrite_output=True, capture_stdout=True)
+    return output_file
 
-def trim_file(input_file, endpoints, rates, cmd):
+def trim_file(input_file, endpoints, cmd):
     # Convert timestamp(s) to seconds.
     endpoints = [parse_timestamp(e) for e in endpoints]
     duration = endpoints[1] -  endpoints[0]
@@ -145,11 +142,12 @@ def trim_file(input_file, endpoints, rates, cmd):
         'suffix': input_file.suffix,
     }
     output_file = get_outfile(input_file, details)
-    stream = build_trim_stream(input_file, output_file, endpoints, rates)
+    stream = build_trim_stream(input_file, output_file, endpoints)
     if cmd:
         print_command(stream)
         return
     ffmpeg.run(stream, overwrite_output=True, capture_stdout=True)
+    return output_file
 
 def generate_output_stream(vstreams, astreams, video, audio, rates, outfile):
     # Define output constants.
@@ -239,7 +237,7 @@ def build_speed_stream(infile, outfile, factor, rates):
     stream = generate_output_stream(video_streams, audio_streams, video, audio, rates, outfile)
     return stream
 
-def build_trim_stream(infile, outfile, endpoints, rates):
+def build_trim_stream(infile, outfile, endpoints):
     # Get input file details.
     file_info = get_properties(infile)
     if file_info == 'placeholder':
@@ -289,6 +287,16 @@ def main():
         help="Show audio and video properties of given file (only 1 accepted)."
     )
     parser.add_argument(
+        '-k', '--trim',
+        nargs=2,
+        type=str,
+        help="Trim the file to keep content between given timestamps (HH:MM:SS)."
+    )
+    parser.add_argument(
+        '-n', '--normalize',
+        help="Normalize video reslution, bitrate, and framerate. This is also the default action if no options are given."
+    )
+    parser.add_argument(
         '-s', '--speed',
         type=float,
         help="Change the playback speed of the video using the given factor (0.5 to 100).",
@@ -302,12 +310,6 @@ def main():
         help="Use lower bitrate and fewer fps for short tutorial videos."
     )
     parser.add_argument(
-        '-k', '--trim',
-        nargs=2,
-        type=str,
-        help="Trim the file to content between given timestamps (HH:MM:SS)."
-    )
-    parser.add_argument(
         "video",
         nargs='*',
         help="Space-separated list of video files to normalize."
@@ -318,6 +320,8 @@ def main():
     for input_file_string in args.video:
         # Validate input_file.
         input_file = validate_file(input_file_string)
+        mod_file = Path()
+        mod_file_prev = Path()
         if not input_file:
             print(f"Skipped invalid input file: {input_file_string}")
             continue
@@ -325,18 +329,39 @@ def main():
         if args.info:
             # Show the video file info.
             show_properties(input_file)
-        elif args.speed:
-            # Attempt to change the playback speed of all passed video files.
-            change_playback_speed(input_file, args.speed, args.rates, args.command)
-        elif args.trim:
+            continue
+        if args.trim:
             # Trim the file using given timestamps.
-            trim_file(input_file, args.trim, args.rates, args.command)
-        elif args.audio:
+            mod_file = trim_file(input_file, args.trim, args.command)
+        if args.speed:
+            # Use mod_file from previous step as input_file if it exists.
+            if mod_file.is_file():
+                input_file = mod_file
+                mod_file_prev = mod_file
+            # Attempt to change the playback speed of all passed video files.
+            mod_file = change_playback_speed(input_file, args.speed, args.rates, args.command)
+            # Delete any file from previous step.
+            # if mod_file_prev.is_file(): mod_file_prev.unlink()
+        if args.audio:
+            # Use mod_file from previous step as input_file if it exists.
+            if mod_file.is_file():
+                input_file = mod_file
+                mod_file_prev = mod_file
             # Convert file(s) to normalized MP3.
-            convert_file(input_file, args.rates, args.command, output_format='.mp3')
-        else:
+            mod_file = convert_file(input_file, args.rates, args.command, output_format='.mp3')
+            # Delete any file from previous step.
+            # if mod_file_prev.is_file(): mod_file_prev.unlink()
+        if (args.normalize or args.rates[2] == 10 or
+                (not args.info and not args.trim and not args.speed and not args.audio)):
+            # Use mod_file from previous step as input_file if it exists.
+            if mod_file.is_file():
+                input_file = mod_file
+                mod_file_prev = mod_file
             # Attempt to normalize all passed video files.
-            convert_file(input_file, args.rates, args.command, output_format=Path(input_file).suffix)
+            # input_file = convert_file(input_file, args.rates, args.command, output_format=Path(input_file).suffix)
+            mod_file = convert_file(input_file, args.rates, args.command)
+            # Delete any file from previous step.
+            # if mod_file_prev.is_file(): mod_file_prev.unlink()
 
 
 if __name__ == '__main__':
