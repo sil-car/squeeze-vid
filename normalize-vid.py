@@ -254,7 +254,9 @@ def build_trim_stream(infile, outfile, endpoints):
 
     # Set correct output stream.
     #   The -ss and -to options are given here so that the subtitles are properly
-    #   handled. This is not the case when the options are given to the input file.
+    #   handled. This doesn't work correctly when the options are given to the
+    #   input stream.
+    #   The existing codec is copied to speed things up by avoiding re-encoding.
     stream = ffmpeg.output(
         video, audio, str(outfile),
         **{'ss': endpoints[0]}, **{'to': endpoints[1]}, **{'c': 'copy'},
