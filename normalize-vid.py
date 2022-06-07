@@ -109,7 +109,10 @@ def change_playback_speed(input_file, factor, rates, cmd):
     if cmd:
         print_command(stream)
         return
-    ffmpeg.run(stream, overwrite_output=True, capture_stdout=True)
+    try:
+        ffmpeg.run(stream, overwrite_output=True, capture_stdout=True)
+    except ffmpeg._run.Error as e:
+        exit(1)
     return output_file
 
 def convert_file(input_file, rates, cmd, output_format='.mp4'):
@@ -128,7 +131,10 @@ def convert_file(input_file, rates, cmd, output_format='.mp4'):
     if cmd:
         print_command(stream)
         return
-    ffmpeg.run(stream, overwrite_output=True, capture_stdout=True)
+    try:
+        ffmpeg.run(stream, overwrite_output=True, capture_stdout=True)
+    except ffmpeg._run.Error as e:
+        exit(1)
     return output_file
 
 def trim_file(input_file, endpoints, cmd):
@@ -146,7 +152,10 @@ def trim_file(input_file, endpoints, cmd):
     if cmd:
         print_command(stream)
         return
-    ffmpeg.run(stream, overwrite_output=True, capture_stdout=True)
+    try:
+        ffmpeg.run(stream, overwrite_output=True, capture_stdout=True)
+    except ffmpeg._run.Error as e:
+        exit(1)
     return output_file
 
 def generate_output_stream(vstreams, astreams, video, audio, rates, outfile):
@@ -275,7 +284,10 @@ def main():
     # Build arguments and options list.
     description = "Convert video file to MP4, ensuring baseline video quality:\n\
   * Default:  720p, 500 Kbps, 25 fps for projected video\n\
-  * Tutorial: 720p, 200 Kbps, 10 fps for tutorial video"
+  * Tutorial: 720p, 200 Kbps, 10 fps for tutorial video\n\
+\n\
+Also perform other useful operations on media files."
+
     parser = argparse.ArgumentParser(
         description=description,
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -288,12 +300,12 @@ def main():
     parser.add_argument(
         '-c', '--command',
         action='store_true',
-        help="Print the equivalent ffmpeg bash command."
+        help="Print the equivalent ffmpeg bash command and exit."
     )
     parser.add_argument(
         '-i', '--info',
         action='store_true',
-        help="Show audio and video properties of given file (only 1 accepted)."
+        help="Show stream properties of given file (only 1 accepted)."
     )
     parser.add_argument(
         '-k', '--trim',
@@ -319,14 +331,14 @@ def main():
         help="Use lower bitrate and fewer fps for short tutorial videos."
     )
     parser.add_argument(
-        "video",
+        "file",
         nargs='*',
-        help="Space-separated list of video files to normalize."
+        help="Space-separated list of media files to modify."
     )
 
     args = parser.parse_args()
 
-    for input_file_string in args.video:
+    for input_file_string in args.file:
         # Validate input_file.
         input_file = validate_file(input_file_string)
         mod_file = Path()
@@ -366,7 +378,7 @@ def main():
             if mod_file.is_file():
                 input_file = mod_file
                 mod_file_prev = mod_file
-            # Attempt to normalize all passed video files.
+            # Attempt to normalize all passed files.
             # input_file = convert_file(input_file, args.rates, args.command, output_format=Path(input_file).suffix)
             mod_file = convert_file(input_file, args.rates, args.command)
             # Delete any file from previous step.
