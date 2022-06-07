@@ -247,11 +247,18 @@ def build_trim_stream(infile, outfile, endpoints):
         audio_streams = [a for a in file_info if a['codec_type'] == 'audio']
         video_streams = [v for v in file_info if v['codec_type'] == 'video']
 
-    # Get stream details.
-    stream = ffmpeg.input(str(infile), **{'ss': endpoints[0]}, **{'to': endpoints[1]})
+    # Get input stream details.
+    stream = ffmpeg.input(str(infile))
+    video = stream.video
+    audio = stream.audio
 
-    # Output correct stream.
-    stream = ffmpeg.output(stream, str(outfile))
+    # Set correct output stream.
+    #   The -ss and -to options are given here so that the subtitles are properly
+    #   handled. This is not the case when the options are given to the input file.
+    stream = ffmpeg.output(
+        video, audio, str(outfile),
+        **{'ss': endpoints[0]}, **{'to': endpoints[1]}, **{'c': 'copy'},
+    )
     return stream
 
 def print_command(stream):
