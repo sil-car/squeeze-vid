@@ -5,13 +5,14 @@ import sys
 from pathlib import Path
 
 # Ensure that virutal environment is activated.
-repo_root = Path(__file__).resolve().parent # script is assumed to be at top of repo
-auto_activate_file = Path(f"{(repo_root)}/env/bin/auto_activate.py")
-if not auto_activate_file.is_file():
-    print(f"ERROR: {auto_activate_file} doesn't exist.")
-    exit(1)
-with open(auto_activate_file) as f:
-    exec(f.read(), {'__file__': auto_activate_file})
+if not os.environ.get('VIRTUAL_ENV'):
+    repo_root = Path(__file__).resolve().parent # script is assumed to be at top of repo
+    auto_activate_file = Path(f"{(repo_root)}/env/bin/auto_activate.py")
+    if not auto_activate_file.is_file():
+        print(f"ERROR: {auto_activate_file} doesn't exist.")
+        exit(1)
+    with open(auto_activate_file) as f:
+        exec(f.read(), {'__file__': auto_activate_file})
 
 import argparse
 import ffmpeg
