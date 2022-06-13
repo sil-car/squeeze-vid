@@ -161,9 +161,9 @@ def trim_file(input_file, endpoints, cmd):
 
 def generate_output_stream(vstreams, astreams, video, audio, rates, outfile):
     # Define output constants.
-    bufsize = 100000
     audio_bitrate = rates[0]
     video_bitrate = rates[1]
+    bufsize = video_bitrate/2 # allows for minimal variation in actual bitrate
     format = 'mp4'
 
     if vstreams and astreams:
@@ -327,8 +327,8 @@ Also perform other useful operations on media files."
         '-t', '--tutorial',
         dest='rates',
         action='store_const',
-        const=(128000, 200000, 10),
-        default=(128000, 500000, 25),
+        const=(128000, 500000, 10),
+        default=(128000, 2000000, 25),
         help="Use lower bitrate and fewer fps for short tutorial videos."
     )
     parser.add_argument(
