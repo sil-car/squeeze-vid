@@ -138,7 +138,7 @@ def convert_file(input_file, rates, cmd, output_format='.mp4'):
         exit(1)
     return output_file
 
-def trim_file(input_file, endpoints, cmd):
+def trim_file(input_file, endpoints, cmd, output_format='.mp4'):
     # Convert timestamp(s) to seconds.
     endpoints = [parse_timestamp(e) for e in endpoints]
     duration = endpoints[1] -  endpoints[0]
@@ -146,7 +146,7 @@ def trim_file(input_file, endpoints, cmd):
     details = {
         'duration': duration,
         'function': 'trim_file',
-        'suffix': input_file.suffix,
+        'suffix': output_format,
     }
     output_file = get_outfile(input_file, details)
     stream = build_trim_stream(input_file, output_file, endpoints)
@@ -266,10 +266,11 @@ def build_trim_stream(infile, outfile, endpoints):
     #   The -ss and -to options are given here so that the subtitles are properly
     #   handled. This doesn't work correctly when the options are given to the
     #   input stream.
-    #   The existing codec is copied to speed things up by avoiding re-encoding.
+    #   Video is re-encoded to make beginning and end frames sync well, and to
+    #       output as MP4 regardless of input file format.
     stream = ffmpeg.output(
         video, audio, str(outfile),
-        **{'ss': endpoints[0]}, **{'to': endpoints[1]}, **{'c': 'copy'},
+        **{'ss': endpoints[0]}, **{'to': endpoints[1]}, **{'c:a': 'copy'}, **{'c:v': 'libx264'},
     )
     return stream
 
