@@ -9,10 +9,11 @@ if not os.environ.get('VIRTUAL_ENV'):
     repo_root = Path(__file__).resolve().parent # script is assumed to be at top of repo
     auto_activate_file = Path(f"{(repo_root)}/env/bin/auto_activate.py")
     if not auto_activate_file.is_file():
-        print(f"ERROR: {auto_activate_file} doesn't exist.")
+        print(f"Error: {auto_activate_file} doesn't exist.")
         exit(1)
     with open(auto_activate_file) as f:
         exec(f.read(), {'__file__': auto_activate_file})
+        print(f"Info: Virtual environment activated automatically.")
 
 import argparse
 import ffmpeg
@@ -124,6 +125,7 @@ def convert_file(input_file, rates, cmd, output_format='.mp4'):
         'suffix': output_format,
         'video_bitrate': rates[1],
     }
+    # TODO: Keep input_file bitrate if less than details['video_bitrate'].
     output_file = get_outfile(input_file, details)
     if output_format == '.mp4':
         stream = build_video_stream(input_file, output_file, rates)
