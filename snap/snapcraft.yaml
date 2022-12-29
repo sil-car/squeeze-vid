@@ -1,0 +1,22 @@
+name: squeeze
+summary: Normalize videos to a minimal, projection-compatible quality.
+description: |
+      Normalize videos and audio files to a standardized frame rate and quality
+      to minimize the file size while maintaining adequate quality for video
+      projection.
+version: git
+grade: stable
+confinement: devmode
+base: core20
+architectures:
+  - build-on: [arm64, armhf, amd64]
+
+apps:
+  squeeze:
+    command: bin/squeeze
+    plugs: [home, removable-media]
+
+parts:
+  squeeze:
+    plugin: python
+    source: https://github.com/sil-car/squeeze.git
