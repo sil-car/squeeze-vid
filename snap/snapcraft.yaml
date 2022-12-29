@@ -25,7 +25,8 @@ parts:
     override-build: |
       # Install dephell to convert pyproject.toml to setyp.py, which is req'd. by snapcraftctl.
       # https://forum.snapcraft.io/t/building-a-core20-python-snap-using-pyproject-toml/22028/2
-      pip3 install --user dephell[full]
+      # pip3 install --user dephell[full]
+      python3 -m pip install --user dephell[full]
       PATH=$HOME/.local/bin:$PATH dephell deps convert --from-path=pyproject.toml --from-format=poetry --to-path=setup.py --to-format=setuppy
       snapcraftctl build
     # stage-packages:
