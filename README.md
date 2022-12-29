@@ -1,4 +1,4 @@
-# Squeeze
+# Squeeze Vid
 
 Normalize videos and audio files to a standardized frame rate and quality to minimize the file size while maintaining adequate quality for video projection.
 
@@ -11,25 +11,25 @@ Frame rate | 25 fps | 10 fps
 ## Usage
 ```bash
 # Clone and enter into repo.
-~$ git clone https:github.com/sil-car/squeeze.git
-~$ cd squeeze
-~/squeeze$
+~$ git clone https:github.com/sil-car/squeeze-vid.git
+~$ cd squeeze-vid
+~/squeeze-vid$
 
 # Create virtual environment.
-~/squeeze$ python3 -m venv env
+~/squeeze-vid$ python3 -m venv env
 
 # Activate virtual environment.
-~/squeeze$ source env/bin/activate
+~/squeeze-vid$ source env/bin/activate
 
 # Install enviroment dependencies from requirements.txt.
-(env) ~/squeeze$ pip3 install --requirement requirements.txt
+(env) ~/squeeze-vid$ pip3 install --requirement requirements.txt
 
 # See app help info.
-(env) ~/squeeze$ python3 squeeze.py --help
+(env) ~/squeeze-vid$ python3 squeeze-vid.py --help
 
 # Deactivate environment afterwards.
-(env) ~/squeeze$ deactivate
-~/squeeze$
+(env) ~/squeeze-vid$ deactivate
+~/squeeze-vid$
 ```
 
 ## Notes
