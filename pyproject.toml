@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+dependencies = [
+    "ffmpeg-python"
+    # "future"
+]
+dynamic = ["version"]
+name = "squeeze_vid"
+readme = "README.md"
+# requires-python = ">=3.8"
+
+[project.scripts]
+squeeze-vid = "squeeze_vid.squeeze_vid:main"
