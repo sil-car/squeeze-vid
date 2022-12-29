@@ -7,7 +7,7 @@ description: |
 version: git
 grade: stable
 confinement: devmode
-base: core20
+base: core18
 architectures:
   - build-on: [arm64, armhf, amd64]
 
@@ -28,5 +28,65 @@ parts:
       pip3 install --user dephell[full]
       PATH=$HOME/.local/bin:$PATH dephell deps convert --from-path=pyproject.toml --from-format=poetry --to-path=setup.py --to-format=setuppy
       snapcraftctl build
+    # stage-packages:
+    #   - ffmpeg
+
+  ffmpeg:
+    plugin: nil
+    stage-snaps:
+      - ffmpeg-integration-gplv3
     stage-packages:
-      - ffmpeg
+      ### Dynamic-linking safe dependencies
+      - libasound2
+      - libass9
+      - libbluray2
+      - libbs2b0
+      - libcaca0
+      - libdrm2
+      - libfontconfig1
+      - libfribidi0
+      - libgmp10
+      - libgraphite2-3
+      - libharfbuzz0b
+      - libmp3lame0
+      - try:
+        - libnuma1
+      - libogg0
+      - libopencore-amrnb0
+      - libopencore-amrwb0
+      - libopus0
+      - libslang2
+      - libtheora0
+      - libva-drm2
+      - libva-x11-2
+      - libva2
+      - libvdpau1
+      - libvo-amrwbenc0
+      - libvorbis0a
+      - libvorbisenc2
+      - libvpx5
+      - libx11-6
+      - libxau6
+      - libxcb-shape0
+      - libxcb-shm0
+      - libxcb-xfixes0
+      - libxdmcp6
+      - libxext6
+      - libxfixes3
+
+      ### GPL dependencies
+      - libcdio-cdda2
+      - libcdio-paranoia2
+      - libcdio17
+      - libfftw3-double3
+      - librubberband2
+      - libsamplerate0
+      - libx264-152
+      - libx265-146
+      - libxvidcore4
+
+      ### GPLv3 dependencies
+      - libsmbclient
+
+      ### non-free dependencies
+      #- libfdk-aac0
