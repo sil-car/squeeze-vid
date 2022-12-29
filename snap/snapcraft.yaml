@@ -32,5 +32,5 @@ parts:
       # PYTHONHOME=$SNAPCRAFT_PART_INSTALL/usr PYTHONUSERBASE=$SNAPCRAFT_PART_INSTALL dephell deps convert --from-path pyproject.toml --from-format poetry --to-path setup.py --to-format setuppy
       # https://forum.snapcraft.io/t/building-a-core20-python-snap-using-pyproject-toml/22028/2
       pip3 install --user dephell[full]
-      PATH=$HOME/.local/bin:$PATH dephell deps convert --from-path=pyproject.toml --to-path=setup.py
+      PATH=$HOME/.local/bin:$PATH dephell deps convert --from-path=pyproject.toml --from-format=poetry --to-path=setup.py --to-format=setuppy
       snapcraftctl build
