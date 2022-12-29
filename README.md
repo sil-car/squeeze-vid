@@ -25,7 +25,7 @@ Frame rate | 25 fps | 10 fps
 (env) ~/squeeze-vid$ pip3 install --requirement requirements.txt
 
 # See app help info.
-(env) ~/squeeze-vid$ python3 squeeze-vid.py --help
+(env) ~/squeeze-vid$ python3 squeeze_vid/squeeze_vid.py --help
 
 # Deactivate environment afterwards.
 (env) ~/squeeze-vid$ deactivate
