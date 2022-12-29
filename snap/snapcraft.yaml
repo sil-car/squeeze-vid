@@ -23,13 +23,7 @@ parts:
     build-packages:
       - python3-pip
     override-build: |
-      # https://raw.githubusercontent.com/anonymouse64/streamdeck-ui-snap/master/snap/snapcraft.yaml
-      # install pip manually in the build environment so we can install dephell
-      # and use it to convert the poetry based pyproject.yoml to setuppy, which
-      # snapcraft's python plugin can then build by itself
-      # PYTHONHOME=$SNAPCRAFT_PART_INSTALL/usr PYTHONUSERBASE=$SNAPCRAFT_PART_INSTALL $SNAPCRAFT_PART_INSTALL/usr/bin/python3 -m pip install --user pip==20.1
-      # PYTHONHOME=$SNAPCRAFT_PART_INSTALL/usr PYTHONUSERBASE=$SNAPCRAFT_PART_INSTALL $SNAPCRAFT_PART_INSTALL/usr/bin/python3 -m pip install --user dephell[full]
-      # PYTHONHOME=$SNAPCRAFT_PART_INSTALL/usr PYTHONUSERBASE=$SNAPCRAFT_PART_INSTALL dephell deps convert --from-path pyproject.toml --from-format poetry --to-path setup.py --to-format setuppy
+      # Install dephell to convert pyproject.toml to setyp.py, which is req'd. by snapcraftctl.
       # https://forum.snapcraft.io/t/building-a-core20-python-snap-using-pyproject-toml/22028/2
       pip3 install --user dephell[full]
       PATH=$HOME/.local/bin:$PATH dephell deps convert --from-path=pyproject.toml --from-format=poetry --to-path=setup.py --to-format=setuppy
