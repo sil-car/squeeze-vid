@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 
 # Ensure that virutal environment is activated.
-if not os.environ.get('VIRTUAL_ENV'):
+if not os.environ.get('SNAP') and not os.environ.get('VIRTUAL_ENV'):
     repo_root = Path(__file__).resolve().parent # script is assumed to be at top of repo
     auto_activate_file = Path(f"{(repo_root)}/env/bin/auto_activate.py")
     if not auto_activate_file.is_file():
