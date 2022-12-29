@@ -28,3 +28,5 @@ parts:
       pip3 install --user dephell[full]
       PATH=$HOME/.local/bin:$PATH dephell deps convert --from-path=pyproject.toml --from-format=poetry --to-path=setup.py --to-format=setuppy
       snapcraftctl build
+    stage-packages:
+      - ffmpeg
