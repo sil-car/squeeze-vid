@@ -6,10 +6,11 @@ from pathlib import Path
 
 # Ensure that virutal environment is activated.
 if not os.environ.get('SNAP') and not os.environ.get('VIRTUAL_ENV'):
-    repo_root = Path(__file__).resolve().parent # script is assumed to be at top of repo
+    repo_root = Path(__file__).resolve().parents[1]
     auto_activate_file = Path(f"{(repo_root)}/env/bin/auto_activate.py")
     if not auto_activate_file.is_file():
-        print(f"Error: {auto_activate_file} doesn't exist.")
+        print(f"Info: {auto_activate_file} doesn't exist.")
+        print(f"Info: Need to install and/or activate virtual env to use this script.")
         exit(1)
     with open(auto_activate_file) as f:
         exec(f.read(), {'__file__': auto_activate_file})
