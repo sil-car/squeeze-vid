@@ -10,7 +10,7 @@ dependencies = [
 # dynamic = ["version"] # TODO: Fix by setting from git commit
 name = "squeeze_vid"
 readme = "README.md"
-version = 0.1 # TODO: Need to remove when set from git commit
+version = "0.1" # TODO: Need to remove when set from git commit
 
 [project.scripts]
 squeeze-vid = "squeeze_vid.squeeze_vid:main"
