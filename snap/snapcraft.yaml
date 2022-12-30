@@ -41,6 +41,8 @@ parts:
     # stage-packages:
     #   - ffmpeg
 
+  # Build ffmpeg from source.
+  # https://forum.snapcraft.io/t/proper-way-to-leverage-another-snap-in-a-snap/3893/2
   ffmpeg:
     build-packages:
       - git
@@ -71,7 +73,7 @@ parts:
       - libx265-dev
       - libvpx-dev
     plugin: autotools
-    configflags:
+    autotools-configure-parameters:
       - --prefix=/usr
       - --enable-gpl
       - --enable-libass
@@ -88,7 +90,8 @@ parts:
     source: git://source.ffmpeg.org/ffmpeg.git
     source-type: git
 
-  ## Abandoned integration snaps idea.
+  # Abandoned integration snaps idea.
+  # https://forum.snapcraft.io/t/the-ffmpeg-integration-stage-snaps/10812
   # ffmpeg:
   #   plugin: nil
   #   stage-snaps:
