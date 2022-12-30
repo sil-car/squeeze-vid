@@ -5,8 +5,9 @@ description: |
       Normalize videos and audio files to a standardized frame rate and quality
       to minimize the file size while maintaining adequate quality for video
       projection.
-version: git
-grade: stable
+# version: git
+# grade: stable
+adopt-info: squeeze-vid # for setting version and grade
 confinement: strict
 base: core20
 architectures:
@@ -33,6 +34,11 @@ parts:
       - ffmpeg
     plugin: python
     source: https://github.com/sil-car/squeeze-vid.git
+    override-pull: |
+      snapcraftctl pull
+      ver=$(grep 'version =' $SNAPCRAFT_PART_SRC/pyproject.toml | awk -F= '{print $2}' | tr -d ' ')
+      snapcraftctl set-version "$ver"
+      snapcraftctl set-grade "stable"
     build-packages:
       - python3-pip
     override-build: |
