@@ -160,6 +160,12 @@ parts:
       # - try:
       #   - i965-va-driver
       #   - mesa-va-drivers
+    prime: # remove unused cruft
+      - -usr/include
+      - -usr/lib/pkgconfig
+      - -usr/share/doc
+      - -usr/share/ffmpeg/examples
+      - -usr/share/man
 
   # Abandoned integration snaps idea.
   # https://forum.snapcraft.io/t/the-ffmpeg-integration-stage-snaps/10812
