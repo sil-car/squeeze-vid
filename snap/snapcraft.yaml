@@ -45,15 +45,6 @@ parts:
       $HOME/.local/bin/dephell deps convert --from-path=pyproject.toml --from-format=poetry --to-path=setup.py --to-format=setuppy
 
       snapcraftctl build
-    prime: # remove unused cruft
-      - -include
-      - -lib64
-      - -usr/include
-      - -usr/lib/pkgconfig
-      - -usr/share/doc
-      - -usr/share/doc-base
-      - -usr/share/ffmpeg/examples
-      - -usr/share/man
 
   # Build ffmpeg from source.
   # https://forum.snapcraft.io/t/proper-way-to-leverage-another-snap-in-a-snap/3893/2
@@ -193,3 +184,18 @@ parts:
       # - try:
       #   - i965-va-driver
       #   - mesa-va-drivers
+
+  cleanup:
+    # https://forum.snapcraft.io/t/reduce-size-of-qt5-app-snap/31030/7
+    after:
+      - ffmpeg
+      - squeeze-vid
+    plugin: nil
+    build-snaps:
+      - core20
+    override-prime: |
+      set -eux
+      cd "/snap/core20/current" && find . -type f,l -exec rm -f "$SNAPCRAFT_PRIME/{}" \;
+      for x in "include lib64 usr/include usr/lib/pkgconfig usr/share/doc usr/share/doc-base usr/share/ffmpeg/examples usr/share/man"; do
+        rm -rf "$SNAPCRAFT_PRIME/$x"
+      done
