@@ -32,9 +32,6 @@ parts:
     after: [ffmpeg]
     plugin: python
     source: https://github.com/sil-car/squeeze-vid.git
-    # build-environment:
-      # Give full path b/c it seems orig. $PATH is empty if using PATH: /new/path:$PATH.
-      # - PATH: "$HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin"
     build-packages: # works for core20 but not core18
       - python3-pip
     override-build: |
@@ -53,8 +50,6 @@ parts:
       # PYTHONHOME=$SNAPCRAFT_PART_INSTALL/usr PYTHONUSERBASE=$SNAPCRAFT_PART_INSTALL dephell deps convert --from-path=pyproject.toml --from-format=poetry --to-path=setup.py --to-format=setuppy
 
       snapcraftctl build
-    # stage-packages:
-    #   - ffmpeg
 
   # Build ffmpeg from source.
   # https://forum.snapcraft.io/t/proper-way-to-leverage-another-snap-in-a-snap/3893/2
@@ -122,8 +117,48 @@ parts:
       # - libswscale5
       # Ref: snapcraftctl build output.
       - freeglut3
+      - libasound2
+      - libass9
+      - libcairo2
+      - libfontconfig1
+      - libfreetype6
+      - libfribidi0
       - libglu1-mesa
+      - libgraphite2-3
+      - libharfbuzz0b
+      - libmp3lame0
+      - libnuma1
+      - libogg0
+      - libopus0
+      - libpixman-1-0
+      - libpng16-16
+      - libtheora0
+      - libva-drm2
+      - libva-x11-2
+      - libva2
+      - libvdpau1
+      - libvorbis0a
+      - libvorbisenc2
+      - libvpx6
+      - libx264-155
+      - libx265-179
+      - libxcb-render0
+      - libxcb-shape0
       - libxcb1
+      - libxrender1
+
+      # External libraries (from ffmpeg build):
+      # alsa                    libtheora               libxcb_shape
+      # iconv                   libvorbis               libxcb_shm
+      # libass                  libvpx                  libxcb_xfixes
+      # libfreetype             libx264                 zlib
+      # libmp3lame              libx265
+      # libopus                 libxcb
+      #
+      # External libraries providing hardware acceleration:
+      # v4l2_m2m                vaapi                   vdpau
+
+
       # Ref: https://github.com/snapcrafters/obs-studio/blob/master/snap/snapcraft.yaml
       # - libass9
       # - libdrm2
