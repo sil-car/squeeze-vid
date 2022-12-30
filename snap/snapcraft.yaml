@@ -29,10 +29,11 @@ apps:
 
 parts:
   squeeze-vid:
-    after: [ffmpeg]
+    after:
+      - ffmpeg
     plugin: python
     source: https://github.com/sil-car/squeeze-vid.git
-    build-packages: # works for core20 but not core18
+    build-packages:
       - python3-pip
     override-build: |
       # Install dephell to convert pyproject.toml to setup.py, which is req'd. by snapcraftctl.
@@ -43,13 +44,16 @@ parts:
       # PATH=$HOME/.local/bin:$PATH dephell deps convert --from-path=pyproject.toml --from-format=poetry --to-path=setup.py --to-format=setuppy
       $HOME/.local/bin/dephell deps convert --from-path=pyproject.toml --from-format=poetry --to-path=setup.py --to-format=setuppy
 
-      # core18
-      # https://github.com/anonymouse64/streamdeck-ui-snap/blob/master/snap/snapcraft.yaml
-      # PYTHONHOME=$SNAPCRAFT_PART_INSTALL/usr PYTHONUSERBASE=$SNAPCRAFT_PART_INSTALL $SNAPCRAFT_PART_INSTALL/usr/bin/python3 -m pip install --user pip==20.1
-      # PYTHONHOME=$SNAPCRAFT_PART_INSTALL/usr PYTHONUSERBASE=$SNAPCRAFT_PART_INSTALL $SNAPCRAFT_PART_INSTALL/usr/bin/python3 -m pip install --user dephell[full]
-      # PYTHONHOME=$SNAPCRAFT_PART_INSTALL/usr PYTHONUSERBASE=$SNAPCRAFT_PART_INSTALL dephell deps convert --from-path=pyproject.toml --from-format=poetry --to-path=setup.py --to-format=setuppy
-
       snapcraftctl build
+    prime: # remove unused cruft
+      - -include
+      - -lib64
+      - -usr/include
+      - -usr/lib/pkgconfig
+      - -usr/share/doc
+      - -usr/share/doc-base
+      - -usr/share/ffmpeg/examples
+      - -usr/share/man
 
   # Build ffmpeg from source.
   # https://forum.snapcraft.io/t/proper-way-to-leverage-another-snap-in-a-snap/3893/2
@@ -103,18 +107,6 @@ parts:
     source: git://source.ffmpeg.org/ffmpeg.git
     source-type: git
     stage-packages:
-      # TODO: Try removing all apt depends b/c maybe included in ffmpeg build.
-      # Ref: apt-cache depends ffmpeg
-      # - libavcodec58  #- libavcodec-extra58
-      # - libavdevice58
-      # - libavfilter7 # - libavfilter-extra7
-      # - libavformat58
-      # - libavresample4
-      # - libavutil56
-      # - libpostproc55
-      # - libsdl2-2.0-0
-      # - libswresample3
-      # - libswscale5
       # Ref: snapcraftctl build output.
       - freeglut3
       - libasound2
@@ -146,7 +138,6 @@ parts:
       - libxcb-shape0
       - libxcb1
       - libxrender1
-
       # External libraries (from ffmpeg build):
       # alsa                    libtheora               libxcb_shape
       # iconv                   libvorbis               libxcb_shm
@@ -157,7 +148,6 @@ parts:
       #
       # External libraries providing hardware acceleration:
       # v4l2_m2m                vaapi                   vdpau
-
 
       # Ref: https://github.com/snapcrafters/obs-studio/blob/master/snap/snapcraft.yaml
       # - libass9
@@ -203,71 +193,3 @@ parts:
       # - try:
       #   - i965-va-driver
       #   - mesa-va-drivers
-    prime: # remove unused cruft
-      - -usr/include
-      - -usr/lib/pkgconfig
-      - -usr/share/doc
-      - -usr/share/ffmpeg/examples
-      - -usr/share/man
-
-  # Abandoned integration snaps idea.
-  # https://forum.snapcraft.io/t/the-ffmpeg-integration-stage-snaps/10812
-  # ffmpeg:
-  #   plugin: nil
-  #   stage-snaps:
-  #     - ffmpeg-integration-gplv3
-  #   stage-packages:
-  #     ### Dynamic-linking safe dependencies
-  #     - libasound2
-  #     - libass9
-  #     - libbluray2
-  #     - libbs2b0
-  #     - libcaca0
-  #     - libdrm2
-  #     - libfontconfig1
-  #     - libfribidi0
-  #     - libgmp10
-  #     - libgraphite2-3
-  #     - libharfbuzz0b
-  #     - libmp3lame0
-  #     - try:
-  #       - libnuma1
-  #     - libogg0
-  #     - libopencore-amrnb0
-  #     - libopencore-amrwb0
-  #     - libopus0
-  #     - libslang2
-  #     - libtheora0
-  #     - libva-drm2
-  #     - libva-x11-2
-  #     - libva2
-  #     - libvdpau1
-  #     - libvo-amrwbenc0
-  #     - libvorbis0a
-  #     - libvorbisenc2
-  #     - libvpx5
-  #     - libx11-6
-  #     - libxau6
-  #     - libxcb-shape0
-  #     - libxcb-shm0
-  #     - libxcb-xfixes0
-  #     - libxdmcp6
-  #     - libxext6
-  #     - libxfixes3
-  #
-  #     ### GPL dependencies
-  #     - libcdio-cdda2
-  #     - libcdio-paranoia2
-  #     - libcdio17
-  #     - libfftw3-double3
-  #     - librubberband2
-  #     - libsamplerate0
-  #     - libx264-152
-  #     - libx265-146
-  #     - libxvidcore4
-  #
-  #     ### GPLv3 dependencies
-  #     - libsmbclient
-  #
-  #     ### non-free dependencies
-  #     #- libfdk-aac0
