@@ -36,7 +36,7 @@ parts:
     source: https://github.com/sil-car/squeeze-vid.git
     override-pull: |
       snapcraftctl pull
-      ver=$(grep 'version =' $SNAPCRAFT_PART_SRC/pyproject.toml | awk -F= '{print $2}' | tr -d ' ' | tr -d '"')
+      ver=$(grep 'version =' $SNAPCRAFT_PART_SRC/pyproject.toml | sed -r 's/^version = "(.*)"/\1/')
       snapcraftctl set-version "$ver"
       snapcraftctl set-grade "stable"
     build-packages:
