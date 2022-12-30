@@ -89,6 +89,62 @@ parts:
       - --enable-shared
     source: git://source.ffmpeg.org/ffmpeg.git
     source-type: git
+    stage-packages:
+      # Ref: apt-cache depends ffmpeg
+      - libavcodec-extra58 # - libavcodec58
+      - libavdevice58
+      - libavfilter-extra7 # - libavfilter7
+      - libavformat58
+      - libavresample4
+      - libavutil56
+      - libpostproc55
+      - libsdl2-2.0-0
+      - libswresample3
+      - libswscale5
+      # Ref: https://github.com/snapcrafters/obs-studio/blob/master/snap/snapcraft.yaml
+      # - libass9
+      # - libdrm2
+      # - libfdk-aac1
+      # - libmp3lame0
+      # - libopenal1
+      # - libopenjp2-7
+      # - libopus0
+      # - libpulse0
+      # - librsvg2-2
+      # - libsdl2-2.0-0
+      # - libspeex1
+      # - libssl1.1
+      # - libtheora0
+      # - libtwolame0
+      # - libv4l-0
+      # - libv4l2rds0
+      # - libva-drm2
+      # - libva-glx2
+      # - libva-wayland2
+      # - libvdpau-va-gl1
+      # - libvorbis0a
+      # - libvorbisenc2
+      # - libvpx6
+      # - libwebp6
+      # - libwebpmux3
+      # - libx11-6
+      # - libx265-179
+      # - libxau6
+      # - libxcb-shape0
+      # - libxcb-shm0
+      # - libxcb-xfixes0
+      # - libxcb1
+      # - libxdmcp6
+      # - libxext6
+      # - libxml2
+      # - libxv1
+      # - libxvidcore4
+      # - mesa-vdpau-drivers
+      # - ocl-icd-libopencl1
+      # # Only available for amd64 and i386
+      # - try:
+      #   - i965-va-driver
+      #   - mesa-va-drivers
 
   # Abandoned integration snaps idea.
   # https://forum.snapcraft.io/t/the-ffmpeg-integration-stage-snaps/10812
