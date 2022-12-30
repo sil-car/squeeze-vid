@@ -1,5 +1,6 @@
 name: squeeze-vid
 summary: Normalize videos to a minimal, projection-compatible quality.
+contact: https://github.com/sil-car/squeeze-vid/issues
 description: |
       Normalize videos and audio files to a standardized frame rate and quality
       to minimize the file size while maintaining adequate quality for video
@@ -32,7 +33,8 @@ parts:
     plugin: python
     source: https://github.com/sil-car/squeeze-vid.git
     build-environment:
-      - PATH: $HOME/.local/bin:$PATH
+      # Give full path b/c it seems orig. $PATH is empty if using PATH: /new/path:$PATH.
+      - PATH: "$HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin"
     build-packages: # works for core20 but not core18
       - python3-pip
     override-build: |
@@ -103,6 +105,7 @@ parts:
     source: git://source.ffmpeg.org/ffmpeg.git
     source-type: git
     stage-packages:
+      # TODO: Try removing all apt depends b/c maybe included in ffmpeg build.
       # Ref: apt-cache depends ffmpeg
       - libavcodec58  #- libavcodec-extra58
       - libavdevice58
@@ -116,6 +119,7 @@ parts:
       - libswscale5
       # Ref: snapcraftctl build output.
       - libglu1-mesa
+      # - libxcb1 # maybe also needed?
       # Ref: https://github.com/snapcrafters/obs-studio/blob/master/snap/snapcraft.yaml
       # - libass9
       # - libdrm2
