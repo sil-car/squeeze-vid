@@ -118,6 +118,7 @@ parts:
       - libswresample3
       - libswscale5
       # Ref: snapcraftctl build output.
+      - freeglut3
       - libglu1-mesa
       # - libxcb1 # maybe also needed?
       # Ref: https://github.com/snapcrafters/obs-studio/blob/master/snap/snapcraft.yaml
