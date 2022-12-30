@@ -32,9 +32,9 @@ parts:
     after: [ffmpeg]
     plugin: python
     source: https://github.com/sil-car/squeeze-vid.git
-    build-environment:
+    # build-environment:
       # Give full path b/c it seems orig. $PATH is empty if using PATH: /new/path:$PATH.
-      - PATH: "$HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin"
+      # - PATH: "$HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin"
     build-packages: # works for core20 but not core18
       - python3-pip
     override-build: |
@@ -44,7 +44,7 @@ parts:
       # https://forum.snapcraft.io/t/building-a-core20-python-snap-using-pyproject-toml/22028/2
       pip3 install --user dephell[full]
       # PATH=$HOME/.local/bin:$PATH dephell deps convert --from-path=pyproject.toml --from-format=poetry --to-path=setup.py --to-format=setuppy
-      dephell deps convert --from-path=pyproject.toml --from-format=poetry --to-path=setup.py --to-format=setuppy
+      $HOME/.local/bin/dephell deps convert --from-path=pyproject.toml --from-format=poetry --to-path=setup.py --to-format=setuppy
 
       # core18
       # https://github.com/anonymouse64/streamdeck-ui-snap/blob/master/snap/snapcraft.yaml
