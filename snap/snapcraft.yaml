@@ -14,22 +14,35 @@ architectures:
 apps:
   squeeze-vid:
     command: bin/squeeze-vid
-    plugs: [home, removable-media]
+    # YAML aliases (e.g. "&allplugs"):
+    # https://www.linode.com/docs/guides/yaml-anchors-aliases-overrides-extensions/
+    plugs: &allplugs
+      - home
+      - removable-media
+  ffmpeg:
+    command: usr/bin/ffmpeg
+    plugs: *allplugs
+  ffprobe:
+    command: usr/bin/ffprobe
+    plugs: *allplugs
 
 parts:
   squeeze-vid:
     after: [ffmpeg]
     plugin: python
     source: https://github.com/sil-car/squeeze-vid.git
+    build-environment:
+      - PATH: $HOME/.local/bin:$PATH
     build-packages: # works for core20 but not core18
-        - python3-pip
+      - python3-pip
     override-build: |
       # Install dephell to convert pyproject.toml to setup.py, which is req'd. by snapcraftctl.
 
       # core20
       # https://forum.snapcraft.io/t/building-a-core20-python-snap-using-pyproject-toml/22028/2
       pip3 install --user dephell[full]
-      PATH=$HOME/.local/bin:$PATH dephell deps convert --from-path=pyproject.toml --from-format=poetry --to-path=setup.py --to-format=setuppy
+      # PATH=$HOME/.local/bin:$PATH dephell deps convert --from-path=pyproject.toml --from-format=poetry --to-path=setup.py --to-format=setuppy
+      dephell deps convert --from-path=pyproject.toml --from-format=poetry --to-path=setup.py --to-format=setuppy
 
       # core18
       # https://github.com/anonymouse64/streamdeck-ui-snap/blob/master/snap/snapcraft.yaml
@@ -91,9 +104,9 @@ parts:
     source-type: git
     stage-packages:
       # Ref: apt-cache depends ffmpeg
-      - libavcodec-extra58 # - libavcodec58
+      - libavcodec58  #- libavcodec-extra58
       - libavdevice58
-      - libavfilter-extra7 # - libavfilter7
+      - libavfilter7 # - libavfilter-extra7
       - libavformat58
       - libavresample4
       - libavutil56
@@ -101,6 +114,8 @@ parts:
       - libsdl2-2.0-0
       - libswresample3
       - libswscale5
+      # Ref: snapcraftctl build output.
+      - libglu1-mesa
       # Ref: https://github.com/snapcrafters/obs-studio/blob/master/snap/snapcraft.yaml
       # - libass9
       # - libdrm2
