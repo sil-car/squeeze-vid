@@ -1,16 +1,16 @@
 [build-system]
-requires = ["setuptools", "setuptools-scm"]
+# requires = ["setuptools", "setuptools-scm"] # *-scm not found with core18
+requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [project]
 dependencies = [
-    "ffmpeg-python"
-    # "future"
+    "ffmpeg-python",
 ]
-dynamic = ["version"]
+# dynamic = ["version"] # TODO: Fix by setting from git commit
 name = "squeeze_vid"
 readme = "README.md"
-# requires-python = ">=3.8"
+version = 0.1 # TODO: Need to remove when set from git commit
 
 [project.scripts]
 squeeze-vid = "squeeze_vid.squeeze_vid:main"
