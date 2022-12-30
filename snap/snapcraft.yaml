@@ -7,7 +7,7 @@ description: |
 version: git
 grade: stable
 confinement: devmode
-base: core18
+base: core20
 architectures:
   - build-on: [arm64, armhf, amd64]
 
@@ -18,84 +18,133 @@ apps:
 
 parts:
   squeeze-vid:
+    after: [ffmpeg]
     plugin: python
     source: https://github.com/sil-car/squeeze-vid.git
-    # build-packages: # works for core20 not core18
-    #     - python3-pip
+    build-packages: # works for core20 but not core18
+        - python3-pip
     override-build: |
       # Install dephell to convert pyproject.toml to setup.py, which is req'd. by snapcraftctl.
 
       # core20
       # https://forum.snapcraft.io/t/building-a-core20-python-snap-using-pyproject-toml/22028/2
-      # pip3 install --user dephell[full]
-      # PATH=$HOME/.local/bin:$PATH dephell deps convert --from-path=pyproject.toml --from-format=poetry --to-path=setup.py --to-format=setuppy
+      pip3 install --user dephell[full]
+      PATH=$HOME/.local/bin:$PATH dephell deps convert --from-path=pyproject.toml --from-format=poetry --to-path=setup.py --to-format=setuppy
 
       # core18
       # https://github.com/anonymouse64/streamdeck-ui-snap/blob/master/snap/snapcraft.yaml
-      PYTHONHOME=$SNAPCRAFT_PART_INSTALL/usr PYTHONUSERBASE=$SNAPCRAFT_PART_INSTALL $SNAPCRAFT_PART_INSTALL/usr/bin/python3 -m pip install --user pip==20.1
-      PYTHONHOME=$SNAPCRAFT_PART_INSTALL/usr PYTHONUSERBASE=$SNAPCRAFT_PART_INSTALL $SNAPCRAFT_PART_INSTALL/usr/bin/python3 -m pip install --user dephell[full]
-      PYTHONHOME=$SNAPCRAFT_PART_INSTALL/usr PYTHONUSERBASE=$SNAPCRAFT_PART_INSTALL dephell deps convert --from-path=pyproject.toml --from-format=poetry --to-path=setup.py --to-format=setuppy
+      # PYTHONHOME=$SNAPCRAFT_PART_INSTALL/usr PYTHONUSERBASE=$SNAPCRAFT_PART_INSTALL $SNAPCRAFT_PART_INSTALL/usr/bin/python3 -m pip install --user pip==20.1
+      # PYTHONHOME=$SNAPCRAFT_PART_INSTALL/usr PYTHONUSERBASE=$SNAPCRAFT_PART_INSTALL $SNAPCRAFT_PART_INSTALL/usr/bin/python3 -m pip install --user dephell[full]
+      # PYTHONHOME=$SNAPCRAFT_PART_INSTALL/usr PYTHONUSERBASE=$SNAPCRAFT_PART_INSTALL dephell deps convert --from-path=pyproject.toml --from-format=poetry --to-path=setup.py --to-format=setuppy
 
       snapcraftctl build
     # stage-packages:
     #   - ffmpeg
 
   ffmpeg:
-    plugin: nil
-    stage-snaps:
-      - ffmpeg-integration-gplv3
-    stage-packages:
-      ### Dynamic-linking safe dependencies
-      - libasound2
-      - libass9
-      - libbluray2
-      - libbs2b0
-      - libcaca0
-      - libdrm2
-      - libfontconfig1
-      - libfribidi0
-      - libgmp10
-      - libgraphite2-3
-      - libharfbuzz0b
-      - libmp3lame0
-      - try:
-        - libnuma1
-      - libogg0
-      - libopencore-amrnb0
-      - libopencore-amrwb0
-      - libopus0
-      - libslang2
-      - libtheora0
-      - libva-drm2
-      - libva-x11-2
-      - libva2
-      - libvdpau1
-      - libvo-amrwbenc0
-      - libvorbis0a
-      - libvorbisenc2
-      - libvpx5
-      - libx11-6
-      - libxau6
-      - libxcb-shape0
-      - libxcb-shm0
-      - libxcb-xfixes0
-      - libxdmcp6
-      - libxext6
-      - libxfixes3
+    build-packages:
+      - git
+      - g++
+      - make
+      - yasm
+      - autoconf
+      - libtool
+      - cmake
+      - pkg-config
+      - automake
+      - build-essential
+      - libass-dev
+      - libfreetype6-dev
+      - libvdpau-dev
+      - libsdl1.2-dev
+      - libtheora-dev
+      - libva-dev
+      - libvorbis-dev
+      - libxcb1-dev
+      - libxcb-shm0-dev
+      - libxcb-xfixes0-dev
+      - texinfo
+      - zlib1g-dev
+      - libx264-dev
+      - libmp3lame-dev
+      - libopus-dev
+      - libx265-dev
+      - libvpx-dev
+    plugin: autotools
+    configflags:
+      - --prefix=/usr
+      - --enable-gpl
+      - --enable-libass
+      - --enable-libfreetype
+      - --enable-libmp3lame
+      - --enable-libopus
+      - --enable-libtheora
+      - --enable-libvorbis
+      - --enable-libvpx
+      - --enable-libx264
+      - --enable-libx265
+      - --enable-nonfree
+      - --enable-shared
+    source: git://source.ffmpeg.org/ffmpeg.git
+    source-type: git
 
-      ### GPL dependencies
-      - libcdio-cdda2
-      - libcdio-paranoia2
-      - libcdio17
-      - libfftw3-double3
-      - librubberband2
-      - libsamplerate0
-      - libx264-152
-      - libx265-146
-      - libxvidcore4
-
-      ### GPLv3 dependencies
-      - libsmbclient
-
-      ### non-free dependencies
-      #- libfdk-aac0
+  ## Abandoned integration snaps idea.
+  # ffmpeg:
+  #   plugin: nil
+  #   stage-snaps:
+  #     - ffmpeg-integration-gplv3
+  #   stage-packages:
+  #     ### Dynamic-linking safe dependencies
+  #     - libasound2
+  #     - libass9
+  #     - libbluray2
+  #     - libbs2b0
+  #     - libcaca0
+  #     - libdrm2
+  #     - libfontconfig1
+  #     - libfribidi0
+  #     - libgmp10
+  #     - libgraphite2-3
+  #     - libharfbuzz0b
+  #     - libmp3lame0
+  #     - try:
+  #       - libnuma1
+  #     - libogg0
+  #     - libopencore-amrnb0
+  #     - libopencore-amrwb0
+  #     - libopus0
+  #     - libslang2
+  #     - libtheora0
+  #     - libva-drm2
+  #     - libva-x11-2
+  #     - libva2
+  #     - libvdpau1
+  #     - libvo-amrwbenc0
+  #     - libvorbis0a
+  #     - libvorbisenc2
+  #     - libvpx5
+  #     - libx11-6
+  #     - libxau6
+  #     - libxcb-shape0
+  #     - libxcb-shm0
+  #     - libxcb-xfixes0
+  #     - libxdmcp6
+  #     - libxext6
+  #     - libxfixes3
+  #
+  #     ### GPL dependencies
+  #     - libcdio-cdda2
+  #     - libcdio-paranoia2
+  #     - libcdio17
+  #     - libfftw3-double3
+  #     - librubberband2
+  #     - libsamplerate0
+  #     - libx264-152
+  #     - libx265-146
+  #     - libxvidcore4
+  #
+  #     ### GPLv3 dependencies
+  #     - libsmbclient
+  #
+  #     ### non-free dependencies
+  #     #- libfdk-aac0

@@ -1,6 +1,6 @@
 [build-system]
-# requires = ["setuptools", "setuptools-scm"] # *-scm not found with core18
-requires = ["setuptools"]
+requires = ["setuptools", "setuptools-scm"] # *-scm not found with core18
+# requires = ["setuptools"] # core18
 build-backend = "setuptools.build_meta"
 
 [project]
