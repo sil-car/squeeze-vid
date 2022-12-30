@@ -89,7 +89,10 @@ parts:
       - libvpx-dev
     plugin: autotools
     autotools-configure-parameters:
+      # https://github.com/Archiv8/ffmpeg/blob/main/FFMMPEG-CONFIGURE.md
       - --prefix=/usr
+      - --disable-doc # removes doc/html/man? --disable-{htmlpages,manpages,txtpages}
+      - --disable-ffplay
       - --enable-gpl
       - --enable-libass
       - --enable-libfreetype
@@ -107,16 +110,16 @@ parts:
     stage-packages:
       # TODO: Try removing all apt depends b/c maybe included in ffmpeg build.
       # Ref: apt-cache depends ffmpeg
-      - libavcodec58  #- libavcodec-extra58
-      - libavdevice58
-      - libavfilter7 # - libavfilter-extra7
-      - libavformat58
-      - libavresample4
-      - libavutil56
-      - libpostproc55
-      - libsdl2-2.0-0
-      - libswresample3
-      - libswscale5
+      # - libavcodec58  #- libavcodec-extra58
+      # - libavdevice58
+      # - libavfilter7 # - libavfilter-extra7
+      # - libavformat58
+      # - libavresample4
+      # - libavutil56
+      # - libpostproc55
+      # - libsdl2-2.0-0
+      # - libswresample3
+      # - libswscale5
       # Ref: snapcraftctl build output.
       - freeglut3
       - libglu1-mesa
