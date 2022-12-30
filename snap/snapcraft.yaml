@@ -123,7 +123,7 @@ parts:
       # Ref: snapcraftctl build output.
       - freeglut3
       - libglu1-mesa
-      # - libxcb1 # maybe also needed?
+      - libxcb1
       # Ref: https://github.com/snapcrafters/obs-studio/blob/master/snap/snapcraft.yaml
       # - libass9
       # - libdrm2
