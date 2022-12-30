@@ -7,10 +7,10 @@ description: |
       projection.
 version: git
 grade: stable
-confinement: devmode
+confinement: strict
 base: core20
 architectures:
-  - build-on: [arm64, armhf, amd64]
+  - build-on: [arm64, amd64]
 
 apps:
   squeeze-vid:
@@ -49,6 +49,7 @@ parts:
   # Build ffmpeg from source.
   # https://forum.snapcraft.io/t/proper-way-to-leverage-another-snap-in-a-snap/3893/2
   ffmpeg:
+    # TODO: Consider using ffmpeg snap instead.
     build-packages:
       - git
       - g++
