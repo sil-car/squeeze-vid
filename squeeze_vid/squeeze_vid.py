@@ -50,8 +50,8 @@ def get_properties(infile):
         return 'placeholder'
     try:
         probe = ffmpeg.probe(infile)
-    except ffmpeg._run.Error:
-        print("Error: Not an audio or video file?")
+    except ffmpeg._run.Error as e:
+        print(f"Error: {e}\nNot an audio or video file?")
         exit(1)
     return probe['streams']
 
@@ -115,6 +115,7 @@ def change_playback_speed(input_file, factor, rates, cmd):
     try:
         ffmpeg.run(stream, overwrite_output=True, capture_stdout=True)
     except ffmpeg._run.Error as e:
+        print(f"Error: {e}")
         exit(1)
     return output_file
 
@@ -138,6 +139,7 @@ def convert_file(input_file, rates, cmd, output_format='.mp4'):
     try:
         ffmpeg.run(stream, overwrite_output=True, capture_stdout=True)
     except ffmpeg._run.Error as e:
+        print(f"Error: {e}")
         exit(1)
     return output_file
 
@@ -159,6 +161,7 @@ def trim_file(input_file, endpoints, cmd, output_format='.mp4'):
     try:
         ffmpeg.run(stream, overwrite_output=True, capture_stdout=True)
     except ffmpeg._run.Error as e:
+        print(f"Error: {e}")
         exit(1)
     return output_file
 
