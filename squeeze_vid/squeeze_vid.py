@@ -291,8 +291,8 @@ def print_command(stream):
 def main():
     # Build arguments and options list.
     description = "Convert video file to MP4, ensuring baseline video quality:\n\
-  * Default:  720p, 500 Kbps, 25 fps for projected video\n\
-  * Tutorial: 720p, 200 Kbps, 10 fps for tutorial video\n\
+  * Default:  720p, 2 Mbps, 25 fps for projected video\n\
+  * Tutorial: 720p, 500 Kbps, 10 fps for tutorial video\n\
 \n\
 Also perform other useful operations on media files."
 
