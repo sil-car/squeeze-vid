@@ -2,11 +2,9 @@ name: squeeze-vid
 summary: Normalize videos to a minimal, projection-compatible quality.
 contact: https://github.com/sil-car/squeeze-vid/issues
 description: |
-      Normalize videos and audio files to a standardized frame rate and quality
-      to minimize the file size while maintaining adequate quality for video
-      projection.
-# version: git
-# grade: stable
+  Normalize videos and audio files to a standardized frame rate and quality
+  to minimize the file size while maintaining adequate quality for video
+  projection.
 adopt-info: squeeze-vid # for setting version and grade
 confinement: strict
 base: core20
@@ -47,7 +45,6 @@ parts:
       # core20
       # https://forum.snapcraft.io/t/building-a-core20-python-snap-using-pyproject-toml/22028/2
       pip3 install --user dephell[full]
-      # PATH=$HOME/.local/bin:$PATH dephell deps convert --from-path=pyproject.toml --from-format=poetry --to-path=setup.py --to-format=setuppy
       $HOME/.local/bin/dephell deps convert --from-path=pyproject.toml --from-format=poetry --to-path=setup.py --to-format=setuppy
 
       snapcraftctl build
@@ -88,7 +85,7 @@ parts:
     autotools-configure-parameters:
       # https://github.com/Archiv8/ffmpeg/blob/main/FFMMPEG-CONFIGURE.md
       - --prefix=/usr
-      - --disable-doc # removes doc/html/man? --disable-{htmlpages,manpages,txtpages}
+      - --disable-doc # removes all docs --disable-{htmlpages,manpages,txtpages}
       - --disable-ffplay
       - --enable-gpl
       - --enable-libass
