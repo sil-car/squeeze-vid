@@ -59,6 +59,6 @@ For 720p 30fps video, bitrate recommendations range from 500 Kbps to 4 Mbps. Per
 YouTube audio has chosen to stream AAC files at 126 kbps. At 128 kbps, one can expect to use about 1 MB of storage space for every 1 minute of audio. This seems like a reasonable value for our purposes.
 
 >**References**
->https://www.multivu.com/blog/2017/video-specs-for-noobs.html
->https://streamlabs.com/content-hub/post/best-bitrate-settings-for-live-streaming
->https://homedjstudio.com/audio-bitrates-formats/
+>- https://www.multivu.com/blog/2017/video-specs-for-noobs.html
+>- https://streamlabs.com/content-hub/post/best-bitrate-settings-for-live-streaming
+>- https://homedjstudio.com/audio-bitrates-formats/
