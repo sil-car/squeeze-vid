@@ -102,6 +102,7 @@ parts:
       - --enable-shared
     source: git://source.ffmpeg.org/ffmpeg.git
     source-type: git
+    # Release branches: http://git.videolan.org/?p=ffmpeg.git;a=heads
     source-branch: 'release/5.1'
     stage-packages:
       # Ref: snapcraftctl build output.
