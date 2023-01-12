@@ -116,6 +116,7 @@ parts:
       # Ref: snapcraftctl build output.
       - freeglut3
       - libasound2
+      - libaom0
       - libass9
       - libcairo2
       - libfontconfig1
