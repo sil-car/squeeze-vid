@@ -97,7 +97,6 @@ parts:
       - --enable-version3
       - --enable-gpl
       - --enable-libass
-      - --enable-libavformat
       # - --enable-libfreetype  # draw text over video
       # - --enable-libmp3lame   # audio encoder (decoding by libavcodec)
       # - --enable-libopus      # audio encoder; alt. decoder native in ffmpeg
