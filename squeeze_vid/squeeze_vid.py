@@ -299,9 +299,11 @@ def build_trim_stream(infile, outfile, endpoints):
 
 def print_command(stream):
     command = ffmpeg.get_args(stream)
+    # Add quotes around iffy command arg. options.
     for i, item in enumerate(ffmpeg.get_args(stream)):
         if item == '-filter_complex' or item == '-i':
             command[i+1] = f"\"{command[i+1]}\""
+    command[-1] = f"\"{command[-1]}\"" # outfile
     print(f"ffmpeg {' '.join(command)}\n")
 
 def main():
