@@ -8,7 +8,12 @@ Height | 720p | 720p
 Video bitrate | 2 Mbps | 500 kbps
 Frame rate | 25 fps | 10 fps
 
-## Usage
+## Install snap package
+```
+$ snap install squeeze-vid
+```
+
+## Use python script from this repo
 ```bash
 # Clone and enter into repo.
 ~$ git clone https:github.com/sil-car/squeeze-vid.git
