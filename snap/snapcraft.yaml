@@ -1,10 +1,14 @@
 name: squeeze-vid
 summary: Normalize videos to a minimal, projection-compatible quality.
+website: https://github.com/sil-car/squeeze-vid
 contact: https://github.com/sil-car/squeeze-vid/issues
+issues: https://github.com/sil-car/squeeze-vid/issues
+license: GPL-3.0+
+title: Squeeze Vid
 description: |
-  Normalize videos and audio files to a standardized frame rate and quality
-  to minimize the file size while maintaining adequate quality for video
-  projection.
+  Normalize videos and audio files (using ffmpeg) to a standardized frame rate
+  and quality to minimize the file size while maintaining adequate quality for
+  video projection.
 adopt-info: squeeze-vid # for setting version and grade
 confinement: strict
 base: core20
@@ -58,47 +62,53 @@ parts:
       - git
       - g++
       - make
-      - yasm
       - autoconf
-      - libtool
-      - cmake
-      - pkg-config
       - automake
       - build-essential
+      - cmake
+      - libaom-dev
       - libass-dev
       - libfreetype6-dev
-      - libvdpau-dev
+      # - libmp3lame-dev
+      # - libopus-dev
       - libsdl1.2-dev
-      - libtheora-dev
+      # - libtheora-dev
+      - libtool
       - libva-dev
-      - libvorbis-dev
+      - libvdpau-dev
+      # - libvorbis-dev
+      - libvpx-dev
+      - libx264-dev
+      # - libx265-dev
       - libxcb1-dev
       - libxcb-shm0-dev
       - libxcb-xfixes0-dev
+      - pkg-config
       - texinfo
+      - yasm
       - zlib1g-dev
-      - libx264-dev
-      - libmp3lame-dev
-      - libopus-dev
-      - libx265-dev
-      - libvpx-dev
     plugin: autotools
     autotools-configure-parameters:
       # https://github.com/Archiv8/ffmpeg/blob/main/FFMMPEG-CONFIGURE.md
+      # https://ffmpeg.org/general.html#Supported-File-Formats_002c-Codecs-or-Features
       - --prefix=/usr
       - --disable-doc # removes all docs --disable-{htmlpages,manpages,txtpages}
       - --disable-ffplay
+      - --enable-version3
       - --enable-gpl
       - --enable-libass
-      - --enable-libfreetype
-      - --enable-libmp3lame
-      - --enable-libopus
-      - --enable-libtheora
-      - --enable-libvorbis
-      - --enable-libvpx
-      - --enable-libx264
-      - --enable-libx265
-      - --enable-nonfree
+      - --enable-libavcodec
+      - --enable-libavformat
+      # - --enable-libfreetype  # draw text over video
+      # - --enable-libmp3lame   # audio encoder (decoding by libavcodec)
+      # - --enable-libopus      # audio encoder; alt. decoder native in ffmpeg
+      # - --enable-libvorbis    # audio encoder (decoding by libavcodec)
+      # - --enable-libtheora    # video encoder (decoding by libavcodec)
+      - --enable-libaom         # AV1 video encoder
+      - --enable-libvpx         # VP9 video encoder
+      - --enable-libx264        # H.264 video encoder
+      # - --enable-libx265      # H.265 video encoder
+      # - --enable-nonfree # makes binary unredistributable; ref: ffmpeg/LICENSE.md
       - --enable-shared
     source: git://source.ffmpeg.org/ffmpeg.git
     source-type: git
@@ -111,27 +121,27 @@ parts:
       - libass9
       - libcairo2
       - libfontconfig1
-      - libfreetype6
+      # - libfreetype6
       - libfribidi0
       - libglu1-mesa
       - libgraphite2-3
       - libharfbuzz0b
-      - libmp3lame0
+      # - libmp3lame0
       - libnuma1
       - libogg0
-      - libopus0
+      # - libopus0
       - libpixman-1-0
       - libpng16-16
-      - libtheora0
+      # - libtheora0
       - libva-drm2
       - libva-x11-2
       - libva2
       - libvdpau1
-      - libvorbis0a
+      # - libvorbis0a
       - libvorbisenc2
       - libvpx6
       - libx264-155
-      - libx265-179
+      # - libx265-179
       - libxcb-render0
       - libxcb-shape0
       - libxcb1
