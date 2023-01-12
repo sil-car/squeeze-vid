@@ -8,7 +8,7 @@ dependencies = [
 ]
 name = "squeeze_vid"
 readme = "README.md"
-version = "0.1"
+version = "0.1.1"
 
 [project.scripts]
 squeeze-vid = "squeeze_vid.squeeze_vid:main"

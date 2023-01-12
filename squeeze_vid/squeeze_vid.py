@@ -53,7 +53,7 @@ def get_properties(infile):
     except ffmpeg._run.Error as e:
         print(f"Error: {e}\nNot an audio or video file?")
         exit(1)
-    return probe['streams']
+    return probe.get('streams')
 
 def show_properties(infile):
     streams = get_properties(infile)
@@ -92,8 +92,8 @@ def split_into_streams(infile):
         audio_streams = ['placeholder']
         video_streams = ['placeholder']
     else:
-        audio_streams = [a for a in file_info if a['codec_type'] == 'audio']
-        video_streams = [v for v in file_info if v['codec_type'] == 'video']
+        audio_streams = [a for a in file_info if a.get('codec_type') == 'audio']
+        video_streams = [v for v in file_info if v.get('codec_type') == 'video']
 
     # Split into streams.
     stream = ffmpeg.input(str(infile))
@@ -220,18 +220,35 @@ def build_video_stream(infile, outfile, rates):
     # Get stream details.
     audio_streams, video_streams, audio, video = split_into_streams(infile)
 
-    # Determine frame rate of input video.
-    fps = rates[2] # default value
+    # Set compression variables.
+    # Defaults.
+    rates = list(rates)
+    abr = rates[0]
+    vbr = rates[1]
+    fps = rates[2]
+    height = 720 # 720p is nominal HD
+    # Infile properties.
     if video_streams and type(video_streams[0]) != str:
-        # Determine maxiumum frame rate from first video stream in input file.
-        avg_fps_str = video_streams[0]['avg_frame_rate'] # picks 1st video stream in list
-        avg_fps = round(int(avg_fps_str.split('/')[0]) / int(avg_fps_str.split('/')[1]))
-        fps = min([avg_fps, fps])
+        v = video_streams[0] # use the 1st video stream
+        # Determine audio bitrate.
+        if audio_streams:
+            iabr = int(audio_streams[0].get('bit_rate'))
+            rates[0] = min([iabr, abr])
+        ivbr = int(v.get('bit_rate'))
+        rates[1] = min([ivbr, vbr])
+        # Determine maxiumum frame rate.
+        iavg_fps_str = v.get('avg_frame_rate') # picks 1st video stream in list
+        iavg_fps = round(int(iavg_fps_str.split('/')[0]) / int(iavg_fps_str.split('/')[1]))
+        rates[2] = min([iavg_fps, fps])
+        # Determine video height from first video stream in input file.
+        iheight = min([v.get('width'), v.get('height')]) # choose min in case of portrait orientation
+        height = min(height, iheight)
 
-    # Define video max height to 720p (nominal HD).
-    video = ffmpeg.filter(video, 'scale', -1, 'min(720, ih)')
+
+    # Define video max height.
+    video = ffmpeg.filter(video, 'scale', -1, f"min({height}, ih)")
     # Define max framerate.
-    video = ffmpeg.filter(video, 'fps', fps)
+    video = ffmpeg.filter(video, 'fps', rates[2])
 
     # Output correct stream.
     stream = generate_output_stream(video_streams, audio_streams, video, audio, rates, outfile)
