@@ -76,6 +76,11 @@ Also perform other useful operations on media files."
         help="Use lower bitrate and fewer fps for short tutorial videos."
     )
     parser.add_argument(
+        '--vp9',
+        action='store_true',
+        help="Use VP9 encoding (much slower [<1x], but smaller filesize)."
+    )
+    parser.add_argument(
         '-x', '--experimental',
         action='store_true',
         help=argparse.SUPPRESS,
@@ -95,6 +100,8 @@ Also perform other useful operations on media files."
     media_out.fps_norm = args.rates[2]
     media_out.acodec_norm = 'aac'
     media_out.vcodec_norm = 'libx264'
+    if args.vp9:
+        media_out.vcodec_norm = 'libvpx-vp9'
     media_out.height_norm = 720
     media_out.format_norm_a = 'mp3'
     media_out.suffix_norm_a = '.mp3'
