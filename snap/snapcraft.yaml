@@ -66,7 +66,7 @@ parts:
       - automake
       - build-essential
       - cmake
-      - libaom-dev
+      # - libaom-dev
       - libass-dev
       - libfreetype6-dev
       # - libmp3lame-dev
@@ -102,7 +102,7 @@ parts:
       # - --enable-libopus      # audio encoder; alt. decoder native in ffmpeg
       # - --enable-libvorbis    # audio encoder (decoding by libavcodec)
       # - --enable-libtheora    # video encoder (decoding by libavcodec)
-      - --enable-libaom         # AV1 video encoder
+      # - --enable-libaom         # AV1 video encoder
       - --enable-libvpx         # VP9 video encoder
       - --enable-libx264        # H.264 video encoder
       # - --enable-libx265      # H.265 video encoder
@@ -116,7 +116,7 @@ parts:
       # Ref: snapcraftctl build output.
       - freeglut3
       - libasound2
-      - libaom0
+      # - libaom0
       - libass9
       - libcairo2
       - libfontconfig1
