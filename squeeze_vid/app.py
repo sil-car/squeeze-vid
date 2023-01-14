@@ -78,7 +78,7 @@ Also perform other useful operations on media files."
     parser.add_argument(
         '--vp9',
         action='store_true',
-        help="Use VP9 encoding (much slower [<1x], but smaller filesize)."
+        help="Use VP9 encoding (<1x transcoding rate, but possibly a smaller filesize than H.264)."
     )
     parser.add_argument(
         '-x', '--experimental',
