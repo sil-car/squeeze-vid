@@ -17,4 +17,4 @@ squeeze-vid = "squeeze_vid.app:main"
 packages = ["squeeze_vid"]
 
 [tool.setuptools.dynamic]
-readme = {file = ["README.md"]}
+readme = {file = ["README.md"], content-type = "text/plain"}
