@@ -7,8 +7,14 @@ dependencies = [
     "ffmpeg-python",
 ]
 name = "squeeze_vid"
-readme = "README.md"
 version = "0.2"
+dynamic = ["readme"]
 
 [project.scripts]
 squeeze-vid = "squeeze_vid.app:main"
+
+[tool.setuptools]
+packages = ["squeeze_vid"]
+
+[tool.setuptools.dynamic]
+readme = {file = ["README.md"]}
