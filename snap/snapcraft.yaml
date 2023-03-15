@@ -43,7 +43,7 @@ parts:
     override-pull: |
       snapcraftctl pull
       snap_ver=$(grep 'version =' $SNAPCRAFT_PART_SRC/pyproject.toml | sed -r 's/^version = "(.*)"/\1/')
-      ffmpeg_ver="ffmpeg5.1" # matches parts/ffmpeg/source-branch below
+      ffmpeg_ver="ffmpeg6.0" # matches parts > ffmpeg > source-branch below
       snapcraftctl set-version "${snap_ver}+${ffmpeg_ver}"
       snapcraftctl set-grade "stable"
     build-packages:
@@ -100,7 +100,7 @@ parts:
       - --disable-ffplay
       - --enable-version3
       - --enable-gpl
-      - --enable-libass         # subtitles support of some kind
+      - --enable-libass         # subtitles support
       # - --enable-libfreetype  # draw text over video
       # - --enable-libmp3lame   # audio encoder (decoding by libavcodec)
       # - --enable-libopus      # audio encoder; alt. decoder native in ffmpeg
@@ -114,8 +114,10 @@ parts:
       # - --enable-shared       # not going to need access to shared libraries
     source: git://source.ffmpeg.org/ffmpeg.git
     source-type: git
+    source-depth: 1 # faster clone?
     # Release branches: http://git.videolan.org/?p=ffmpeg.git;a=heads
-    source-branch: 'release/5.1'
+    # source-branch: 'release/5.1'
+    source-branch: 'n6.0'
     stage-packages:
       # Ref: snapcraftctl build output.
       - freeglut3
