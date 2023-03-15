@@ -24,6 +24,7 @@ class MediaObject():
         self.width = None
         self.vbr = None
         self.fps = None
+        self.nb_frames = None
         self.format = None
         if self.file:
             self.suffix = self.file.suffix
@@ -41,6 +42,7 @@ class MediaObject():
             avg_frame_rate = (self.vstreams[0].get('avg_frame_rate'))
             fpsn, fpsd = avg_frame_rate.split('/')
             self.fps = int(float(fpsn)/float(fpsd))
+            self.nb_frames = int(self.vstreams[0].get('nb_frames'))
             self.format = self.props.get('format').get('format_name')
 
 
@@ -148,7 +150,6 @@ def convert_file(show_cmd, media_in, action, media_out):
         return
     # Run conversion.
     try:
-        print(output_stream)
         ffmpeg.run(output_stream, overwrite_output=True, capture_stdout=True)
     except ffmpeg._run.Error as e:
         print(f"Error: {e}")
