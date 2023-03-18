@@ -144,6 +144,14 @@ def convert_file(show_cmd, media_in, action, media_out):
             **{'ss': media_out.endpoints[0]}, **{'to': media_out.endpoints[1]},
             **{'c:a': 'copy'}, **{'c:v': media_out.vcodec},
         )
+
+    # Tweak stdout by updating kwargs of the existing output stream.
+    output_stream.node.kwargs = {
+        **output_stream.node.kwargs,
+        "loglevel": "quiet",
+        "stats": None
+    }
+
     # Print command if desired.
     if show_cmd:
         print_command(output_stream)
