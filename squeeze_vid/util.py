@@ -1,6 +1,10 @@
 import ffmpeg
+import sys
 
 from pathlib import Path
+# https://docs.python.org/3/library/queue.html?highlight=queue#module-queue
+from queue import Queue
+from threading import Thread
 
 
 def validate_file(input_file_string):
@@ -56,3 +60,50 @@ def print_command(stream):
             command[i+1] = f"\"{command[i+1]}\""
     command[-1] = f"\"{command[-1]}\"" # outfile
     print(f"ffmpeg {' '.join(command)}\n")
+
+def show_progress(duration, q):
+    w = 60
+    suffix = ''
+    def show(c):
+        p = int(w*c/100)
+        print(f"[{u'█'*p}{('.'*(w-p))}]{suffix}", end='\r', file=sys.stdout, flush=True)
+
+    show(0)
+    while True:
+        current = q.get()
+        progress = int(round(current * 100 / duration, 0))
+        show(progress)
+        q.task_done()
+
+def run_conversion(output_stream, duration):
+    duration = float(duration)
+    filepath = output_stream.node.kwargs.get('filename')
+    print(filepath)
+
+    # Start progress queue & thread.
+    # NOTE: The surprise to me here is that the progress function is run in a
+    #   thread, while the main subprocess runs in the foreground.
+    q = Queue()
+    t = Thread(target=show_progress, args=(duration, q), daemon=True)
+    t.start()
+
+    # Run ffmpeg command.
+    try:
+        with ffmpeg.run_async(
+            output_stream,
+            overwrite_output=True,
+            pipe_stdout=True,
+            pipe_stderr=True,
+        ) as p:
+            for line in p.stdout:
+                k, v = line.decode('utf8').rstrip().split('=')
+                if k == 'out_time_ms':
+                    current = float(v) / 1000000 # convert to sec
+                    q.put(current)
+    except ffmpeg._run.Error as e:
+        print(f"Error: {e}")
+        exit(1)
+
+    # Finish queue & progress bar.
+    q.join()
+    print()

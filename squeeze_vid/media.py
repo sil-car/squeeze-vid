@@ -5,6 +5,7 @@ import ffmpeg
 from util import get_file_out
 from util import parse_timestamp
 from util import print_command
+from util import run_conversion
 
 
 class MediaObject():
@@ -30,7 +31,7 @@ class MediaObject():
             self.suffix = self.file.suffix
             self.stream = ffmpeg.input(str(self.file))
             self.props = ffmpeg.probe(str(self.file))
-            self.duration = self.props.get('format').get('duration')
+            self.duration = float(self.props.get('format').get('duration'))
             self.astreams = [a for a in self.props.get('streams') if a.get('codec_type') == 'audio']
             self.acodec = self.astreams[0].get('codec_name')
             self.abr = int(self.astreams[0].get('bit_rate'))
@@ -85,7 +86,7 @@ def convert_file(show_cmd, media_in, action, media_out):
     """
     # Set media_out attributes.
     media_out.stream = media_in.stream
-    # Set media_out attributes.
+    media_out.duration = media_in.duration
     media_out.abr = media_in.abr
     media_out.vbr = media_in.vbr
     media_out.fps = media_in.fps
@@ -115,6 +116,7 @@ def convert_file(show_cmd, media_in, action, media_out):
             audio = ffmpeg.filter(audio, 'atempo', f"{str(media_out.factor)}")
         # Set media_out filename.
         media_out.file = get_file_out(media_in, action, media_out)
+        media_out.duration = media_in.duration / media_out.factor
         # Create output stream.
         output_stream = build_output_stream(media_out, video, audio)
     elif action == 'export_audio':
@@ -149,7 +151,8 @@ def convert_file(show_cmd, media_in, action, media_out):
     output_stream.node.kwargs = {
         **output_stream.node.kwargs,
         "loglevel": "quiet",
-        "stats": None
+        "stats": None,
+        "progress": '-',
     }
 
     # Print command if desired.
@@ -157,11 +160,7 @@ def convert_file(show_cmd, media_in, action, media_out):
         print_command(output_stream)
         return
     # Run conversion.
-    try:
-        ffmpeg.run(output_stream, overwrite_output=True, capture_stdout=True)
-    except ffmpeg._run.Error as e:
-        print(f"Error: {e}")
-        exit(1)
+    run_conversion(output_stream, media_out.duration)
     return media_out.file
 
 def normalize_stream(media_in, media_out):
