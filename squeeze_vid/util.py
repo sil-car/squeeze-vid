@@ -82,9 +82,9 @@ def run_conversion(output_stream, duration, verbose=False):
         if d_ct == 0:
             bar += ci + u*(u_ct - 1) + cf
         elif d_ct < w:
-            bar += d*d_ct + u*u_ct + cf
+            bar += str(d*d_ct) + str(u*u_ct) + cf
         else:
-            bar += d*d_ct
+            bar += str(d*d_ct)
         bar += suffix + end
         return bar
 
