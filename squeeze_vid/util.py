@@ -68,13 +68,24 @@ def run_conversion(output_stream, duration, verbose=False):
     print(filepath)
 
     def get_progressbar(p_pct, w=60, suffix=''):
-        p_col = int(w*p_pct/100)
-        u_col = int(w - p_col)
+        suffix = f" {int(p_pct):>3}%"
         end = '\n' if verbose else '\r'
-        done = '█' * p_col
-        left = '.' * u_col
-        # bar = f"[{'█'*p_col}{('.'*(w-p_col))}]{suffix}{end}"
-        bar = done + left + suffix + end
+
+        ci = '\u23b8'
+        cf = '\u23b9'
+        d = '█'
+        u = ' '
+        d_ct = int(w*p_pct/100)
+        u_ct = int(w - d_ct - 1)
+        
+        bar = '  '
+        if d_ct == 0:
+            bar += ci + u*(u_ct - 1) + cf
+        elif d_ct < w:
+            bar += d*d_ct + u*u_ct + cf
+        else:
+            bar += d*d_ct
+        bar += suffix + end
         return bar
 
     def read_output(pipe, q):
