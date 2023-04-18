@@ -100,6 +100,7 @@ def run_conversion(output_stream, duration, verbose=False):
             if len(tokens) == 2:
                 k, v = tokens
                 if k == 'out_time_ms':
+                    w = 60
                     current = float(v) / 1000000 # convert to sec
                     p_pct = int(round(current * 100 / duration, 0))
                     suffix = f" {int(p_pct):>3}%"
