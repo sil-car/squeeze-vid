@@ -80,30 +80,27 @@ def run_conversion(output_stream, duration, verbose=False):
 
     def write_output(duration, q):
         for text in iter(q.get, None):
-            if verbose:
-                # Only print most interesting progress attributes.
-                attribs = [
-                    'frame',
-                    'fps',
-                    'total_size',
-                    'out_time',
-                    'speed',
-                ]
-                tokens = text.rstrip().split('=')
-                if len(tokens) == 2:
-                    k, v = tokens
+            tokens = text.rstrip().split('=')
+            if len(tokens) == 2:
+                k, v = tokens
+                if k == 'out_time_ms':
+                    current = float(v) / 1000000 # convert to sec
+                    progress_pct = int(round(current * 100 / duration, 0))
+                    progressbar = get_progressbar(progress_pct)
+                    sys.stdout.write(progressbar)
+                if verbose:
+                    # Only print most interesting progress attributes.
+                    attribs = [
+                        'frame',
+                        'fps',
+                        'total_size',
+                        'out_time',
+                        'speed',
+                    ]
                     if k in attribs:
                         sys.stdout.write(text)
-                else:
-                    sys.stdout.write(text)
-            if '=' in text:
-                tokens = text.rstrip().split('=')
-                if len(tokens) == 2:
-                    k, v = tokens
-                    if k == 'out_time_ms':
-                        current = float(v) / 1000000 # convert to sec
-                        progress_pct = int(round(current * 100 / duration, 0))
-                        sys.stdout.write(get_progressbar(progress_pct))
+            elif verbose:
+                sys.stdout.write(text)
             q.task_done()
         q.task_done()
 
