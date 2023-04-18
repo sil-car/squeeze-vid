@@ -81,7 +81,21 @@ def run_conversion(output_stream, duration, verbose=False):
     def write_output(duration, q):
         for text in iter(q.get, None):
             if verbose:
-                sys.stdout.write(text)
+                # Only print most interesting progress attributes.
+                attribs = [
+                    'frame',
+                    'fps',
+                    'total_size',
+                    'out_time',
+                    'speed',
+                ]
+                tokens = text.rstrip().split('=')
+                if len(tokens) == 2:
+                    k, v = tokens
+                    if k in attribs:
+                        sys.stdout.write(text)
+                else:
+                    sys.stdout.write(text)
             if '=' in text:
                 tokens = text.rstrip().split('=')
                 if len(tokens) == 2:

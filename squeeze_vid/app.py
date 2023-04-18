@@ -76,6 +76,11 @@ Also perform other useful operations on media files."
         help="Use lower bitrate and fewer fps for short tutorial videos."
     )
     parser.add_argument(
+        '-v', '--verbose',
+        action='store_true',
+        help="Give verbose output."
+    )
+    parser.add_argument(
         '--vp9',
         action='store_true',
         help="Use VP9 encoding (<1x transcoding rate, but possibly a smaller filesize than H.264)."
@@ -111,6 +116,8 @@ Also perform other useful operations on media files."
     for input_file_string in args.file:
         # Validate input_file.
         input_file = validate_file(input_file_string)
+        if args.verbose:
+            print(f"input file: {input_file}")
         mod_file = Path()
         mod_file_prev = Path()
         if not input_file:
@@ -124,7 +131,7 @@ Also perform other useful operations on media files."
             show_command = False
             media_out.factor = 0.5
             media_out.endpoints = ['3', '13']
-            mod_file = convert_file(show_command, media_in, 'normalize', media_out)
+            mod_file = convert_file(show_command, media_in, 'normalize', media_out, verbose=args.verbose)
             continue
         if args.info:
             # Show the video file info.
@@ -134,7 +141,7 @@ Also perform other useful operations on media files."
         if args.trim:
             # Trim the file using given timestamps.
             media_out.endpoints = args.trim
-            mod_file = convert_file(args.command, media_in, 'trim', media_out)
+            mod_file = convert_file(args.command, media_in, 'trim', media_out, verbose=args.verbose)
         if args.speed:
             # Use mod_file from previous step as input_file if it exists.
             if mod_file.is_file():
@@ -143,7 +150,7 @@ Also perform other useful operations on media files."
                 mod_file_prev = mod_file
             # Attempt to change the playback speed of all passed video files.
             media_out.factor = float(args.speed)
-            mod_file = convert_file(args.command, media_in, 'change_speed', media_out)
+            mod_file = convert_file(args.command, media_in, 'change_speed', media_out, verbose=args.verbose)
         if args.audio:
             print("Needs work.")
             continue
@@ -154,7 +161,7 @@ Also perform other useful operations on media files."
                 mod_file_prev = mod_file
             # Convert file(s) to normalized MP3.
             media_out.suffix = '.mp3'
-            mod_file = convert_file(args.command, media_in, 'export_audio', media_out)
+            mod_file = convert_file(args.command, media_in, 'export_audio', media_out, verbose=args.verbose)
         if (args.normalize or args.rates[2] == 10 or
                 (not args.info and not args.trim and not args.speed and not args.audio)):
             # Use mod_file from previous step as input_file if it exists.
@@ -163,7 +170,7 @@ Also perform other useful operations on media files."
                 media_in = MediaObject(input_file)
                 mod_file_prev = mod_file
             # Attempt to normalize all passed files.
-            mod_file = convert_file(args.command, media_in, 'normalize', media_out)
+            mod_file = convert_file(args.command, media_in, 'normalize', media_out, verbose=args.verbose)
 
 
 if __name__ == '__main__':
