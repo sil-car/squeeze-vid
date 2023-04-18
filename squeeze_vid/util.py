@@ -1,5 +1,6 @@
 import ffmpeg
 import sys
+import threading
 
 from pathlib import Path
 # https://docs.python.org/3/library/queue.html?highlight=queue#module-queue
@@ -61,31 +62,42 @@ def print_command(stream):
     command[-1] = f"\"{command[-1]}\"" # outfile
     print(f"ffmpeg {' '.join(command)}\n")
 
-def show_progress(duration, q):
-    w = 60
-    suffix = ''
-    def show(c):
-        p = int(w*c/100)
-        print(f"[{u'█'*p}{('.'*(w-p))}]{suffix}", end='\r', file=sys.stdout, flush=True)
-
-    show(0)
-    while True:
-        current = q.get()
-        progress = int(round(current * 100 / duration, 0))
-        show(progress)
-        q.task_done()
-
-def run_conversion(output_stream, duration):
+def run_conversion(output_stream, duration, verbose=False):
     duration = float(duration)
     filepath = output_stream.node.kwargs.get('filename')
     print(filepath)
 
-    # Start progress queue & thread.
-    # NOTE: The surprise to me here is that the progress function is run in a
-    #   thread, while the main subprocess runs in the foreground.
-    q = Queue()
-    t = Thread(target=show_progress, args=(duration, q), daemon=True)
-    t.start()
+    def get_progressbar(p_pct, w=60, suffix=''):
+        p_col = int(w*p_pct/100)
+        end = '\n' if verbose else '\r'
+        return f"[{u'█'*p_col}{('.'*(w-p_col))}]{suffix}{end}"
+
+    def read_output(pipe, q):
+        for line in iter(pipe.readline, b''):
+            text = line.decode('utf8')
+            q.put(text)
+        pipe.close()
+
+    def write_output(duration, q):
+        for text in iter(q.get, None):
+            if verbose:
+                sys.stdout.write(text)
+            if '=' in text:
+                tokens = text.rstrip().split('=')
+                if len(tokens) == 2:
+                    k, v = tokens
+                    if k == 'out_time_ms':
+                        current = float(v) / 1000000 # convert to sec
+                        progress_pct = int(round(current * 100 / duration, 0))
+                        sys.stdout.write(get_progressbar(progress_pct))
+            q.task_done()
+        q.task_done()
+
+    def cleanup(threads, q):
+        for t in threads:
+            t.join()
+        q.put(None)
+        q.join()
 
     # Run ffmpeg command.
     try:
@@ -95,15 +107,25 @@ def run_conversion(output_stream, duration):
             pipe_stdout=True,
             pipe_stderr=True,
         ) as p:
-            for line in p.stdout:
-                k, v = line.decode('utf8').rstrip().split('=')
-                if k == 'out_time_ms':
-                    current = float(v) / 1000000 # convert to sec
-                    q.put(current)
+            q_out = Queue()
+            try:
+                # Start progress queue & threads.
+                t_out = Thread(name="T-stdout", target=read_output, args=(p.stdout, q_out))
+                t_err = Thread(name="T-stderr", target=read_output, args=(p.stderr, q_out))
+                t_write = Thread(name="T-write", target=write_output, args=(duration, q_out))
+                for t in (t_out, t_err, t_write):
+                    t.start()
+                p.wait()
+            except KeyboardInterrupt:
+                print("\nInterrupted with Ctrl+C")
+                p.kill()
+                # Finish queue & progress bar.
+                cleanup((t_out, t_err), q_out)
+                sys.exit(130)
+            # Finish queue & progress bar.
+            cleanup((t_out, t_err), q_out)
     except ffmpeg._run.Error as e:
         print(f"Error: {e}")
         exit(1)
 
-    # Finish queue & progress bar.
-    q.join()
     print()

@@ -80,7 +80,7 @@ class MediaObject():
             print()
 
 
-def convert_file(show_cmd, media_in, action, media_out):
+def convert_file(show_cmd, media_in, action, media_out, verbose=False):
     """
     actions: 'change_speed', 'export_audio', 'normalize', 'trim'
     """
@@ -160,7 +160,7 @@ def convert_file(show_cmd, media_in, action, media_out):
         print_command(output_stream)
         return
     # Run conversion.
-    run_conversion(output_stream, media_out.duration)
+    run_conversion(output_stream, media_out.duration, verbose=verbose)
     return media_out.file
 
 def normalize_stream(media_in, media_out):
