@@ -69,9 +69,10 @@ def run_conversion(output_stream, duration, verbose=False):
 
     def get_progressbar(p_pct, w=60, suffix=''):
         p_col = int(w*p_pct/100)
+        u_col = w - p_col
         end = '\n' if verbose else '\r'
         done = '█' * p_col
-        left = '.' * (w - p_col)
+        left = '.' * u_col
         # bar = f"[{'█'*p_col}{('.'*(w-p_col))}]{suffix}{end}"
         bar = done + left + suffix + end
         return bar
