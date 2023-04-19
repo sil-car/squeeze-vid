@@ -98,27 +98,6 @@ def run_conversion(output_stream, duration, verbose=False):
         bar += suffix + end
         return bar
 
-    # def get_progressbar(p_pct, w=60, suffix=''):
-    #     suffix = f" {int(p_pct):>3}%"
-    #     end = '\n' if verbose else '\r'
-    #     bar = suffix + end
-    #     # ci = '\u23b8'
-    #     # cf = '\u23b9'
-    #     # d = '█'
-    #     # u = ' '
-    #     # d_ct = int(w*p_pct/100)
-    #     # u_ct = int(w - d_ct - 1)
-        
-    #     # bar = '  '
-    #     # if d_ct == 0:
-    #     #     bar += ci + u*(u_ct - 1) + cf
-    #     # elif d_ct < w:
-    #     #     bar += str(d*d_ct) + str(u*u_ct) + cf
-    #     # else:
-    #     #     bar += str(d*d_ct)
-    #     # bar += suffix + end
-    #     return bar
-
     def read_output(pipe, q):
         for line in iter(pipe.readline, b''):
             text = line.decode('utf8')
@@ -132,6 +111,12 @@ def run_conversion(output_stream, duration, verbose=False):
                 k, v = tokens
                 if k == 'out_time_ms':
                     current = float(v) / 1000000 # convert to sec
+                    if config.DEBUG:
+                        print(f"{current = }")
+                    # BUG: out_time_ms is initially a very large neg. number in ffmpeg6 output;
+                    #   hacked workaround.
+                    if abs(current) > duration:
+                        current = 0
                     p_pct = int(round(current * 100 / duration, 0))
                     progressbar = get_progressbar(p_pct)
                     sys.stdout.write(progressbar)
