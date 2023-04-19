@@ -131,7 +131,7 @@ def convert_file(show_cmd, media_in, action, media_out):
         # Add video filters.
         if video:
             # Define video max height.
-            video = ffmpeg.filter(video, 'scale', -1, f"min({media_out.height}, ih)")
+            video = ffmpeg.filter(video, 'scale', "trunc(oh*a/2)*2", f"min({media_out.height}, ih)")
             # Define video max framerate.
             video = ffmpeg.filter(video, 'fps', media_out.fps)
         # Set media_out filename.
