@@ -233,7 +233,7 @@ def build_output_stream(media_out, video=None, audio=None):
             video, audio,
             str(media_out.file),
             vcodec=media_out.vcodec,
-            video_bitrate=media_out.vbr,
+            video_bitrate=media_out.vbr-1, # some codecs require max br > target br
             maxrate=media_out.vbr,
             bufsize=media_out.vbr/2,
             acodec=media_out.acodec,
