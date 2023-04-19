@@ -18,6 +18,7 @@ if not os.environ.get('SNAP') and not os.environ.get('VIRTUAL_ENV'):
 
 import argparse
 
+import config
 from media import convert_file
 from media import MediaObject
 from util import validate_file
@@ -45,6 +46,11 @@ Also perform other useful operations on media files."
         '-c', '--command',
         action='store_true',
         help="Print the equivalent ffmpeg bash command and exit."
+    )
+    parser.add_argument(
+        '-d', '--debug',
+        action='store_true',
+        help=argparse.SUPPRESS,
     )
     parser.add_argument(
         '-i', '--info',
@@ -97,6 +103,8 @@ Also perform other useful operations on media files."
     )
 
     args = parser.parse_args()
+    if args.debug:
+        config.DEBUG = True
 
     # Set normalized output properties.
     media_out = MediaObject()
