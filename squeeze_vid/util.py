@@ -7,6 +7,8 @@ from pathlib import Path
 from queue import Queue
 from threading import Thread
 
+import config
+
 
 def validate_file(input_file_string):
     # Get full path to input file.
@@ -64,6 +66,8 @@ def print_command(stream):
 
 def run_conversion(output_stream, duration, verbose=False):
     duration = float(duration)
+    if config.DEBUG:
+        print(f"{duration = }")
     filepath = output_stream.node.kwargs.get('filename')
     print(filepath)
 
@@ -75,9 +79,15 @@ def run_conversion(output_stream, duration, verbose=False):
         cf = '\u23b9'
         d = '█'
         u = ' '
-        d_ct = int(w*p_pct/100)
-        u_ct = int(w - d_ct - 1)
-        
+        d_ct = min(int(w*p_pct/100), w)
+        u_ct = min(int(w - d_ct - 1), w - 1)
+
+        if config.DEBUG:
+            print(f"{p_pct = }")
+            print(f"{d_ct = }")
+            print(f"{u_ct = }")
+
+
         bar = '  '
         if d_ct == 0:
             bar += ci + u*(u_ct - 1) + cf
@@ -121,12 +131,10 @@ def run_conversion(output_stream, duration, verbose=False):
             if len(tokens) == 2:
                 k, v = tokens
                 if k == 'out_time_ms':
-                    w = 60
                     current = float(v) / 1000000 # convert to sec
-                    if current <= duration:
-                        p_pct = int(round(current * 100 / duration, 0))
-                        progressbar = get_progressbar(p_pct)
-                        sys.stdout.write(progressbar)
+                    p_pct = int(round(current * 100 / duration, 0))
+                    progressbar = get_progressbar(p_pct)
+                    sys.stdout.write(progressbar)
                 if verbose:
                     # Only print most interesting progress attributes.
                     attribs = [
