@@ -165,20 +165,16 @@ def convert_file(show_cmd, media_in, action, media_out):
         output_stream.node.kwargs["loglevel"] = "debug"
     if config.FFMPEG_EXPERIMENTAL:
         output_stream.node.kwargs["strict"] = "-2"
-    if media_out.vcodec == 'libaom-av1':
+    # if media_out.vcodec == 'libaom-av1':
+    #     output_stream.node.kwargs["row-mt"] = "1"
+    #     output_stream.node.kwargs["cpu-used"] = "8"
+    #     output_stream.node.kwargs["tile-columns"] = tile_col_exp
+    #     output_stream.node.kwargs["tile-rows"] = tile_row_exp
+    if media_out.vcodec == 'libvpx-vp9':
         output_stream.node.kwargs["row-mt"] = "1"
         output_stream.node.kwargs["cpu-used"] = "8"
         output_stream.node.kwargs["tile-columns"] = tile_col_exp
         output_stream.node.kwargs["tile-rows"] = tile_row_exp
-    elif media_out.vcodec == 'libvpx-vp9':
-        output_stream.node.kwargs["row-mt"] = "1"
-        output_stream.node.kwargs["cpu-used"] = "8"
-        output_stream.node.kwargs["tile-columns"] = tile_col_exp
-        output_stream.node.kwargs["tile-rows"] = tile_row_exp
-    elif media_out.vcodec == 'libsvtav1':
-        output_stream.node.kwargs["tile-columns"] = tile_col_exp
-        output_stream.node.kwargs["tile-rows"] = tile_row_exp
-
 
     # Print command if desired.
     if show_cmd:

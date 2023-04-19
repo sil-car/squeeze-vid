@@ -87,9 +87,14 @@ Also perform other useful operations on media files."
         help="Give verbose output."
     )
     parser.add_argument(
+        '--av1',
+        action='store_true',
+        help="Shortcut to use libsvtav1 video encoder."
+    )
+    parser.add_argument(
         '--video_encoder',
         type=str,
-        help="Specify video encoder: [libx264], libaom-av1, libsvtav1, libvpx-vp9"
+        help="Specify video encoder [libx264]: libx264, libsvtav1, libvpx-vp9"
     )
     parser.add_argument(
         '-x', '--experimental',
@@ -116,9 +121,11 @@ Also perform other useful operations on media files."
     media_out.acodec_norm = 'aac'
     media_out.vcodec_norm = 'libx264'
     if args.video_encoder:
-        if args.video_encoder in ["libaom-av1", "libsvtav1"]:
-            config.FFMPEG_EXPERIMENTAL = True
+        # if args.video_encoder == 'libaom-av1':
+        #     config.FFMPEG_EXPERIMENTAL = True
         media_out.vcodec_norm = args.video_encoder
+    if args.av1:
+        media_out.vcodec_norm = 'libsvtav1'
     media_out.height_norm = 720
     media_out.format_norm_a = 'mp3'
     media_out.suffix_norm_a = '.mp3'

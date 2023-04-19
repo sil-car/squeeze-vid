@@ -71,7 +71,7 @@ parts:
       - automake
       - build-essential
       - cmake
-      - libaom-dev
+      # - libaom-dev # libaom-av1 is way too slow on 20.04; libsvtav1 is much better
       - libass-dev
       - libfreetype6-dev
       # - libmp3lame-dev
@@ -108,7 +108,7 @@ parts:
       # - --enable-libopus      # audio encoder; alt. decoder native in ffmpeg
       # - --enable-libvorbis    # audio encoder (decoding by libavcodec)
       # - --enable-libtheora    # video encoder (decoding by libavcodec)
-      - --enable-libaom         # AV1 video encoder
+      # - --enable-libaom         # AV1 video encoder
       - --enable-libsvtav1      # SVT-AV1 video encoder; requires 22.04+ packages libsvtav1{,-dev}; or build from src
       - --enable-libvpx         # VP9 video encoder
       - --enable-libx264        # H.264 video encoder
@@ -125,7 +125,7 @@ parts:
       # Ref: snapcraftctl build output.
       - freeglut3
       - libasound2
-      - libaom0
+      # - libaom0 # way too slow on 20.04; libsvtav1 is much better
       - libass9
       - libcairo2
       - libfontconfig1
@@ -155,14 +155,7 @@ parts:
       - libxcb-shape0
       - libxcb1
       - libxrender1
-      # External libraries (from ffmpeg build):
-      # alsa                    libtheora               libxcb_shape
-      # iconv                   libvorbis               libxcb_shm
-      # libass                  libvpx                  libxcb_xfixes
-      # libfreetype             libx264                 zlib
-      # libmp3lame              libx265
-      # libopus                 libxcb
-      #
+
       # External libraries providing hardware acceleration:
       # v4l2_m2m                vaapi                   vdpau
 
@@ -216,14 +209,6 @@ parts:
   #   - https://gitlab.com/AOMediaCodec/SVT-AV1/-/blob/master/Docs/Build-Guide.md
   #   - https://snapcraft.io/docs/cmake-plugin#heading--core20
   libsvtav1:
-    # build-packages:
-    #   - git
-    #   - g++
-    #   - make
-    #   - autoconf
-    #   - automake
-    #   - build-essential
-    #   - cmake
     source: https://gitlab.com/AOMediaCodec/SVT-AV1.git
     source-type: git
     source-depth: 1
