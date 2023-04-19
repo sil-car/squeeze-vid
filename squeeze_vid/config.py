@@ -1,1 +1,3 @@
 DEBUG = False
+VERBOSE = False
+FFMPEG_EXPERIMENTAL = False

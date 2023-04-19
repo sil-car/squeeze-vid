@@ -64,7 +64,7 @@ def print_command(stream):
     command[-1] = f"\"{command[-1]}\"" # outfile
     print(f"ffmpeg {' '.join(command)}\n")
 
-def run_conversion(output_stream, duration, verbose=False):
+def run_conversion(output_stream, duration):
     duration = float(duration)
     if config.DEBUG:
         print(f"{duration = }")
@@ -73,7 +73,7 @@ def run_conversion(output_stream, duration, verbose=False):
 
     def get_progressbar(p_pct, w=60, suffix=''):
         suffix = f" {int(p_pct):>3}%"
-        end = '\n' if verbose else '\r'
+        end = '\n' if config.VERBOSE else '\r'
 
         ci = '\u23b8'
         cf = '\u23b9'
@@ -120,7 +120,7 @@ def run_conversion(output_stream, duration, verbose=False):
                     p_pct = int(round(current * 100 / duration, 0))
                     progressbar = get_progressbar(p_pct)
                     sys.stdout.write(progressbar)
-                if verbose:
+                if config.VERBOSE:
                     # Only print most interesting progress attributes.
                     attribs = [
                         'frame',
@@ -131,7 +131,7 @@ def run_conversion(output_stream, duration, verbose=False):
                     ]
                     if k in attribs:
                         sys.stdout.write(text)
-            elif verbose:
+            elif config.VERBOSE:
                 sys.stdout.write(text)
             q.task_done()
         q.task_done()
