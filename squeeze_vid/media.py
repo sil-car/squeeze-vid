@@ -2,6 +2,8 @@ import ffmpeg
 # ffmpeg API: https://kkroening.github.io/ffmpeg-python
 # ffmpeg Ex: https://github.com/kkroening/ffmpeg-python
 
+import config
+
 from util import get_file_out
 from util import parse_timestamp
 from util import print_command
@@ -80,7 +82,7 @@ class MediaObject():
             print()
 
 
-def convert_file(show_cmd, media_in, action, media_out, verbose=False):
+def convert_file(show_cmd, media_in, action, media_out):
     """
     actions: 'change_speed', 'export_audio', 'normalize', 'trim'
     """
@@ -150,17 +152,38 @@ def convert_file(show_cmd, media_in, action, media_out, verbose=False):
     # Tweak stdout by updating kwargs of the existing output stream.
     output_stream.node.kwargs = {
         **output_stream.node.kwargs,
-        "loglevel": "quiet",
+        "loglevel": "warning",
         "stats": None,
         "progress": '-',
     }
+    # Modify args according to variables.
+    if config.VERBOSE:
+        output_stream.node.kwargs["loglevel"] = "verbose"
+    if config.DEBUG:
+        output_stream.node.kwargs["loglevel"] = "debug"
+    if config.FFMPEG_EXPERIMENTAL:
+        output_stream.node.kwargs["strict"] = "-2"
+    if media_out.vcodec == 'libaom-av1':
+        output_stream.node.kwargs["row-mt"] = "1"
+        output_stream.node.kwargs["cpu-used"] = "8"
+        output_stream.node.kwargs["tile-columns"] = "2"
+        output_stream.node.kwargs["tile-rows"] = "0"
+    elif media_out.vcodec == 'libvpx-vp9':
+        output_stream.node.kwargs["row-mt"] = "1"
+        output_stream.node.kwargs["cpu-used"] = "8"
+        output_stream.node.kwargs["tile-columns"] = "2"
+        output_stream.node.kwargs["tile-rows"] = "0"
+    elif media_out.vcodec == 'libsvtav1':
+        output_stream.node.kwargs["tile-columns"] = "2"
+        output_stream.node.kwargs["tile-rows"] = "0"
+
 
     # Print command if desired.
     if show_cmd:
         print_command(output_stream)
         return
     # Run conversion.
-    run_conversion(output_stream, media_out.duration, verbose=verbose)
+    run_conversion(output_stream, media_out.duration)
     return media_out.file
 
 def normalize_stream(media_in, media_out):

@@ -4,4 +4,5 @@
   - [x] libaom-av1 (AV1): verrrrrry slow (0.01x)
   - [x] libvpx-vp9 (VP9): slow (0.36x)
 - [x] Show single progress bar line instead of multiline output?
+- [ ] See if snap size can be further reduced.
 - [ ] Consider GUI

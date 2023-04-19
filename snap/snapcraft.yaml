@@ -61,7 +61,8 @@ parts:
   # Build ffmpeg from source.
   # https://forum.snapcraft.io/t/proper-way-to-leverage-another-snap-in-a-snap/3893/2
   ffmpeg:
-    # TODO: Consider using ffmpeg snap instead.
+    after:
+      - libsvtav1
     build-packages:
       - git
       - g++
@@ -70,12 +71,13 @@ parts:
       - automake
       - build-essential
       - cmake
-      # - libaom-dev
+      - libaom-dev
       - libass-dev
       - libfreetype6-dev
       # - libmp3lame-dev
       # - libopus-dev
       - libsdl1.2-dev
+      # - libsvtav1-dev # 22.04+; or build from src
       # - libtheora-dev
       - libtool
       - libva-dev
@@ -106,7 +108,8 @@ parts:
       # - --enable-libopus      # audio encoder; alt. decoder native in ffmpeg
       # - --enable-libvorbis    # audio encoder (decoding by libavcodec)
       # - --enable-libtheora    # video encoder (decoding by libavcodec)
-      # - --enable-libaom         # AV1 video encoder
+      - --enable-libaom         # AV1 video encoder
+      - --enable-libsvtav1      # SVT-AV1 video encoder; requires 22.04+ packages libsvtav1{,-dev}; or build from src
       - --enable-libvpx         # VP9 video encoder
       - --enable-libx264        # H.264 video encoder
       # - --enable-libx265      # H.265 video encoder
@@ -122,7 +125,7 @@ parts:
       # Ref: snapcraftctl build output.
       - freeglut3
       - libasound2
-      # - libaom0
+      - libaom0
       - libass9
       - libcairo2
       - libfontconfig1
@@ -137,6 +140,7 @@ parts:
       # - libopus0
       - libpixman-1-0
       - libpng16-16
+      # - libsvtav1 # 22.04+; or build from src
       # - libtheora0
       - libva-drm2
       - libva-x11-2
@@ -207,10 +211,33 @@ parts:
       #   - i965-va-driver
       #   - mesa-va-drivers
 
+  # Build libsvtav1 from source for core20 or older.
+  # Ref:
+  #   - https://gitlab.com/AOMediaCodec/SVT-AV1/-/blob/master/Docs/Build-Guide.md
+  #   - https://snapcraft.io/docs/cmake-plugin#heading--core20
+  libsvtav1:
+    # build-packages:
+    #   - git
+    #   - g++
+    #   - make
+    #   - autoconf
+    #   - automake
+    #   - build-essential
+    #   - cmake
+    source: https://gitlab.com/AOMediaCodec/SVT-AV1.git
+    source-type: git
+    source-depth: 1
+    plugin: cmake
+    cmake-parameters:
+      - -G"Unix Makefiles"
+      - -DCMAKE_BUILD_TYPE=Release
+      - -DCMAKE_INSTALL_PREFIX=/usr
+
   cleanup:
     # https://forum.snapcraft.io/t/reduce-size-of-qt5-app-snap/31030/7
     after:
       - ffmpeg
+      - libsvtav1
       - squeeze-vid
     plugin: nil
     build-snaps:
