@@ -175,6 +175,8 @@ def convert_file(show_cmd, media_in, action, media_out):
         output_stream.node.kwargs["cpu-used"] = "8"
         output_stream.node.kwargs["tile-columns"] = tile_col_exp
         output_stream.node.kwargs["tile-rows"] = tile_row_exp
+    if media_out.vcodec == 'libsvtav1':
+        output_stream.node.kwargs["svtav1-params"] = f"tile-columns={tile_col_exp}:tile-rows={tile_row_exp}"
 
     # Print command if desired.
     if show_cmd:
@@ -241,7 +243,7 @@ def build_output_stream(media_out, video=None, audio=None):
             video,
             str(media_out.file),
             vcodec=media_out.vcodec,
-            video_bitrate=media_out.vbr,
+            video_bitrate=media_out.vbr-1,
             maxrate=media_out.vbr,
             bufsize=media_out.vbr/2,
             format=media_out.format,
