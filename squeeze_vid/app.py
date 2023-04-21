@@ -126,6 +126,7 @@ Also perform other useful operations on media files."
         media_out.vcodec_norm = args.video_encoder
     if args.av1:
         media_out.vcodec_norm = 'libsvtav1'
+        media_out.vbr_norm = int(media_out.vbr_norm * 0.75) # reduce b/c AV1 is more efficient
     media_out.height_norm = 720
     media_out.format_norm_a = 'mp3'
     media_out.suffix_norm_a = '.mp3'
