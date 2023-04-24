@@ -69,22 +69,3 @@ YouTube audio has chosen to stream AAC files at 126 kbps. At 128 kbps, one can e
 >- https://www.multivu.com/blog/2017/video-specs-for-noobs.html
 >- https://streamlabs.com/content-hub/post/best-bitrate-settings-for-live-streaming
 >- https://homedjstudio.com/audio-bitrates-formats/
-
-## Workarounds
-
-I've noticed that some videos encoded with AV1 have an "unknown" pix_fmt property. **Squeeze Vid** fails to re-encode these because ffmpeg complains about the unknown pix_fmt. E.g.
-```bash
-$ squeeze-vid.ffprobe -loglevel quiet -show_entries stream=pix_fmt input.mp4
-[STREAM]
-pix_fmt=unknown
-[/STREAM]
-[STREAM]
-[/STREAM]
-```
-
-These source videos can be re-encoded with a useful pix_fmt using a command like this:
-```bash
-$ # https://superuser.com/a/1372751/1738993
-$ squeeze-vid.ffmpeg -i input.mp4 -vf format=yuv420p output.mp4
-```
-Then **Squeeze Vid** will be able to convert it as intended afterwards.
