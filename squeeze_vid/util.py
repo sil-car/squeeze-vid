@@ -107,7 +107,9 @@ def run_conversion(output_stream, duration):
     def write_output(duration, q):
         for text in iter(q.get, None):
             tokens = text.rstrip().split('=')
-            if len(tokens) == 2:
+            if config.VERBOSE or len(tokens) == 1:
+                sys.stdout.write(text)
+            elif len(tokens) == 2:
                 k, v = tokens
                 if k == 'out_time_ms':
                     current = float(v) / 1000000 # convert to sec
@@ -131,8 +133,6 @@ def run_conversion(output_stream, duration):
                     ]
                     if k in attribs:
                         sys.stdout.write(text)
-            elif config.VERBOSE:
-                sys.stdout.write(text)
             q.task_done()
         q.task_done()
 
@@ -168,7 +168,7 @@ def run_conversion(output_stream, duration):
             # Finish queue & progress bar.
             cleanup((t_out, t_err), q_out)
     except ffmpeg._run.Error as e:
-        print(f"Error: {e}")
+        print(e.stderr.decode('utf8'))
         exit(1)
 
     print()

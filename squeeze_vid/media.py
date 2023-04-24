@@ -32,7 +32,7 @@ class MediaObject():
         if self.file:
             self.suffix = self.file.suffix
             self.stream = ffmpeg.input(str(self.file))
-            self.props = ffmpeg.probe(str(self.file))
+            self.props = self.get_properties(str(self.file))
             self.duration = float(self.props.get('format').get('duration'))
             self.astreams = [a for a in self.props.get('streams') if a.get('codec_type') == 'audio']
             self.acodec = self.astreams[0].get('codec_name')
@@ -68,7 +68,7 @@ class MediaObject():
         try:
             probe = ffmpeg.probe(file)
         except ffmpeg._run.Error as e:
-            print(f"Error: {e}\nNot an audio or video file?")
+            print(e.stderr.decode('utf8'))
             exit(1)
         return probe
 
