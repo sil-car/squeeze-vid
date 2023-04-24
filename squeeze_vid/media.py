@@ -176,7 +176,7 @@ def convert_file(show_cmd, media_in, action, media_out):
         output_stream.node.kwargs["tile-columns"] = tile_col_exp
         output_stream.node.kwargs["tile-rows"] = tile_row_exp
     if media_out.vcodec == 'libsvtav1':
-        output_stream.node.kwargs["svtav1-params"] = f"tile-columns={tile_col_exp}:tile-rows={tile_row_exp}"
+        output_stream.node.kwargs["svtav1-params"] = f"tile-columns={tile_col_exp}:tile-rows={tile_row_exp}:fast-decode=1"
 
     # Print command if desired.
     if show_cmd:

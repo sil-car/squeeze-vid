@@ -107,7 +107,9 @@ def run_conversion(output_stream, duration):
     def write_output(duration, q):
         for text in iter(q.get, None):
             tokens = text.rstrip().split('=')
-            if config.VERBOSE or len(tokens) == 1:
+            if config.VERBOSE:
+                sys.stdout.write(text)
+            elif len(tokens) == 1 and text[:4] != 'Svt[': # ignore extra libsvtav1 output
                 sys.stdout.write(text)
             elif len(tokens) == 2:
                 k, v = tokens
