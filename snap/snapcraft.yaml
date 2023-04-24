@@ -71,7 +71,7 @@ parts:
       - automake
       - build-essential
       - cmake
-      # - libaom-dev # libaom-av1 is way too slow on 20.04; libsvtav1 is much better
+      - libaom-dev # libaom-av1 encoder is way too slow on 20.04, but its decoder is better
       - libass-dev
       - libfreetype6-dev
       # - libmp3lame-dev
@@ -108,7 +108,7 @@ parts:
       # - --enable-libopus      # audio encoder; alt. decoder native in ffmpeg
       # - --enable-libvorbis    # audio encoder (decoding by libavcodec)
       # - --enable-libtheora    # video encoder (decoding by libavcodec)
-      # - --enable-libaom         # AV1 video encoder
+      - --enable-libaom         # AV1 video encoder
       - --enable-libsvtav1      # SVT-AV1 video encoder; requires 22.04+ packages libsvtav1{,-dev}; or build from src
       - --enable-libvpx         # VP9 video encoder
       - --enable-libx264        # H.264 video encoder
@@ -125,7 +125,7 @@ parts:
       # Ref: snapcraftctl build output.
       - freeglut3
       - libasound2
-      # - libaom0 # way too slow on 20.04; libsvtav1 is much better
+      - libaom0 # encoder way too slow on 20.04, but decoder is still useful
       - libass9
       - libcairo2
       - libfontconfig1
