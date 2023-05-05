@@ -13,6 +13,46 @@ Frame rate | 25 fps | 10 fps
 $ snap install squeeze-vid
 ```
 
+## Usage
+
+```bash
+$ squeeze-vid --help
+usage: squeeze-vid [-h] [-c] [-i] [-k TRIM TRIM] [-n] [-s SPEED] [-t] [-v]
+                   [--av1] [--video_encoder VIDEO_ENCODER]
+                   [file [file ...]]
+
+Convert video file to MP4, ensuring baseline video quality:
+  * Default:  720p, 2 Mbps, 25 fps for projected video
+  * Tutorial: 720p, 500 Kbps, 10 fps for tutorial video
+
+Also perform other useful operations on media files.
+
+positional arguments:
+  file                  Space-separated list of media files to modify.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -c, --command         Print the equivalent ffmpeg bash command and exit.
+  -i, --info            Show stream properties of given file (only 1
+                        accepted).
+  -k TRIM TRIM, --trim TRIM TRIM
+                        Trim the file to keep content between given timestamps
+                        (HH:MM:SS).
+  -n, --normalize       Normalize video reslution, bitrate, and framerate.
+                        This is also the default action if no options are
+                        given.
+  -s SPEED, --speed SPEED
+                        Change the playback speed of the video using the given
+                        factor (0.5 to 100).
+  -t, --tutorial        Use lower bitrate and fewer fps for short tutorial
+                        videos.
+  -v, --verbose         Give verbose output.
+  --av1                 Shortcut to use libsvtav1 video encoder.
+  --video_encoder VIDEO_ENCODER
+                        Specify video encoder [libx264]: libx264, libsvtav1,
+                        libvpx-vp9
+```
+
 ## Use python script from this repo
 
 NOTE: You will need to install ffmpeg on your system manually in this case. AV1 encoding support will then depend on your system's build.
