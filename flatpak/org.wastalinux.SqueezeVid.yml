@@ -1,5 +1,5 @@
 # https://docs.flatpak.org/en/latest/flatpak-builder-command-reference.html#flatpak-manifest
-app-id: org.wastalinux.SqueezeVid
+app-id: io.github.sil-car.SqueezeVid
 runtime: org.freedesktop.Platform
 runtime-version: '22.08'
 sdk: org.freedesktop.Sdk
