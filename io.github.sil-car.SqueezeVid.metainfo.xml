@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="console-application">
+  <id>io.github.sil-car.SqueezeVid</id>
+  <metadata_license>FSFAP</metadata_license>
+  <name>Squeeze Vid</name>
+  <summary xml:lang="en">Normalize videos to a minimal, projection-compatible quality.</summary>
+  <provides>
+    <binary>squeeze-vid</binary>
+  </provides>
+  <description>
+    <p xml:lang="en">
+        Normalize videos and audio files (using ffmpeg) to a standardized frame rate
+        and quality to minimize the file size while maintaining adequate quality for
+        video projection.
+    </p>
+  </description>
+  <categories>
+    <category>AudioVideo</category>
+    <category>Utility</category>
+  </categories>
+  <project_license>GPL-3.0+</project_license>
+  <developer_name>Nate Marti</developer_name>
+  <url type="bugtracker">https://github.com/sil-car/squeeze-vid/issues</url>
+</component>
