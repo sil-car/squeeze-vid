@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="console-application">
   <id>io.github.sil-car.SqueezeVid</id>
-  <metadata_license>FSFAP</metadata_license>
+  <metadata_license>CC0-1.0</metadata_license>
   <name>Squeeze Vid</name>
   <summary xml:lang="en">Normalize videos to a minimal, projection-compatible quality.</summary>
   <provides>
