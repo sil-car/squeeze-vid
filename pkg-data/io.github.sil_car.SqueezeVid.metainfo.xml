@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright 2023 SIL International -->
 <component type="console-application">
-  <id>io.github.sil-car.SqueezeVid</id>
+  <id>io.github.sil_car.SqueezeVid</id>
   <metadata_license>CC0-1.0</metadata_license>
   <name>Squeeze Vid</name>
   <summary>Normalize videos to a minimal, projection-compatible quality.</summary>
