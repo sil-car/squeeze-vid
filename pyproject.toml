@@ -11,7 +11,7 @@ version = "0.5.2"
 dynamic = ["readme"]
 
 [project.scripts]
-squeeze-vid = "squeeze_vid.app"
+squeeze-vid = "squeeze_vid.app:main"
 
 [tool.setuptools]
 packages = ["squeeze_vid"]
