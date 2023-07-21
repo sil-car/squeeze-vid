@@ -22,9 +22,10 @@
   </categories>
   <project_license>GPL-3.0+</project_license>
   <developer_name>Nate Marti</developer_name>
+  <url type="homepage">https://github.com/sil-car/squeeze-vid</url>
   <url type="bugtracker">https://github.com/sil-car/squeeze-vid/issues</url>
   <releases>
-    <release version="0.5.1" date="2023-07-20">
+    <release version="0.5.1" date="2023-07-21">
       <description>
         <p>Flatpak-ready release.</p>
       </description>
