@@ -7,7 +7,7 @@ from pathlib import Path
 from queue import Queue
 from threading import Thread
 
-import config
+from . import config
 
 
 def validate_file(input_file_string):

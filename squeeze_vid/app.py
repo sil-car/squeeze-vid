@@ -1,14 +1,16 @@
-#!/usr/bin/env python3
+# When testing, use:
+# $ python3 -m squeeze_vid.app
+# This makes it run the same way as installed version, which makes imports work correctly. 
 
 import argparse
 import os
 
 from pathlib import Path
 
-import config
-from media import convert_file
-from media import MediaObject
-from util import validate_file
+from . import config
+from .media import convert_file
+from .media import MediaObject
+from .util import validate_file
 
 
 def main():

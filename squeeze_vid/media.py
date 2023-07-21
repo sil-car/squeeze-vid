@@ -2,12 +2,12 @@ import ffmpeg
 # ffmpeg API: https://kkroening.github.io/ffmpeg-python
 # ffmpeg Ex: https://github.com/kkroening/ffmpeg-python
 
-import config
+from . import config
 
-from util import get_file_out
-from util import parse_timestamp
-from util import print_command
-from util import run_conversion
+from .util import get_file_out
+from .util import parse_timestamp
+from .util import print_command
+from .util import run_conversion
 
 
 class MediaObject():
