@@ -1,5 +1,5 @@
 # When testing, use:
-# $ python3 -m squeeze_vid.app
+# $ python3 -c 'import squeeze_vid.app; squeeze_vid.app.main()' [ARGS]
 # This makes it run the same way as installed version, which makes imports work correctly. 
 
 import argparse
