@@ -56,10 +56,6 @@ architectures:
 apps:
   squeeze-vid:
     command: bin/squeeze-vid
-    # environment:
-    #   # Add site-packages/squeeze_vid to PYTHONPATH, otherwise module imports
-    #   #   have to be explicit instead of relative to the project package.
-    #   PYTHONPATH: $PYTHONPATH:$SNAP/lib/python3.8/site-packages/squeeze_vid
     # YAML aliases (e.g. "&allplugs"):
     # https://www.linode.com/docs/guides/yaml-anchors-aliases-overrides-extensions/
     plugs: &allplugs
@@ -138,6 +134,7 @@ parts:
       - --prefix=/usr
       - --disable-doc # removes all docs --disable-{htmlpages,manpages,txtpages}
       - --disable-ffplay
+      - --disable-ffprobe
       - --enable-version3
       - --enable-gpl
       - --enable-libass         # subtitles support
@@ -253,6 +250,7 @@ parts:
     plugin: cmake
     cmake-parameters:
       - -G"Unix Makefiles"
+      - -DBUILD_APPS=False
       - -DCMAKE_BUILD_TYPE=Release
       - -DCMAKE_INSTALL_PREFIX=/usr
 
