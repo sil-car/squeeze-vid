@@ -64,6 +64,9 @@ apps:
   ffmpeg:
     command: usr/bin/ffmpeg
     plugs: *allplugs
+  ffprobe:
+    command: usr/bin/ffprobe
+    plugs: *allplugs
 
 parts:
   squeeze-vid:
@@ -132,7 +135,6 @@ parts:
       - --disable-debug
       - --disable-doc # removes all docs --disable-{htmlpages,manpages,txtpages}
       - --disable-ffplay
-      - --disable-ffprobe
       - --disable-shared
       - --enable-gpl
       - --enable-libass         # subtitles support
