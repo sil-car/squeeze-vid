@@ -64,9 +64,6 @@ apps:
   ffmpeg:
     command: usr/bin/ffmpeg
     plugs: *allplugs
-  ffprobe:
-    command: usr/bin/ffprobe
-    plugs: *allplugs
 
 parts:
   squeeze-vid:
