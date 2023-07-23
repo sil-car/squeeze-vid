@@ -132,24 +132,20 @@ parts:
       # https://github.com/Archiv8/ffmpeg/blob/main/FFMMPEG-CONFIGURE.md
       # https://ffmpeg.org/general.html#Supported-File-Formats_002c-Codecs-or-Features
       - --prefix=/usr
+      - --disable-debug
       - --disable-doc # removes all docs --disable-{htmlpages,manpages,txtpages}
       - --disable-ffplay
       - --disable-ffprobe
-      - --enable-version3
+      - --disable-shared
       - --enable-gpl
       - --enable-libass         # subtitles support
-      # - --enable-libfreetype  # draw text over video
-      # - --enable-libmp3lame   # audio encoder (decoding by libavcodec)
-      # - --enable-libopus      # audio encoder; alt. decoder native in ffmpeg
-      # - --enable-libvorbis    # audio encoder (decoding by libavcodec)
-      # - --enable-libtheora    # video encoder (decoding by libavcodec)
       - --enable-libaom         # AV1 video encoder
       - --enable-libsvtav1      # SVT-AV1 video encoder; requires 22.04+ packages libsvtav1{,-dev}; or build from src
       - --enable-libvpx         # VP9 video encoder
       - --enable-libx264        # H.264 video encoder
-      # - --enable-libx265      # H.265 video encoder
       # - --enable-nonfree # makes binary unredistributable; ref: ffmpeg/LICENSE.md
-      # - --enable-shared       # not going to need access to shared libraries
+      - --enable-static
+      - --enable-version3
     source: git://source.ffmpeg.org/ffmpeg.git
     source-type: git
     source-depth: 1 # faster clone?
