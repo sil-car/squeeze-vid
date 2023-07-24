@@ -138,15 +138,17 @@ parts:
       - --disable-debug
       - --disable-doc # removes all docs --disable-{htmlpages,manpages,txtpages}
       - --disable-ffplay
-      - --disable-shared
+      - --disable-static
       - --enable-gpl
-      - --enable-libass         # subtitles support
       - --enable-libaom         # AV1 video encoder
+      - --disable-encoder=libaom
+      - --enable-libass         # subtitles support
       - --enable-libsvtav1      # SVT-AV1 video encoder; requires 22.04+ packages libsvtav1{,-dev}; or build from src
       - --enable-libvpx         # VP9 video encoder
       - --enable-libx264        # H.264 video encoder
       # - --enable-nonfree # makes binary unredistributable; ref: ffmpeg/LICENSE.md
-      - --enable-static
+      - --enable-opengl
+      - --enable-shared
       - --enable-version3
     source: git://source.ffmpeg.org/ffmpeg.git
     source-type: git
