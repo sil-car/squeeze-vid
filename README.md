@@ -109,4 +109,4 @@ YouTube audio has chosen to stream AAC files at 126 kbps. At 128 kbps, one can e
 >- https://homedjstudio.com/audio-bitrates-formats/
 
 ## Attributions
-[Video icons created by Prashanth Rapolu 15 - Flaticon](https://www.flaticon.com/free-icons/video)
+[Video icons created by Prashanth Rapolu 15 - Flaticon](https://www.flaticon.com/authors/prashanth-rapolu-15)
