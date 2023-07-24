@@ -15,7 +15,7 @@ $ snap install squeeze-vid
 
 ## Usage
 
-```bash
+```
 $ squeeze-vid --help
 usage: squeeze-vid [-h] [-c] [-i] [-k TRIM TRIM] [-n] [-s SPEED] [-t] [-v]
                    [--av1] [--video_encoder VIDEO_ENCODER]
@@ -62,17 +62,15 @@ NOTE: You will need to install ffmpeg on your system manually in this case. AV1 
 ~$ cd squeeze-vid
 ~/squeeze-vid$
 
-# Create virtual environment.
+# Create and activate virtual environment.
 ~/squeeze-vid$ python3 -m venv env
-
-# Activate virtual environment.
 ~/squeeze-vid$ source env/bin/activate
 
 # Install enviroment dependencies from requirements.txt.
 (env) ~/squeeze-vid$ pip3 install --requirement requirements.txt
 
 # See app help info.
-(env) ~/squeeze-vid$ python3 squeeze_vid/squeeze_vid.py --help
+(env) ~/squeeze-vid$ python3 -c 'import squeeze_vid.app; squeeze_vid.app.main()' --help
 
 # Deactivate environment afterwards.
 (env) ~/squeeze-vid$ deactivate
