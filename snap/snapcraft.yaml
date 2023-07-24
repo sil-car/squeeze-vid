@@ -5,6 +5,7 @@ contact: https://github.com/sil-car/squeeze-vid/issues
 issues: https://github.com/sil-car/squeeze-vid/issues
 license: GPL-3.0+
 title: Squeeze Vid
+icon: pkg-data/video-editor_128.png
 description: |
   Normalize videos and audio files (using ffmpeg) to a standardized frame rate
   and quality to minimize the file size while maintaining adequate quality for
@@ -74,6 +75,8 @@ parts:
       - ffmpeg
     plugin: python
     source: https://github.com/sil-car/squeeze-vid.git
+    source-depth: 1
+    # source-tag: v0.5.2
     override-pull: |
       snapcraftctl pull
       snap_ver=$(grep 'version =' $SNAPCRAFT_PART_SRC/pyproject.toml | sed -r 's/^version = "(.*)"/\1/')
