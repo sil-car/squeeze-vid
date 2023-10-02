@@ -145,32 +145,35 @@ def run_conversion(output_stream, duration):
         q.join()
 
     # Run ffmpeg command.
-    try:
-        with ffmpeg.run_async(
-            output_stream,
-            overwrite_output=True,
-            pipe_stdout=True,
-            pipe_stderr=True,
-        ) as p:
-            q_out = Queue()
-            try:
-                # Start progress queue & threads.
-                t_out = Thread(name="T-stdout", target=read_output, args=(p.stdout, q_out))
-                t_err = Thread(name="T-stderr", target=read_output, args=(p.stderr, q_out))
-                t_write = Thread(name="T-write", target=write_output, args=(duration, q_out))
-                for t in (t_out, t_err, t_write):
-                    t.start()
-                p.wait()
-            except KeyboardInterrupt:
-                print("\nInterrupted with Ctrl+C")
-                p.kill()
+    if config.DEBUG:
+        ffmpeg.run(output_stream, overwrite_output=True)
+    else:
+        try:
+            with ffmpeg.run_async(
+                output_stream,
+                overwrite_output=True,
+                pipe_stdout=True,
+                pipe_stderr=True,
+            ) as p:
+                q_out = Queue()
+                try:
+                    # Start progress queue & threads.
+                    t_out = Thread(name="T-stdout", target=read_output, args=(p.stdout, q_out))
+                    t_err = Thread(name="T-stderr", target=read_output, args=(p.stderr, q_out))
+                    t_write = Thread(name="T-write", target=write_output, args=(duration, q_out))
+                    for t in (t_out, t_err, t_write):
+                        t.start()
+                    p.wait()
+                except KeyboardInterrupt:
+                    print("\nInterrupted with Ctrl+C")
+                    p.kill()
+                    # Finish queue & progress bar.
+                    cleanup((t_out, t_err), q_out)
+                    sys.exit(130)
                 # Finish queue & progress bar.
                 cleanup((t_out, t_err), q_out)
-                sys.exit(130)
-            # Finish queue & progress bar.
-            cleanup((t_out, t_err), q_out)
-    except ffmpeg._run.Error as e:
-        print(e.stderr.decode('utf8'))
-        exit(1)
+        except ffmpeg._run.Error as e:
+            print(e.stderr.decode('utf8'))
+            exit(1)
 
     print()
