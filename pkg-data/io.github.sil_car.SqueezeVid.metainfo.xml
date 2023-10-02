@@ -25,6 +25,10 @@
   <url type="homepage">https://github.com/sil-car/squeeze-vid</url>
   <url type="bugtracker">https://github.com/sil-car/squeeze-vid/issues</url>
   <releases>
+    <release version="0.6" date="2023-10-02">
+      <description>
+        <p>Fix handling of video-only files.</p>
+      </description>
     <release version="0.5.2" date="2023-07-21">
       <description>
         <p>Flatpak-ready release.</p>
