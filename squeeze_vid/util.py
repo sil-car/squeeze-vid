@@ -34,7 +34,7 @@ def parse_timestamp(timestamp):
     return seconds
 
 def get_file_out(media_in, action, media_out):
-    spec_str = ''
+    specs_str = ''
     if action == 'change_speed':
         # Use speed factor and suffix in outfile.
         specs_str = f"{str(media_out.factor)}x"
