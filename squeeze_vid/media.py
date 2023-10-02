@@ -114,6 +114,7 @@ def convert_file(show_cmd, media_in, action, media_out):
         media_out = normalize_stream(media_in, media_out)
     video = media_out.stream.video
     audio = media_out.stream.audio
+
     # Add filters.
     if action == 'change_speed':
         # Add video filters.
@@ -154,6 +155,15 @@ def convert_file(show_cmd, media_in, action, media_out):
             **{'ss': media_out.endpoints[0]}, **{'to': media_out.endpoints[1]},
             **{'c:a': 'copy'}, **{'c:v': media_out.vcodec},
         )
+
+    # Show debug details.
+    if config.DEBUG:
+        keys = list(media_out.__dict__.keys())
+        keys.sort()
+        print("Media_in vs Media_out:")
+        for k in keys:
+            print(f"  {k}: {media_in.__dict__.get(k)} | {media_out.__dict__.get(k)}")
+        print()
 
     # Tweak stdout by updating kwargs of the existing output stream.
     output_stream.node.kwargs = {
