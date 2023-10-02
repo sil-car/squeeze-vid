@@ -7,6 +7,7 @@ Property | Default Video | Tutorial Video
 Height | 720p | 720p
 Video bitrate | 2 Mbps | 500 kbps
 Frame rate | 25 fps | 10 fps
+Audio bitrate | 128 kbps | 128 kbps
 
 ## Install snap package
 ```
