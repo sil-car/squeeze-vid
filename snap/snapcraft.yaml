@@ -12,8 +12,8 @@ description: |
   video projection.
 
   $ squeeze-vid --help
-  usage: squeeze-vid [-h] [-c] [-i] [-k TRIM TRIM] [-n] [-s SPEED] [-t] [-v]
-                     [--av1] [--video_encoder VIDEO_ENCODER]
+  usage: squeeze-vid [-h] [-a] [-c] [-i] [-k TRIM TRIM] [-n] [-s SPEED] [-t]
+                     [-v] [--av1] [--video_encoder VIDEO_ENCODER]
                      [file [file ...]]
 
   Convert video file to MP4, ensuring baseline video quality:
@@ -33,12 +33,13 @@ description: |
     -k TRIM TRIM, --trim TRIM TRIM
                           trim the file to keep content between given timestamps
                           (HH:MM:SS)
-    -n, --normalize       normalize video reslution, bitrate, and framerate.
-                          This is also the default action if no options are given
+    -n, --normalize       normalize video reslution, bitrate, and framerate;
+                          this is also the default action if no options are given
     -s SPEED, --speed SPEED
                           change the playback speed of the video using the given
                           factor (0.5 to 100)
-    -t, --tutorial        use lower bitrate and fewer fps for short tutorial videos
+    -t, --tutorial        use lower bitrate and fewer fps for short tutorial
+                          videos
     -v, --verbose         give verbose output
     --av1                 shortcut to use libsvtav1 video encoder
     --video_encoder VIDEO_ENCODER

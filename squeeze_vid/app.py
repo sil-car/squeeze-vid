@@ -54,7 +54,7 @@ Also perform other useful operations on media files."
     parser.add_argument(
         '-n', '--normalize',
         action='store_true',
-        help="normalize video reslution, bitrate, and framerate. This is also the default action if no options are given"
+        help="normalize video reslution, bitrate, and framerate; this is the default action if no options are given"
     )
     parser.add_argument(
         '-s', '--speed',

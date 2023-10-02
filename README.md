@@ -17,9 +17,9 @@ $ snap install squeeze-vid
 
 ```
 $ squeeze-vid --help
-usage: squeeze-vid [-h] [-c] [-i] [-k TRIM TRIM] [-n] [-s SPEED] [-t] [-v]
-                    [--av1] [--video_encoder VIDEO_ENCODER]
-                    [file [file ...]]
+usage: squeeze-vid [-h] [-a] [-c] [-i] [-k TRIM TRIM] [-n] [-s SPEED] [-t]
+                   [-v] [--av1] [--video_encoder VIDEO_ENCODER]
+                   [file [file ...]]
 
 Convert video file to MP4, ensuring baseline video quality:
   * Default:  720p, 2 Mbps, 25 fps for projected video
@@ -38,41 +38,18 @@ optional arguments:
   -k TRIM TRIM, --trim TRIM TRIM
                         trim the file to keep content between given timestamps
                         (HH:MM:SS)
-  -n, --normalize       normalize video reslution, bitrate, and framerate.
-                        This is also the default action if no options are given
+  -n, --normalize       normalize video reslution, bitrate, and framerate;
+                        this is also the default action if no options are given
   -s SPEED, --speed SPEED
                         change the playback speed of the video using the given
                         factor (0.5 to 100)
-  -t, --tutorial        use lower bitrate and fewer fps for short tutorial videos
+  -t, --tutorial        use lower bitrate and fewer fps for short tutorial
+                        videos
   -v, --verbose         give verbose output
   --av1                 shortcut to use libsvtav1 video encoder
   --video_encoder VIDEO_ENCODER
                         specify video encoder [libx264]: libx264, libsvtav1,
                         libvpx-vp9
-```
-
-## Use python script from this repo
-
-NOTE: You will need to install ffmpeg on your system manually in this case. AV1 encoding support will then depend on your system's build.
-```bash
-# Clone and enter into repo.
-~$ git clone https:github.com/sil-car/squeeze-vid.git
-~$ cd squeeze-vid
-~/squeeze-vid$
-
-# Create and activate virtual environment.
-~/squeeze-vid$ python3 -m venv env
-~/squeeze-vid$ source env/bin/activate
-
-# Install enviroment dependencies from requirements.txt.
-(env) ~/squeeze-vid$ pip3 install --requirement requirements.txt
-
-# See app help info.
-(env) ~/squeeze-vid$ python3 -c 'import squeeze_vid.app; squeeze_vid.app.main()' --help
-
-# Deactivate environment afterwards.
-(env) ~/squeeze-vid$ deactivate
-~/squeeze-vid$
 ```
 
 ## Notes
