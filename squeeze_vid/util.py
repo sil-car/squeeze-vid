@@ -39,8 +39,8 @@ def get_file_out(media_in, action, media_out):
         # Use speed factor and suffix in outfile.
         specs_str = f"{str(media_out.factor)}x"
     elif action == 'normalize':
-        vbitrate = round(media_out.vbr/1000)
-        abitrate = round(media_out.abr/1000)
+        vbitrate = round(media_out.vbr/1000) if media_out.vbr is not None else 0
+        abitrate = round(media_out.abr/1000) if media_out.abr is not None else 0
         if media_out.suffix == '.mp4':
             # Use video_bitrate, framerate, audio_bitrate, and suffix in outfile.
             specs_str = f"v{vbitrate}kbps_{media_out.fps}fps_a{abitrate}kbps"
