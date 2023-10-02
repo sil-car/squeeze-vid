@@ -111,7 +111,7 @@ parts:
       - libaom-dev # libaom-av1 encoder is way too slow on 20.04, but its decoder is better
       - libass-dev
       - libfreetype6-dev
-      # - libmp3lame-dev
+      - libmp3lame-dev
       # - libopus-dev
       - libsdl1.2-dev
       # - libsvtav1-dev # 22.04+; or build from src
@@ -143,6 +143,7 @@ parts:
       - --enable-libaom         # AV1 video encoder
       - --disable-encoder=libaom
       - --enable-libass         # subtitles support
+      - --enable-libmp3lame
       - --enable-libsvtav1      # SVT-AV1 video encoder; requires 22.04+ packages libsvtav1{,-dev}; or build from src
       - --enable-libvpx         # VP9 video encoder
       - --enable-libx264        # H.264 video encoder
@@ -169,7 +170,7 @@ parts:
       - libglu1-mesa
       - libgraphite2-3
       - libharfbuzz0b
-      # - libmp3lame0
+      - libmp3lame0
       - libnuma1
       - libogg0
       # - libopus0
