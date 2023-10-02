@@ -7,6 +7,7 @@
 - [x] See if snap size can be further reduced.
   - Not really. Size is mostly determined by included codecs.
 - [x] Fix error output so that it's printed if ffmpeg exits on error.
+- [x] Fix to allow modification of video-only file.
 - [ ] Add countdown timer to progress output.
-- [ ] Default to AV1 encoding instead of H264.
-- [ ] Consider GUI
+- [ ] Default to AV1 encoding instead of H264?
+- [ ] Consider GUI?

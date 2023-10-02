@@ -18,6 +18,10 @@ class MediaObject():
         self.stream = None
         self.astreams = None
         self.vstreams = None
+        # ffmpeg.Stream.audio and .video attribs are not modifiable. Must set as
+        #   variable, update those, then rebuild stream with ffmpeg.output().
+        self.audio = None
+        self.video = None
         self.props = None
         self.duration = None
         self.acodec = None
@@ -36,15 +40,16 @@ class MediaObject():
             self.duration = float(self.props.get('format').get('duration'))
             self.astreams = self.get_astreams(self.props.get('streams'))
             if len(self.astreams) > 0:
+                self.audio = self.stream.audio
                 self.acodec = self.astreams[0].get('codec_name')
                 self.abr = int(self.astreams[0].get('bit_rate'))
             self.vstreams = self.get_vstreams(self.props.get('streams'))
             if len(self.vstreams) > 0:
+                self.video = self.stream.video
                 self.vcodec = self.vstreams[0].get('codec_name')
                 self.height = int(self.vstreams[0].get('height'))
                 self.width = int(self.vstreams[0].get('width'))
-                vbr = self.vstreams[0].get('bit_rate', 0)
-                self.vbr = int(vbr) if type(vbr) is int else None
+                self.vbr = int(self.vstreams[0].get('bit_rate', 0))
                 avg_frame_rate = (self.vstreams[0].get('avg_frame_rate'))
                 fpsn, fpsd = avg_frame_rate.split('/')
                 self.fps = int(float(fpsn)/float(fpsd)) if fpsd != '0' else 0 # TODO: fails for MP3s with album cover "video"
@@ -91,7 +96,9 @@ def convert_file(show_cmd, media_in, action, media_out):
     # Set media_out attributes.
     media_out.stream = media_in.stream
     media_out.astreams = media_in.astreams
+    media_out.audio = media_in.audio
     media_out.vstreams = media_in.vstreams
+    media_out.video = media_in.video
     media_out.duration = media_in.duration
     media_out.abr = media_in.abr
     media_out.vbr = media_in.vbr
@@ -110,24 +117,31 @@ def convert_file(show_cmd, media_in, action, media_out):
     else:
         media_out.format = media_in.format
     media_out.suffix = media_in.suffix
-    if action == 'normalize':
-        media_out = normalize_stream(media_in, media_out)
-    video = media_out.stream.video
-    audio = media_out.stream.audio
+    # if action == 'normalize':
+    #     media_out = normalize_stream(media_in, media_out)
 
     # Add filters.
+    output_stream = None
     if action == 'change_speed':
         # Add video filters.
-        if video:
-            video = ffmpeg.filter(video, 'setpts', f"{str(1 / media_out.factor)}*PTS")
+        if media_out.video is not None:
+            media_out.video = ffmpeg.filter(
+                media_out.video,
+                'setpts',
+                f"{str(1 / media_out.factor)}*PTS"
+            )
         # Add audio filters.
-        if audio:
-            audio = ffmpeg.filter(audio, 'atempo', f"{str(media_out.factor)}")
+        if media_out.audio is not None:
+            media_out.audio = ffmpeg.filter(
+                media_out.audio,
+                'atempo',
+                f"{str(media_out.factor)}"
+            )
         # Set media_out filename.
         media_out.file = get_file_out(media_in, action, media_out)
         media_out.duration = media_in.duration / media_out.factor
         # Create output stream.
-        output_stream = build_output_stream(media_out, video, audio)
+        output_stream = build_output_stream(media_out)
     elif action == 'export_audio':
         # TODO: Need an additional action in order to strip out audio.
         # if media_out.suffix == '.mp3':
@@ -135,26 +149,45 @@ def convert_file(show_cmd, media_in, action, media_out):
         #     video = None
         pass
     elif action == 'normalize':
+        # Normalize output properties.
+        media_out = normalize_stream(media_in, media_out)
         # Add video filters.
-        if video:
+        if media_out.video is not None:
             # Define video max height.
-            video = ffmpeg.filter(video, 'scale', "trunc(oh*a/2)*2", f"min({media_out.height}, ih)")
+            media_out.video = ffmpeg.filter(
+                media_out.video,
+                'scale',
+                "trunc(oh*a/2)*2",
+                f"min({media_out.height}, ih)",
+            )
             # Define video max framerate.
-            video = ffmpeg.filter(video, 'fps', media_out.fps)
+            media_out.video = ffmpeg.filter(
+                media_out.video,
+                'fps',
+                media_out.fps,
+            )
         # Set media_out filename.
         media_out.file = get_file_out(media_in, action, media_out)
         # Create output stream.
-        output_stream = build_output_stream(media_out, video, audio)
+        output_stream = build_output_stream(media_out)
     elif action == 'trim':
         media_out.endpoints = [parse_timestamp(e) for e in media_out.endpoints]
         media_out.duration = media_out.endpoints[1] -  media_out.endpoints[0]
         # Set media_out filename.
         media_out.file = get_file_out(media_in, action, media_out)
         output_stream = ffmpeg.output(
-            video, audio, str(media_out.file),
-            **{'ss': media_out.endpoints[0]}, **{'to': media_out.endpoints[1]},
-            **{'c:a': 'copy'}, **{'c:v': media_out.vcodec},
+            media_out.video,
+            media_out.audio,
+            str(media_out.file),
+            **{'ss': media_out.endpoints[0]},
+            **{'to': media_out.endpoints[1]},
+            **{'c:a': 'copy'},
+            **{'c:v': media_out.vcodec},
         )
+    # Error exit of no output_stream
+    if output_stream is None:
+        print(f"Error: no output stream.")
+        exit(1)
 
     # Show debug details.
     if config.DEBUG:
@@ -204,7 +237,7 @@ def convert_file(show_cmd, media_in, action, media_out):
 
 def normalize_stream(media_in, media_out):
     # Determine audio attributes for media_out.
-    if media_out.stream.audio:
+    if media_out.audio is not None:
         # Set file attributes for media_out.
         media_out.format = media_out.format_norm_a
         media_out.suffix = media_out.suffix_norm_a
@@ -216,8 +249,7 @@ def normalize_stream(media_in, media_out):
             media_out.abr = media_out.abr_norm
             media_out.abr = min([media_in.abr, media_out.abr])
     # Determine video attributes for media_out.
-    # if media_out.stream.video and type(media_out.stream.video[0]) is not str:
-    if media_out.stream.video:
+    if media_out.video is not None:
         # Set file attributes for media_out.
         media_out.format = media_out.format_norm_v
         media_out.suffix = media_out.suffix_norm_v
@@ -240,23 +272,24 @@ def normalize_stream(media_in, media_out):
 
     return media_out
 
-def build_output_stream(media_out, video=None, audio=None):
+def build_output_stream(media_out):
     # Create output stream.
-    if video and audio:
+    if media_out.video is not None and media_out.audio is not None:
         output = ffmpeg.output(
-            video, audio,
+            media_out.video,
+            media_out.audio,
             str(media_out.file),
             vcodec=media_out.vcodec,
-            video_bitrate=media_out.vbr-1, # some codecs require max br > target br
+            video_bitrate=media_out.vbr - 1 if media_out.vbr > 0 else 0, # some codecs require max br > target br
             maxrate=media_out.vbr,
             bufsize=media_out.vbr/2,
             acodec=media_out.acodec,
             audio_bitrate=media_out.abr,
             format=media_out.format,
         )
-    elif video and not audio:
+    elif media_out.video is not None and media_out.audio is None:
         output = ffmpeg.output(
-            video,
+            media_out.video,
             str(media_out.file),
             vcodec=media_out.vcodec,
             video_bitrate=media_out.vbr-1,
@@ -264,9 +297,9 @@ def build_output_stream(media_out, video=None, audio=None):
             bufsize=media_out.vbr/2,
             format=media_out.format,
         )
-    elif not video and audio:
+    elif media_out.video is None and media_out.audio is not None:
         output = ffmpeg.output(
-            audio,
+            media_out.audio,
             str(media_out.file),
             # acodec=media_out.acodec, # -acodec gives error if using -f 'mp3'
             audio_bitrate=media_out.abr,
