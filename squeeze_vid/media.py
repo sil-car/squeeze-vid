@@ -34,20 +34,22 @@ class MediaObject():
             self.stream = ffmpeg.input(str(self.file))
             self.props = self.get_properties(str(self.file))
             self.duration = float(self.props.get('format').get('duration'))
-            self.astreams = [a for a in self.props.get('streams') if a.get('codec_type') == 'audio']
-            self.acodec = self.astreams[0].get('codec_name')
-            self.abr = int(self.astreams[0].get('bit_rate'))
-            self.vstreams = [v for v in self.props.get('streams') if v.get('codec_type') == 'video']
-            self.vcodec = self.vstreams[0].get('codec_name')
-            self.height = int(self.vstreams[0].get('height'))
-            self.width = int(self.vstreams[0].get('width'))
-            self.vbr = int(self.vstreams[0].get('bit_rate'))
-            avg_frame_rate = (self.vstreams[0].get('avg_frame_rate'))
-            fpsn, fpsd = avg_frame_rate.split('/')
-            self.fps = int(float(fpsn)/float(fpsd))
-            self.nb_frames = int(self.vstreams[0].get('nb_frames'))
+            self.astreams = self.get_astreams(self.props.get('streams'))
+            if len(self.astreams) > 0:
+                self.acodec = self.astreams[0].get('codec_name')
+                self.abr = int(self.astreams[0].get('bit_rate'))
+            self.vstreams = self.get_vstreams(self.props.get('streams'))
+            if len(self.vstreams) > 0:
+                self.vcodec = self.vstreams[0].get('codec_name')
+                self.height = int(self.vstreams[0].get('height'))
+                self.width = int(self.vstreams[0].get('width'))
+                vbr = self.vstreams[0].get('bit_rate', 0)
+                self.vbr = int(vbr) if type(vbr) is int else None
+                avg_frame_rate = (self.vstreams[0].get('avg_frame_rate'))
+                fpsn, fpsd = avg_frame_rate.split('/')
+                self.fps = int(float(fpsn)/float(fpsd)) if fpsd != '0' else 0 # TODO: fails for MP3s with album cover "video"
+                self.nb_frames = int(self.vstreams[0].get('nb_frames', 0))
             self.format = self.props.get('format').get('format_name')
-
 
     def get_astreams(self, streams):
         if streams == 'placeholder':
@@ -88,13 +90,17 @@ def convert_file(show_cmd, media_in, action, media_out):
     """
     # Set media_out attributes.
     media_out.stream = media_in.stream
+    media_out.astreams = media_in.astreams
+    media_out.vstreams = media_in.vstreams
     media_out.duration = media_in.duration
     media_out.abr = media_in.abr
     media_out.vbr = media_in.vbr
     media_out.fps = media_in.fps
+    media_out.nb_frames = media_in.nb_frames
     media_out.acodec = media_in.acodec
     media_out.vcodec = media_in.vcodec
     media_out.height = media_in.height
+    media_out.width = media_in.width
     media_in_formats = media_in.format.split(',')
     if len(media_in_formats) > 1:
         if 'mp3' in media_in_formats:
