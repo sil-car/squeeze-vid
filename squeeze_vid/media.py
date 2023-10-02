@@ -109,16 +109,18 @@ def convert_file(show_cmd, media_in, action, media_out):
     media_out.height = media_in.height
     media_out.width = media_in.width
     media_in_formats = media_in.format.split(',')
-    if len(media_in_formats) > 1:
+    if media_out.suffix == '.mp3':
+        media_out.acodec = media_out.acodec_norm_a
+        media_out.format = 'mp3'
+    elif len(media_in_formats) > 1:
         if 'mp3' in media_in_formats:
             media_out.format = 'mp3'
         elif 'mp4' in media_in_formats:
             media_out.format = 'mp4'
     else:
         media_out.format = media_in.format
-    media_out.suffix = media_in.suffix
-    # if action == 'normalize':
-    #     media_out = normalize_stream(media_in, media_out)
+    if media_out.suffix is None:
+        media_out.suffix = media_in.suffix
 
     # Add filters.
     output_stream = None
@@ -137,20 +139,13 @@ def convert_file(show_cmd, media_in, action, media_out):
                 'atempo',
                 f"{str(media_out.factor)}"
             )
-        # Set media_out filename.
-        media_out.file = get_file_out(media_in, action, media_out)
         media_out.duration = media_in.duration / media_out.factor
-        # Create output stream.
-        output_stream = build_output_stream(media_out)
     elif action == 'export_audio':
-        # TODO: Need an additional action in order to strip out audio.
-        # if media_out.suffix == '.mp3':
-        #     media_out.format = 'mp3'
-        #     video = None
-        pass
+        media_out.video = None
+        media_out = normalize_stream_props(media_in, media_out)
     elif action == 'normalize':
-        # Normalize output properties.
-        media_out = normalize_stream(media_in, media_out)
+        # Normalize media_out properties.
+        media_out = normalize_stream_props(media_in, media_out)
         # Add video filters.
         if media_out.video is not None:
             # Define video max height.
@@ -166,15 +161,13 @@ def convert_file(show_cmd, media_in, action, media_out):
                 'fps',
                 media_out.fps,
             )
-        # Set media_out filename.
-        media_out.file = get_file_out(media_in, action, media_out)
-        # Create output stream.
-        output_stream = build_output_stream(media_out)
     elif action == 'trim':
         media_out.endpoints = [parse_timestamp(e) for e in media_out.endpoints]
         media_out.duration = media_out.endpoints[1] -  media_out.endpoints[0]
-        # Set media_out filename.
-        media_out.file = get_file_out(media_in, action, media_out)
+
+    # Set media_out filename.
+    media_out.file = get_file_out(media_in, action, media_out) # filename depends on action and properties
+    if action == 'trim': # output_stream depends on filename being set
         output_stream = ffmpeg.output(
             media_out.video,
             media_out.audio,
@@ -184,10 +177,8 @@ def convert_file(show_cmd, media_in, action, media_out):
             **{'c:a': 'copy'},
             **{'c:v': media_out.vcodec},
         )
-    # Error exit of no output_stream
     if output_stream is None:
-        print(f"Error: no output stream.")
-        exit(1)
+        output_stream = build_output_stream(media_out)
 
     # Show debug details.
     if config.DEBUG:
@@ -235,7 +226,7 @@ def convert_file(show_cmd, media_in, action, media_out):
     run_conversion(output_stream, media_out.duration)
     return media_out.file
 
-def normalize_stream(media_in, media_out):
+def normalize_stream_props(media_in, media_out):
     # Determine audio attributes for media_out.
     if media_out.audio is not None:
         # Set file attributes for media_out.
@@ -243,7 +234,7 @@ def normalize_stream(media_in, media_out):
         media_out.suffix = media_out.suffix_norm_a
         # Determine vcodec for media_out.
         if media_in.acodec is not None:
-            media_out.acodec = media_out.acodec_norm
+            media_out.acodec = media_out.acodec_norm_a # set for audio-only first
         # Determine audio bitrate for media_out.
         if media_in.abr is not None:
             media_out.abr = media_out.abr_norm
@@ -253,6 +244,8 @@ def normalize_stream(media_in, media_out):
         # Set file attributes for media_out.
         media_out.format = media_out.format_norm_v
         media_out.suffix = media_out.suffix_norm_v
+        if media_in.acodec is not None:
+            media_out.acodec = media_out.acodec_norm # set for video; overwrite setting for audio-only
         # Determine vcodec for media_out.
         if media_in.vcodec is not None:
             media_out.vcodec = media_out.vcodec_norm
@@ -269,40 +262,23 @@ def normalize_stream(media_in, media_out):
             height_in = min([media_in.height, media_in.width]) # min in case of portrait orientation
             media_out.height = media_out.height_norm
             media_out.height = min([height_in, media_out.height])
-
     return media_out
 
 def build_output_stream(media_out):
-    # Create output stream.
-    if media_out.video is not None and media_out.audio is not None:
-        output = ffmpeg.output(
-            media_out.video,
-            media_out.audio,
-            str(media_out.file),
-            vcodec=media_out.vcodec,
-            video_bitrate=media_out.vbr - 1 if media_out.vbr > 0 else 0, # some codecs require max br > target br
-            maxrate=media_out.vbr,
-            bufsize=media_out.vbr/2,
-            acodec=media_out.acodec,
-            audio_bitrate=media_out.abr,
-            format=media_out.format,
-        )
-    elif media_out.video is not None and media_out.audio is None:
-        output = ffmpeg.output(
-            media_out.video,
-            str(media_out.file),
-            vcodec=media_out.vcodec,
-            video_bitrate=media_out.vbr-1,
-            maxrate=media_out.vbr,
-            bufsize=media_out.vbr/2,
-            format=media_out.format,
-        )
-    elif media_out.video is None and media_out.audio is not None:
-        output = ffmpeg.output(
-            media_out.audio,
-            str(media_out.file),
-            # acodec=media_out.acodec, # -acodec gives error if using -f 'mp3'
-            audio_bitrate=media_out.abr,
-            format=media_out.format,
-        )
-    return output
+    out_args = []
+    out_kwargs = {
+        'format': media_out.format,
+    }
+    if media_out.video is not None:
+        out_args.append(media_out.video)
+        out_kwargs['vcodec'] = media_out.vcodec
+        # Note: Some codecs require max vbr > target vbr.
+        out_kwargs['video_bitrate'] = media_out.vbr - 1 if media_out.vbr > 0 else 0
+        out_kwargs['maxrate'] = media_out.vbr
+        out_kwargs['bufsize'] = media_out.vbr/2
+    if media_out.audio is not None:
+        out_args.append(media_out.audio)
+        out_kwargs['acodec'] = media_out.acodec
+        out_kwargs['audio_bitrate'] = media_out.abr
+    out_args.append(str(media_out.file))
+    return ffmpeg.output(*out_args, **out_kwargs)

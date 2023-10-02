@@ -23,30 +23,27 @@ description: |
   Also perform other useful operations on media files.
 
   positional arguments:
-    file                  Space-separated list of media files to modify.
+    file                  space-separated list of media files to modify
 
   optional arguments:
     -h, --help            show this help message and exit
-    -c, --command         Print the equivalent ffmpeg bash command and exit.
-    -i, --info            Show stream properties of given file (only 1
-                          accepted).
+    -a, --audio           convert file(s) to MP3 audio
+    -c, --command         print the equivalent ffmpeg bash command and exit
+    -i, --info            show stream properties of given file (only 1 accepted)
     -k TRIM TRIM, --trim TRIM TRIM
-                          Trim the file to keep content between given timestamps
-                          (HH:MM:SS).
-    -n, --normalize       Normalize video reslution, bitrate, and framerate.
-                          This is also the default action if no options are
-                          given.
+                          trim the file to keep content between given timestamps
+                          (HH:MM:SS)
+    -n, --normalize       normalize video reslution, bitrate, and framerate.
+                          This is also the default action if no options are given
     -s SPEED, --speed SPEED
-                          Change the playback speed of the video using the given
-                          factor (0.5 to 100).
-    -t, --tutorial        Use lower bitrate and fewer fps for short tutorial
-                          videos.
-    -v, --verbose         Give verbose output.
-    --av1                 Shortcut to use libsvtav1 video encoder.
+                          change the playback speed of the video using the given
+                          factor (0.5 to 100)
+    -t, --tutorial        use lower bitrate and fewer fps for short tutorial videos
+    -v, --verbose         give verbose output
+    --av1                 shortcut to use libsvtav1 video encoder
     --video_encoder VIDEO_ENCODER
-                          Specify video encoder [libx264]: libx264, libsvtav1,
+                          specify video encoder [libx264]: libx264, libsvtav1,
                           libvpx-vp9
-
 
 adopt-info: squeeze-vid # for setting version and grade
 confinement: strict

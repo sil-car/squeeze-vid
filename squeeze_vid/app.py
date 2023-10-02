@@ -28,13 +28,12 @@ Also perform other useful operations on media files."
     parser.add_argument(
         '-a', '--audio',
         action='store_true',
-        # help="Convert file(s) to MP3 audio.",
-        help=argparse.SUPPRESS,
+        help="convert file(s) to MP3 audio",
     )
     parser.add_argument(
         '-c', '--command',
         action='store_true',
-        help="Print the equivalent ffmpeg bash command and exit."
+        help="print the equivalent ffmpeg bash command and exit"
     )
     parser.add_argument(
         '-d', '--debug',
@@ -44,23 +43,23 @@ Also perform other useful operations on media files."
     parser.add_argument(
         '-i', '--info',
         action='store_true',
-        help="Show stream properties of given file (only 1 accepted)."
+        help="show stream properties of given file (only 1 accepted)"
     )
     parser.add_argument(
         '-k', '--trim',
         nargs=2,
         type=str,
-        help="Trim the file to keep content between given timestamps (HH:MM:SS)."
+        help="trim the file to keep content between given timestamps (HH:MM:SS)"
     )
     parser.add_argument(
         '-n', '--normalize',
         action='store_true',
-        help="Normalize video reslution, bitrate, and framerate. This is also the default action if no options are given."
+        help="normalize video reslution, bitrate, and framerate. This is also the default action if no options are given"
     )
     parser.add_argument(
         '-s', '--speed',
         type=float,
-        help="Change the playback speed of the video using the given factor (0.5 to 100).",
+        help="change the playback speed of the video using the given factor (0.5 to 100)",
     )
     parser.add_argument(
         '-t', '--tutorial',
@@ -68,22 +67,22 @@ Also perform other useful operations on media files."
         action='store_const',
         const=(128000, 500000, 10),
         default=(128000, 2000000, 25),
-        help="Use lower bitrate and fewer fps for short tutorial videos."
+        help="use lower bitrate and fewer fps for short tutorial videos"
     )
     parser.add_argument(
         '-v', '--verbose',
         action='store_true',
-        help="Give verbose output."
+        help="give verbose output"
     )
     parser.add_argument(
         '--av1',
         action='store_true',
-        help="Shortcut to use libsvtav1 video encoder."
+        help="shortcut to use libsvtav1 video encoder"
     )
     parser.add_argument(
         '--video_encoder',
         type=str,
-        help="Specify video encoder [libx264]: libx264, libsvtav1, libvpx-vp9"
+        help="specify video encoder [libx264]: libx264, libsvtav1, libvpx-vp9"
     )
     parser.add_argument(
         '-x', '--experimental',
@@ -93,7 +92,7 @@ Also perform other useful operations on media files."
     parser.add_argument(
         "file",
         nargs='*',
-        help="Space-separated list of media files to modify."
+        help="space-separated list of media files to modify"
     )
 
     args = parser.parse_args()
@@ -119,6 +118,7 @@ Also perform other useful operations on media files."
     media_out.height_norm = 720
     media_out.format_norm_a = 'mp3'
     media_out.suffix_norm_a = '.mp3'
+    media_out.acodec_norm_a = 'mp3'
     media_out.format_norm_v = 'mp4'
     media_out.suffix_norm_v = '.mp4'
 
@@ -161,15 +161,13 @@ Also perform other useful operations on media files."
             media_out.factor = float(args.speed)
             mod_file = convert_file(args.command, media_in, 'change_speed', media_out)
         if args.audio:
-            print("Needs work.")
-            continue
             # Use mod_file from previous step as input_file if it exists.
             if mod_file.is_file():
                 input_file = mod_file
                 media_in = MediaObject(input_file)
                 mod_file_prev = mod_file
             # Convert file(s) to normalized MP3.
-            media_out.suffix = '.mp3'
+            media_out.suffix = media_out.suffix_norm_a
             mod_file = convert_file(args.command, media_in, 'export_audio', media_out)
         if (args.normalize or args.rates[2] == 10 or
                 (not args.info and not args.trim and not args.speed and not args.audio)):

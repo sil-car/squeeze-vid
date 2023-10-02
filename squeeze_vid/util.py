@@ -38,6 +38,9 @@ def get_file_out(media_in, action, media_out):
     if action == 'change_speed':
         # Use speed factor and suffix in outfile.
         specs_str = f"{str(media_out.factor)}x"
+    elif action == 'export_audio':
+        abitrate = round(media_out.abr/1000) if media_out.abr is not None else 0
+        specs_str = f"a{round(abitrate)}kbps"
     elif action == 'normalize':
         vbitrate = round(media_out.vbr/1000) if media_out.vbr is not None else 0
         abitrate = round(media_out.abr/1000) if media_out.abr is not None else 0
@@ -46,7 +49,7 @@ def get_file_out(media_in, action, media_out):
             specs_str = f"v{vbitrate}kbps_{media_out.fps}fps_a{abitrate}kbps"
         elif media_out.suffix == '.mp3':
             # Use audio_bitrate and suffix in outfile.
-            specs_str = f"a{round(abitrate)}kbps"
+            specs_str = f"a{abitrate}kbps"
     elif action == 'trim':
         # Use duration and suffix in outfile.
         specs_str = f"{media_out.duration}s"
