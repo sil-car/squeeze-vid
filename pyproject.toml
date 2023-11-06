@@ -7,7 +7,7 @@ dependencies = [
     "ffmpeg-python",
 ]
 name = "squeeze_vid"
-version = "0.7"
+version = "0.8"
 dynamic = ["readme"]
 
 [project.scripts]

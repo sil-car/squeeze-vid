@@ -168,15 +168,34 @@ def convert_file(show_cmd, media_in, action, media_out):
     # Set media_out filename.
     media_out.file = get_file_out(media_in, action, media_out) # filename depends on action and properties
     if action == 'trim': # output_stream depends on filename being set
-        output_stream = ffmpeg.output(
-            media_out.video,
-            media_out.audio,
-            str(media_out.file),
-            **{'ss': media_out.endpoints[0]},
-            **{'to': media_out.endpoints[1]},
-            **{'c:a': 'copy'},
-            **{'c:v': media_out.vcodec},
-        )
+        if media_out.video is None and media_out.audio is not None:
+            output_stream = ffmpeg.output(
+                media_out.audio,
+                str(media_out.file),
+                **{'ss': media_out.endpoints[0]},
+                **{'to': media_out.endpoints[1]},
+                **{'c:a': 'copy'},
+                **{'c:v': media_out.vcodec},
+            )
+        if media_out.video is not None and media_out.audio is None:
+            output_stream = ffmpeg.output(
+                media_out.video,
+                str(media_out.file),
+                **{'ss': media_out.endpoints[0]},
+                **{'to': media_out.endpoints[1]},
+                **{'c:a': 'copy'},
+                **{'c:v': media_out.vcodec},
+            )
+        else: # surely there won't be a situation where both audio and video are None
+            output_stream = ffmpeg.output(
+                media_out.video,
+                media_out.audio,
+                str(media_out.file),
+                **{'ss': media_out.endpoints[0]},
+                **{'to': media_out.endpoints[1]},
+                **{'c:a': 'copy'},
+                **{'c:v': media_out.vcodec},
+            )
     if output_stream is None:
         output_stream = build_output_stream(media_out)
 
