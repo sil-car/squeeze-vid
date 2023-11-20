@@ -7,8 +7,7 @@ dependencies = [
     "ffmpeg-python",
 ]
 name = "squeeze_vid"
-version = "0.8"
-dynamic = ["readme"]
+dynamic = ["readme", "version"]
 
 [project.scripts]
 squeeze-vid = "squeeze_vid.app:main"
@@ -18,3 +17,4 @@ packages = ["squeeze_vid"]
 
 [tool.setuptools.dynamic]
 readme = {file = ["README.md"], content-type = "text/plain"}
+version = {attr = "squeeze_vid.config.VERSION"}
