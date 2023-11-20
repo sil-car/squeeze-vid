@@ -122,10 +122,13 @@ class SqueezeTask():
             else:
                 print(f"Warning: rate control mode not recognized: {self.args.rate_control_mode}; falling back to CRF.")
         if self.args.video_encoder:
-            self.media_out.vcodec_norm = self.args.video_encoder
+            # self.media_out.vcodec_norm = self.args.video_encoder
+            self.media_out.vcodec = self.args.video_encoder
         if self.args.av1:
-            self.media_out.vcodec_norm = 'libsvtav1'
-            self.media_out.vbr_norm = int(self.media_out.vbr_norm * 0.75) # reduce b/c AV1 is more efficient
+            # self.media_out.vcodec_norm = 'libsvtav1'
+            self.media_out.vcodec = 'libsvtav1'
+            # self.media_out.vbr_norm = int(self.media_out.vbr_norm * 0.75) # reduce b/c AV1 is more efficient
+            self.media_out.vbr = int(self.media_out.vbr_norm * 0.75) # reduce b/c AV1 is more efficient
 
 
         self.outfile_name_attribs = [] # strings appended to name stem
