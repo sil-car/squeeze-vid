@@ -17,8 +17,8 @@ from .util import validate_file
 def main():
     # Build arguments and options list.
     description = "Convert video file to MP4, ensuring baseline video quality:\n\
-  * Default:  720p, 2 Mbps, 25 fps for projected video\n\
-  * Tutorial: 720p, 500 Kbps, 10 fps for tutorial video\n\
+  * Default:  720p, CRF=27 (H.264), 25 fps for projected video\n\
+  * Tutorial: Only use 10 fps for tutorial video\n\
 \n\
 Also perform other useful operations on media files."
 
@@ -55,7 +55,7 @@ Also perform other useful operations on media files."
     parser.add_argument(
         '-m', '--rate-control-mode',
         type=str,
-        help="specify the rate control mode [CRF]: CBR, CRF"
+        help="specify the rate control mode [CRF]: CBR, CRF; if CBR is specified, the video bitrate is set to 2Mbps"
     )
     parser.add_argument(
         '-n', '--normalize',
@@ -81,6 +81,11 @@ Also perform other useful operations on media files."
         help="give verbose output"
     )
     parser.add_argument(
+        '-V', '--version',
+        action='store_true',
+        help="show version number and exit"
+    )
+    parser.add_argument(
         '--av1',
         action='store_true',
         help="shortcut to use libsvtav1 video encoder"
@@ -102,6 +107,9 @@ Also perform other useful operations on media files."
     )
 
     args = parser.parse_args()
+    if args.version:
+        print(config.VERSION)
+        exit()
     if args.verbose:
         config.VERBOSE = True
     if args.debug:
