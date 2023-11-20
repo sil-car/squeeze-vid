@@ -47,8 +47,7 @@ parts:
     # source-tag: v0.5.2
     override-pull: |
       snapcraftctl pull
-      # snap_ver=$(grep 'version =' $SNAPCRAFT_PART_SRC/pyproject.toml | sed -r 's/^version = "(.*)"/\1/')
-      snap_ver=$(grep 'VERSION =' $SNAPCRAFT_PART_SRC/squeeze_vid/config.py | sed -r 's/^VERSION = "(.*)"/\1/')
+      snap_ver=$(grep 'VERSION =' $SNAPCRAFT_PART_SRC/squeeze_vid/config.py | grep -Eo '[0-9.]+')
       ffmpeg_ver="ffmpeg6.0" # matches parts > ffmpeg > source-branch below
       snapcraftctl set-version "${snap_ver}+${ffmpeg_ver}"
       snapcraftctl set-grade "stable"
