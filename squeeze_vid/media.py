@@ -138,7 +138,6 @@ class SqueezeTask():
             "progress": '-',
         }
 
-        media_in_formats = self.media_in.format.split(',')
         self.media_out.crf_h264 = 27 # verified with SSIM on corporate-like content using ffmpeg-quality-metrics
         self.media_out.crf_svt_av1 = int((self.media_out.crf_h264 + 1) * 63 / 52) # interpolation
         self.media_out.crf_vpx_vp9 = int(self.media_out.crf_h264 * 63 / 52) # interpolation
@@ -168,6 +167,7 @@ class SqueezeTask():
         }
 
         # Set the output format.
+        media_in_formats = self.media_in.format.split(',')
         if self.media_out.suffix == '.mp3':
             self.media_out.acodec = self.media_out.acodec_norm_a
             self.media_out.format = 'mp3'
