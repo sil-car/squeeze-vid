@@ -6,7 +6,6 @@ from pathlib import Path
 
 from . import config
 
-# from .util import get_file_out
 from .util import parse_timestamp
 from .util import print_command
 from .util import run_conversion
@@ -149,16 +148,6 @@ class SqueezeTask():
             self.media_out.crf = str(self.media_out.crf_svt_av1)
         self.output_kwargs['crf'] = self.media_out.crf
 
-        # if self.media_out.suffix == '.mp3':
-        #     self.media_out.acodec = self.media_out.acodec_norm_a
-        #     self.media_out.format = 'mp3'
-        # elif len(media_in_formats) > 1:
-        #     if 'mp3' in media_in_formats:
-        #         self.media_out.format = 'mp3'
-        #     elif 'mp4' in media_in_formats:
-        #         self.media_out.format = 'mp4'
-        # self.output_kwargs['format'] = self.media_out.format
-
     def setup(self):
         # actions: 'change_speed', 'export_audio', 'normalize', 'trim'
         filters = {
@@ -214,8 +203,6 @@ class SqueezeTask():
             self.media_out.duration = self.media_out.endpoints[1] - self.media_out.endpoints[0]
             self.output_kwargs['ss'] = self.media_out.endpoints[0]
             self.output_kwargs['to'] = self.media_out.endpoints[1]
-            # if self.media_out.video is not None:
-            #     self.output_kwargs['c:v'] = self.media_out.vcodec
             if self.media_out.audio is not None:
                 self.output_kwargs['c:a'] = 'copy'
             self.outfile_name_attribs.append(f"{self.media_out.duration}s")
@@ -245,13 +232,14 @@ class SqueezeTask():
             vbitrate = round(self.media_out.vbr/1000) if self.media_out.vbr is not None else 0
             self.outfile_name_attribs.insert(0, f"v{vbitrate}kbps")
         if self.media_out.vcodec == 'libvpx-vp9':
+            del self.output_kwargs['profile:v']
             self.output_kwargs["row-mt"] = "1"
             self.output_kwargs["cpu-used"] = "8"
             self.output_kwargs["tile-columns"] = tile_col_exp
             self.output_kwargs["tile-rows"] = tile_row_exp
         if self.media_out.vcodec == 'libsvtav1':
-            self.output_kwargs['profile:v'] = '0'
-            # self.output_kwargs['c:a'] = 'copy'
+            # self.output_kwargs['profile:v'] = '0'
+            del self.output_kwargs['profile:v']
             self.output_kwargs["svtav1-params"] = f"tile-columns={tile_col_exp}:tile-rows={tile_row_exp}:fast-decode=1"
 
         # Apply filters & create command stream.
@@ -277,196 +265,6 @@ class SqueezeTask():
         run_conversion(self.ffmpeg_output_stream, self.media_out.duration)
         return Path(self.media_out.file)
 
-# def convert_file(show_cmd, media_in, action, media_out):
-#     """
-#     actions: 'change_speed', 'export_audio', 'normalize', 'trim'
-#     """
-#     # Set media_out attributes.
-#     media_out.stream = media_in.stream
-#     media_out.astreams = media_in.astreams
-#     media_out.audio = media_in.audio
-#     media_out.vstreams = media_in.vstreams
-#     media_out.video = media_in.video
-#     media_out.duration = media_in.duration
-#     media_out.abr = media_in.abr
-#     media_out.vbr = media_in.vbr
-#     media_out.fps = media_in.fps
-#     media_out.nb_frames = media_in.nb_frames
-#     media_out.acodec = media_in.acodec
-#     media_out.vcodec = media_in.vcodec
-#     media_out.height = media_in.height
-#     media_out.width = media_in.width
-#     media_in_formats = media_in.format.split(',')
-#     media_out.crf_h264 = 27 # verified with SSIM on corporate-like content using ffmpeg-quality-metrics
-#     media_out.crf_svt_av1 = int((media_out.crf_h264 + 1) * 63 / 52) # interpolation
-#     media_out.crf_vpx_vp9 = int(media_out.crf_h264 * 63 / 52) # interpolation
-#     # CRF ranges: h264: 0-51 [23]; svt-av1: 1-63 [30]; vpx-vp9: 0-63
-#     media_out.crf = str(media_out.crf_h264)
-#     if media_out.vcodec == 'libvpx-vp9':
-#         media_out.crf = str(media_out.crf_vpx_vp9)
-#     elif media_out.vcodec == 'libsvtav1':
-#         media_out.crf = str(media_out.crf_svt_av1)
-#     if media_out.suffix == '.mp3':
-#         media_out.acodec = media_out.acodec_norm_a
-#         media_out.format = 'mp3'
-#     elif len(media_in_formats) > 1:
-#         if 'mp3' in media_in_formats:
-#             media_out.format = 'mp3'
-#         elif 'mp4' in media_in_formats:
-#             media_out.format = 'mp4'
-#     else:
-#         media_out.format = media_in.format
-#     if media_out.suffix is None:
-#         media_out.suffix = media_in.suffix
-
-#     # Add filters.
-#     output_stream = None
-#     if action == 'change_speed':
-#         # Add video filters.
-#         if media_out.video is not None:
-#             media_out.video = ffmpeg.filter(
-#                 media_out.video,
-#                 'setpts',
-#                 f"{str(1 / media_out.factor)}*PTS"
-#             )
-#         # Add audio filters.
-#         if media_out.audio is not None:
-#             media_out.audio = ffmpeg.filter(
-#                 media_out.audio,
-#                 'atempo',
-#                 f"{str(media_out.factor)}"
-#             )
-#         media_out.duration = media_in.duration / media_out.factor
-#     elif action == 'export_audio':
-#         media_out.video = None
-#         media_out = normalize_stream_props(media_in, media_out)
-#     elif action == 'normalize':
-#         # Normalize media_out properties.
-#         media_out = normalize_stream_props(media_in, media_out)
-#         # Add video filters.
-#         if media_out.video is not None:
-#             # Define video max height.
-#             media_out.video = ffmpeg.filter(
-#                 media_out.video,
-#                 'scale',
-#                 "trunc(oh*a/2)*2",
-#                 f"min({media_out.height}, ih)",
-#             )
-#             # Define video max framerate.
-#             media_out.video = ffmpeg.filter(
-#                 media_out.video,
-#                 'fps',
-#                 media_out.fps,
-#             )
-#     elif action == 'trim':
-#         media_out.endpoints = [parse_timestamp(e) for e in media_out.endpoints]
-#         media_out.duration = media_out.endpoints[1] -  media_out.endpoints[0]
-
-#     # Set media_out filename.
-#     media_out.file = get_file_out(media_in, action, media_out) # filename depends on action and properties
-#     if action == 'trim': # output_stream depends on filename being set
-#         if media_out.video is None and media_out.audio is not None:
-#             output_stream = ffmpeg.output(
-#                 media_out.audio,
-#                 str(media_out.file),
-#                 **{'ss': media_out.endpoints[0]},
-#                 **{'to': media_out.endpoints[1]},
-#                 **{'c:a': 'copy'},
-#                 **{'c:v': media_out.vcodec},
-#             )
-#         if media_out.video is not None and media_out.audio is None:
-#             output_stream = ffmpeg.output(
-#                 media_out.video,
-#                 str(media_out.file),
-#                 **{'ss': media_out.endpoints[0]},
-#                 **{'to': media_out.endpoints[1]},
-#                 **{'c:a': 'copy'},
-#                 **{'c:v': media_out.vcodec},
-#             )
-#         else: # surely there won't be a situation where both audio and video are None
-#             output_stream = ffmpeg.output(
-#                 media_out.video,
-#                 media_out.audio,
-#                 str(media_out.file),
-#                 **{'ss': media_out.endpoints[0]},
-#                 **{'to': media_out.endpoints[1]},
-#                 **{'c:a': 'copy'},
-#                 **{'c:v': media_out.vcodec},
-#             )
-#     if output_stream is None:
-#         # Build output stream.
-#         # output_stream = build_output_stream(media_out)
-#         out_args = []
-#         out_kwargs = {
-#             'format': media_out.format,
-#         }
-#         if media_out.video is not None:
-#             out_args.append(media_out.video)
-#             out_kwargs['vcodec'] = media_out.vcodec
-#             out_kwargs["crf"] = str(media_out.crf)
-#             # # Note: Some codecs require max vbr > target vbr.
-#             # out_kwargs['video_bitrate'] = media_out.vbr - 1 if media_out.vbr > 0 else 0
-#             # out_kwargs['maxrate'] = media_out.vbr
-#             # out_kwargs['bufsize'] = media_out.vbr/2
-#         if media_out.audio is not None:
-#             out_args.append(media_out.audio)
-#             out_kwargs['acodec'] = media_out.acodec
-#             out_kwargs['audio_bitrate'] = media_out.abr
-#         out_args.append(str(media_out.file))
-#         output_stream = ffmpeg.output(*out_args, **out_kwargs)
-
-#     # Show debug details.
-#     if config.DEBUG:
-#         keys = list(media_out.__dict__.keys())
-#         keys.sort()
-#         print("Media_in vs Media_out:")
-#         for k in keys:
-#             print(f"  {k}: {media_in.__dict__.get(k)} | {media_out.__dict__.get(k)}")
-#         print()
-
-#     # Tweak stdout by updating kwargs of the existing output stream.
-#     output_stream.node.kwargs = {
-#         **output_stream.node.kwargs,
-#         "loglevel": "warning",
-#         "stats": None,
-#         "progress": '-',
-#     }
-
-#     # Modify args according to variables.
-#     tile_col_exp = "1" # 2**1 = 2 columns
-#     tile_row_exp = "1" # 2**1 = 2 rows
-#     if config.VERBOSE:
-#         output_stream.node.kwargs["loglevel"] = "verbose"
-#     if config.DEBUG:
-#         output_stream.node.kwargs["loglevel"] = "debug"
-#     if config.FFMPEG_EXPERIMENTAL:
-#         output_stream.node.kwargs["strict"] = "-2"
-#     if media_out.mode == 'CBR':
-#         # Note: Some codecs require max vbr > target vbr.
-#         output_stream.node.kwargs['video_bitrate'] = media_out.vbr - 1 if media_out.vbr > 0 else 0
-#         output_stream.node.kwargs['maxrate'] = media_out.vbr
-#         output_stream.node.kwargs['bufsize'] = media_out.vbr/2
-#         del output_stream.node.kwargs['CRF']
-#     # if media_out.vcodec == 'libaom-av1':
-#     #     output_stream.node.kwargs["row-mt"] = "1"
-#     #     output_stream.node.kwargs["cpu-used"] = "8"
-#     #     output_stream.node.kwargs["tile-columns"] = tile_col_exp
-#     #     output_stream.node.kwargs["tile-rows"] = tile_row_exp
-#     if media_out.vcodec == 'libvpx-vp9':
-#         output_stream.node.kwargs["row-mt"] = "1"
-#         output_stream.node.kwargs["cpu-used"] = "8"
-#         output_stream.node.kwargs["tile-columns"] = tile_col_exp
-#         output_stream.node.kwargs["tile-rows"] = tile_row_exp
-#     if media_out.vcodec == 'libsvtav1':
-#         output_stream.node.kwargs["svtav1-params"] = f"tile-columns={tile_col_exp}:tile-rows={tile_row_exp}:fast-decode=1"
-
-#     # Print command if desired.
-#     if show_cmd:
-#         print_command(output_stream)
-#         return
-#     # Run conversion.
-#     run_conversion(output_stream, media_out.duration)
-#     return media_out.file
 
 def normalize_stream_props(media_in, media_out):
     # Determine audio attributes for media_out.
@@ -501,22 +299,3 @@ def normalize_stream_props(media_in, media_out):
             height_in = min([media_in.height, media_in.width]) # min in case of portrait orientation
             media_out.height = min([height_in, media_out.height_norm])
     return media_out
-
-# def build_output_stream(media_out):
-#     out_args = []
-#     out_kwargs = {
-#         'format': media_out.format,
-#     }
-#     if media_out.video is not None:
-#         out_args.append(media_out.video)
-#         out_kwargs['vcodec'] = media_out.vcodec
-#         # Note: Some codecs require max vbr > target vbr.
-#         out_kwargs['video_bitrate'] = media_out.vbr - 1 if media_out.vbr > 0 else 0
-#         out_kwargs['maxrate'] = media_out.vbr
-#         out_kwargs['bufsize'] = media_out.vbr/2
-#     if media_out.audio is not None:
-#         out_args.append(media_out.audio)
-#         out_kwargs['acodec'] = media_out.acodec
-#         out_kwargs['audio_bitrate'] = media_out.abr
-#     out_args.append(str(media_out.file))
-#     return ffmpeg.output(*out_args, **out_kwargs)

@@ -33,34 +33,6 @@ def parse_timestamp(timestamp):
         seconds += float(parts[-(i+1)])*60**i if len(parts) > i else 0
     return seconds
 
-# def get_file_out(media_in, action, media_out):
-#     specs_str = ''
-#     if action == 'change_speed':
-#         # Use speed factor and suffix in outfile.
-#         specs_str = f"{str(media_out.factor)}x"
-#     elif action == 'export_audio':
-#         abitrate = round(media_out.abr/1000) if media_out.abr is not None else 0
-#         specs_str = f"a{round(abitrate)}kbps"
-#     elif action == 'normalize':
-#         vbitrate = round(media_out.vbr/1000) if media_out.vbr is not None else 0
-#         abitrate = round(media_out.abr/1000) if media_out.abr is not None else 0
-#         if media_out.suffix == '.mp4':
-#             if media_out.mode == 'CBR':
-#                 # Use video_bitrate, framerate, audio_bitrate, and suffix in outfile.
-#                 specs_str = f"v{vbitrate}kbps_{media_out.fps}fps_a{abitrate}kbps"
-#             else:
-#                 specs_str = f"crf{media_out.crf}_{media_out.fps}fps_a{abitrate}kbps"
-#         elif media_out.suffix == '.mp3':
-#             # Use audio_bitrate and suffix in outfile.
-#             specs_str = f"a{abitrate}kbps"
-#     elif action == 'trim':
-#         # Use duration and suffix in outfile.
-#         specs_str = f"{media_out.duration}s"
-#     media_out.file = media_in.file
-#     filename = f"{media_in.file.stem}_{specs_str}{media_out.suffix}"
-#     media_out.file = media_out.file.with_name(filename)
-#     return media_out.file
-
 def print_command(stream):
     command = ffmpeg.get_args(stream)
     # Add quotes around iffy command arg. options.
