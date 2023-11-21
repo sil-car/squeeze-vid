@@ -65,7 +65,7 @@ class MediaObject():
                 fpsn, fpsd = avg_frame_rate.split('/')
                 # TODO: fails for MP3s with album cover "video"
                 # self.fps = int(float(fpsn)/float(fpsd)) if fpsd != '0' else 0
-                self.fps = round(float(fpsn)/float(fpsd), 2) if fpsd != '0' else 0
+                self.fps = float(fpsn)/float(fpsd) if fpsd != '0' else 0
                 self.nb_frames = int(self.vstreams[0].get('nb_frames', 0))
             self.format = self.props.get('format').get('format_name')
 
@@ -206,7 +206,7 @@ class SqueezeTask():
             abitrate = round(self.media_out.abr/1000) if self.media_out.abr is not None else 0
             self.outfile_name_attribs.extend([
                 f"crf{self.media_out.crf}",
-                f"{self.media_out.fps}fps",
+                f"{round(self.media_out.fps, 2)}fps",
                 f"a{abitrate}kbps"
             ])
         elif self.action == 'trim':
