@@ -48,7 +48,7 @@ parts:
     override-pull: |
       snapcraftctl pull
       snap_ver=$(grep 'VERSION =' $SNAPCRAFT_PART_SRC/squeeze_vid/config.py | grep -Eo '[0-9.]+')
-      ffmpeg_ver="ffmpeg6.0" # matches parts > ffmpeg > source-branch below
+      ffmpeg_ver="ffmpeg6.1" # needs to match parts > ffmpeg > source-branch below
       snapcraftctl set-version "${snap_ver}+${ffmpeg_ver}"
       snapcraftctl set-grade "stable"
     build-packages:
@@ -124,7 +124,7 @@ parts:
     source-depth: 1 # faster clone?
     # Release branches: http://git.videolan.org/?p=ffmpeg.git;a=heads
     # source-branch: 'release/5.1'
-    source-branch: 'n6.0'
+    source-branch: 'n6.1'
     stage-packages:
       # Ref: snapcraftctl build output.
       - freeglut3
