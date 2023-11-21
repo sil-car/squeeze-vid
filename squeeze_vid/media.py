@@ -250,7 +250,8 @@ class SqueezeTask():
             self.output_kwargs["tile-columns"] = tile_col_exp
             self.output_kwargs["tile-rows"] = tile_row_exp
         if self.media_out.vcodec == 'libsvtav1':
-            self.output_kwargs['c:a'] = 'copy'
+            self.output_kwargs['profile'] = '0'
+            # self.output_kwargs['c:a'] = 'copy'
             self.output_kwargs["svtav1-params"] = f"tile-columns={tile_col_exp}:tile-rows={tile_row_exp}:fast-decode=1"
 
         # Apply filters & create command stream.
