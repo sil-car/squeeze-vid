@@ -117,18 +117,15 @@ class SqueezeTask():
         self.media_out.vbr_norm = self.args.rates[1]
         self.media_out.fps_norm = self.args.rates[2]
         if self.args.rate_control_mode:
-            if self.args.rate_control_mode in ['CBR', 'CRF']:
+            if self.args.rate_control_mode.upper() in ['CBR', 'CRF']:
                 self.media_out.mode = args.rate_control_mode
             else:
                 print(f"Warning: rate control mode not recognized: {self.args.rate_control_mode}; falling back to CRF.")
         if self.args.video_encoder:
-            # self.media_out.vcodec_norm = self.args.video_encoder
-            self.media_out.vcodec = self.args.video_encoder
+            self.media_out.vcodec_norm = self.args.video_encoder
         if self.args.av1:
-            # self.media_out.vcodec_norm = 'libsvtav1'
-            self.media_out.vcodec = 'libsvtav1'
-            # self.media_out.vbr_norm = int(self.media_out.vbr_norm * 0.75) # reduce b/c AV1 is more efficient
-            self.media_out.vbr = int(self.media_out.vbr_norm * 0.75) # reduce b/c AV1 is more efficient
+            self.media_out.vcodec_norm = 'libsvtav1'
+            self.media_out.vbr_norm = int(self.media_out.vbr_norm * 0.75) # reduce b/c AV1 is more efficient
 
 
         self.outfile_name_attribs = [] # strings appended to name stem
@@ -146,9 +143,9 @@ class SqueezeTask():
         self.media_out.crf_vpx_vp9 = int(self.media_out.crf_h264 * 63 / 52) # interpolation
         # CRF ranges: h264: 0-51 [23]; svt-av1: 1-63 [30]; vpx-vp9: 0-63
         self.media_out.crf = str(self.media_out.crf_h264)
-        if self.media_out.vcodec == 'libvpx-vp9':
+        if self.media_out.vcodec_norm == 'libvpx-vp9':
             self.media_out.crf = str(self.media_out.crf_vpx_vp9)
-        elif self.media_out.vcodec == 'libsvtav1':
+        elif self.media_out.vcodec_norm == 'libsvtav1':
             self.media_out.crf = str(self.media_out.crf_svt_av1)
         self.output_kwargs['crf'] = self.media_out.crf
 
@@ -217,11 +214,17 @@ class SqueezeTask():
             self.media_out.duration = self.media_out.endpoints[1] - self.media_out.endpoints[0]
             self.output_kwargs['ss'] = self.media_out.endpoints[0]
             self.output_kwargs['to'] = self.media_out.endpoints[1]
-            if self.media_out.video is not None:
-                self.output_kwargs['c:v'] = self.media_out.vcodec
+            # if self.media_out.video is not None:
+            #     self.output_kwargs['c:v'] = self.media_out.vcodec
             if self.media_out.audio is not None:
                 self.output_kwargs['c:a'] = 'copy'
             self.outfile_name_attribs.append(f"{self.media_out.duration}s")
+
+        # Set codecs.
+        if self.media_out.audio is not None:
+            self.output_kwargs['c:a'] = self.media_out.acodec
+        if self.media_out.video is not None:
+            self.output_kwargs['c:v'] = self.media_out.vcodec
 
         # Modify command args according to variables.
         tile_col_exp = "1" # 2**1 = 2 columns
