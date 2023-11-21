@@ -138,8 +138,8 @@ class SqueezeTask():
         }
 
         self.media_out.crf_h264 = 27 # verified with SSIM on corporate-like content using ffmpeg-quality-metrics
-        self.media_out.crf_svt_av1 = int((self.media_out.crf_h264 + 1) * 63 / 52) # interpolation
-        self.media_out.crf_vpx_vp9 = int(self.media_out.crf_h264 * 63 / 52) # interpolation
+        self.media_out.crf_svt_av1 = 42 # int((self.media_out.crf_h264 + 1) * 63 / 52) # interpolation
+        self.media_out.crf_vpx_vp9 = 42 # int(self.media_out.crf_h264 * 63 / 52) # interpolation
         # CRF ranges: h264: 0-51 [23]; svt-av1: 1-63 [30]; vpx-vp9: 0-63
         self.media_out.crf = str(self.media_out.crf_h264)
         if self.media_out.vcodec_norm == 'libvpx-vp9':
@@ -233,12 +233,12 @@ class SqueezeTask():
             self.outfile_name_attribs.insert(0, f"v{vbitrate}kbps")
         if self.media_out.vcodec == 'libvpx-vp9':
             del self.output_kwargs['profile:v']
+            self.output_kwargs['b:v'] = "0"
             self.output_kwargs["row-mt"] = "1"
             self.output_kwargs["cpu-used"] = "8"
             self.output_kwargs["tile-columns"] = tile_col_exp
             self.output_kwargs["tile-rows"] = tile_row_exp
         if self.media_out.vcodec == 'libsvtav1':
-            # self.output_kwargs['profile:v'] = '0'
             del self.output_kwargs['profile:v']
             self.output_kwargs["svtav1-params"] = f"tile-columns={tile_col_exp}:tile-rows={tile_row_exp}:fast-decode=1"
 
