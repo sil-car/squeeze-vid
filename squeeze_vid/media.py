@@ -1,6 +1,7 @@
 import ffmpeg
 # ffmpeg API: https://kkroening.github.io/ffmpeg-python
 # ffmpeg Ex: https://github.com/kkroening/ffmpeg-python
+import os
 
 from pathlib import Path
 
