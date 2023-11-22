@@ -92,13 +92,16 @@ def run_conversion(output_stream, duration):
             elif len(tokens) == 2:
                 k, v = tokens
                 if k == 'out_time_ms':
-                    current = float(v) / 1000000 # convert to sec
-                    if config.DEBUG:
-                        print(f"{current = }")
+                    try:
+                        current = float(v) / 1000000 # convert to sec
+                    except ValueError:
+                        current = 0
                     # BUG: out_time_ms is initially a very large neg. number in ffmpeg6 output;
                     #   hacked workaround.
-                    if abs(current) > duration:
+                    if current < 0:
                         current = 0
+                    if config.DEBUG:
+                        print(f"{current = }")
                     p_pct = int(round(current * 100 / duration, 0))
                     progressbar = get_progressbar(p_pct)
                     sys.stdout.write(progressbar)
