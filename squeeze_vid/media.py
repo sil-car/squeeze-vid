@@ -235,7 +235,7 @@ class SqueezeTask():
             del self.output_kwargs['profile:v']
             self.output_kwargs['b:v'] = "0"
             self.output_kwargs["row-mt"] = "1"
-            self.output_kwargs["cpu-used"] = "8"
+            self.output_kwargs["cpu-used"] = str(len(os.sched_getaffinity(0))) # available proc count
             self.output_kwargs["tile-columns"] = tile_col_exp
             self.output_kwargs["tile-rows"] = tile_row_exp
         if self.media_out.vcodec == 'libsvtav1':
