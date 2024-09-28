@@ -119,7 +119,7 @@ parts:
       - --enable-opengl
       - --enable-shared
       - --enable-version3
-    source: https://git.ffmpeg.org/gitweb/ffmpeg.git
+    source: https://git.ffmpeg.org/ffmpeg.git
     source-type: git
     source-depth: 1 # faster clone?
     source-branch: 'n7.0'
