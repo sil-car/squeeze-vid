@@ -1,10 +1,9 @@
 # When testing, use:
 # (env) $ python3 -c 'import squeeze_vid.app; squeeze_vid.app.main()' [ARGS]
-# This makes it run the same way as installed version, which makes imports work correctly. 
+# This makes it run the same way as installed version, which makes imports
+# work correctly.
 
 import argparse
-import os
-
 from pathlib import Path
 
 from . import config
@@ -15,11 +14,13 @@ from .util import validate_file
 
 def main():
     # Build arguments and options list.
-    description = "Convert video file to MP4, ensuring baseline video quality:\n\
-  * Default:  720p, CRF=27 (H.264), 25 fps for projected video\n\
-  * Tutorial: Only use 10 fps for tutorial video\n\
-\n\
-Also perform other useful operations on media files."
+    description = (
+        "Convert video file to MP4, ensuring baseline video quality:\n"
+        "  * Default:  720p, CRF=27 (H.264), 25 fps for projected video\n"
+        "  * Tutorial: Only use 10 fps for tutorial video\n"
+        "\n"
+        "Also perform other useful operations on media files."
+    )
 
     parser = argparse.ArgumentParser(
         description=description,
@@ -49,22 +50,22 @@ Also perform other useful operations on media files."
         '-k', '--trim',
         nargs=2,
         type=str,
-        help="trim the file to keep content between given timestamps (HH:MM:SS)"
+        help="trim the file to keep content between given timestamps (HH:MM:SS)",  # noqa: E501
     )
     parser.add_argument(
         '-m', '--rate-control-mode',
         type=str,
-        help="specify the rate control mode [CRF]: CBR, CRF; if CBR is specified, the video bitrate is set to 2Mbps"
+        help="specify the rate control mode [CRF]: CBR, CRF; if CBR is specified, the video bitrate is set to 2Mbps",  # noqa: E501
     )
     parser.add_argument(
         '-n', '--normalize',
         action='store_true',
-        help="normalize video reslution, bitrate, and framerate; this is the default action if no options are given"
+        help="normalize video resolution, bitrate, and framerate; this is the default action if no options are given",  # noqa: E501
     )
     parser.add_argument(
         '-s', '--speed',
         type=float,
-        help="change the playback speed of the video using the given factor (0.5 to 100)",
+        help="change the playback speed of the video using the given factor (0.5 to 100)",  # noqa: E501
     )
     parser.add_argument(
         '-t', '--tutorial',
@@ -120,7 +121,7 @@ Also perform other useful operations on media files."
         if args.verbose:
             print(f"input file: {input_file}")
         mod_file = Path()
-        mod_file_prev = Path()
+        # mod_file_prev = Path()
         if not input_file:
             print(f"Skipped invalid input file: {input_file_string}")
             continue
@@ -153,7 +154,7 @@ Also perform other useful operations on media files."
                 input_file = mod_file
                 media_in = MediaObject(input_file)
                 task = SqueezeTask(args=args, media_in=media_in)
-                mod_file_prev = mod_file
+                # mod_file_prev = mod_file
             # Attempt to change the playback speed of all passed video files.
             task.action = 'change_speed'
             task.media_out.factor = float(args.speed)
@@ -167,7 +168,7 @@ Also perform other useful operations on media files."
                 media_in = MediaObject(input_file)
                 task = SqueezeTask(args=args, media_in=media_in)
                 task.media_out.suffix = '.mp3'
-                mod_file_prev = mod_file
+                # mod_file_prev = mod_file
             # Convert file(s) to normalized MP3.
             task.action = 'export_audio'
             task.media_out.suffix = task.media_out.suffix_norm_a
@@ -175,13 +176,13 @@ Also perform other useful operations on media files."
             mod_file = task.run()
 
         if (args.normalize or args.rates[2] == 10 or
-                (not args.info and not args.trim and not args.speed and not args.audio)):
+                (not args.info and not args.trim and not args.speed and not args.audio)):  # noqa: E501
             # Use mod_file from previous step as input_file if it exists.
             if mod_file.is_file():
                 input_file = mod_file
                 media_in = MediaObject(input_file)
                 task = SqueezeTask(args=args, media_in=media_in)
-                mod_file_prev = mod_file
+                # mod_file_prev = mod_file
             # Attempt to normalize all passed files.
             task.action = 'normalize'
             task.setup()

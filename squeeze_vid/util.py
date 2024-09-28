@@ -1,7 +1,5 @@
 import ffmpeg
 import sys
-import threading
-
 from pathlib import Path
 # https://docs.python.org/3/library/queue.html?highlight=queue#module-queue
 from queue import Queue
@@ -20,6 +18,7 @@ def validate_file(input_file_string):
         return None
     return input_file
 
+
 def parse_timestamp(timestamp):
     """
     Return timestamp string HH:MM:SS as a float of total seconds.
@@ -33,14 +32,16 @@ def parse_timestamp(timestamp):
         seconds += float(parts[-(i+1)])*60**i if len(parts) > i else 0
     return seconds
 
+
 def print_command(stream):
     command = ffmpeg.get_args(stream)
     # Add quotes around iffy command arg. options.
     for i, item in enumerate(command.copy()):
         if item == '-filter_complex' or item == '-i':
             command[i+1] = f"\"{command[i+1]}\""
-    command[-1] = f"\"{command[-1]}\"" # outfile
+    command[-1] = f"\"{command[-1]}\""  # outfile
     print(f"squeeze-vid.ffmpeg {' '.join(command)}\n")
+
 
 def run_conversion(output_stream, duration):
     duration = float(duration)
@@ -65,7 +66,6 @@ def run_conversion(output_stream, duration):
             print(f"{d_ct = }")
             print(f"{u_ct = }")
 
-
         bar = '  '
         if d_ct == 0:
             bar += ci + u*(u_ct - 1) + cf
@@ -87,17 +87,17 @@ def run_conversion(output_stream, duration):
             tokens = text.rstrip().split('=')
             if config.VERBOSE:
                 sys.stdout.write(text)
-            elif len(tokens) == 1 and text[:4] != 'Svt[': # ignore extra libsvtav1 output
+            elif len(tokens) == 1 and text[:4] != 'Svt[':  # ignore extra libsvtav1 output  # noqa: E501
                 sys.stdout.write(text)
             elif len(tokens) == 2:
                 k, v = tokens
                 if k == 'out_time_ms':
                     try:
-                        current = float(v) / 1000000 # convert to sec
+                        current = float(v) / 1_000_000  # convert to sec
                     except ValueError:
                         current = 0
-                    # BUG: out_time_ms is initially a very large neg. number in ffmpeg6 output;
-                    #   hacked workaround.
+                    # BUG: out_time_ms is initially a very large neg. number in
+                    # ffmpeg6 output; hacked workaround.
                     if current < 0:
                         current = 0
                     if config.DEBUG:
@@ -139,9 +139,21 @@ def run_conversion(output_stream, duration):
                 q_out = Queue()
                 try:
                     # Start progress queue & threads.
-                    t_out = Thread(name="T-stdout", target=read_output, args=(p.stdout, q_out))
-                    t_err = Thread(name="T-stderr", target=read_output, args=(p.stderr, q_out))
-                    t_write = Thread(name="T-write", target=write_output, args=(duration, q_out))
+                    t_out = Thread(
+                        name="T-stdout",
+                        target=read_output,
+                        args=(p.stdout, q_out)
+                    )
+                    t_err = Thread(
+                        name="T-stderr",
+                        target=read_output,
+                        args=(p.stderr, q_out)
+                    )
+                    t_write = Thread(
+                        name="T-write",
+                        target=write_output,
+                        args=(duration, q_out)
+                    )
                     for t in (t_out, t_err, t_write):
                         t.start()
                     p.wait()

@@ -38,7 +38,7 @@ optional arguments:
                         trim the file to keep content between given timestamps (HH:MM:SS)
   -m RATE_CONTROL_MODE, --rate-control-mode RATE_CONTROL_MODE
                         specify the rate control mode [CRF]: CBR, CRF; if CBR is specified, the video bitrate is set to 2Mbps
-  -n, --normalize       normalize video reslution, bitrate, and framerate; this is the default action if no options are given
+  -n, --normalize       normalize video resolution, bitrate, and framerate; this is the default action if no options are given
   -s SPEED, --speed SPEED
                         change the playback speed of the video using the given factor (0.5 to 100)
   -t, --tutorial        use lower bitrate and fewer fps for short tutorial videos

@@ -20,8 +20,8 @@ class MediaObject():
         self.stream = None
         self.astreams = None
         self.vstreams = None
-        # ffmpeg.Stream.audio and .video attribs are not modifiable. Must set as
-        #   variable, update those, then rebuild stream with ffmpeg.output().
+        # ffmpeg.Stream.audio and .video attribs are not modifiable. Must set
+        # as variable, update those, then rebuild stream with ffmpeg.output().
         self.audio = None
         self.video = None
         self.props = None
@@ -110,7 +110,7 @@ class SqueezeTask():
             self.media_in = media_in
 
         self.media_out = self.media_in
-        self.media_out.file = Path(f"{self.media_in.file.parent}/{self.media_in.file.stem}_{self.media_out.suffix}")
+        self.media_out.file = Path(f"{self.media_in.file.parent}/{self.media_in.file.stem}_{self.media_out.suffix}")  # noqa: E501
 
         # Set attribs based on input args.
         self.media_out.abr_norm = self.args.rates[0]
@@ -120,15 +120,14 @@ class SqueezeTask():
             if self.args.rate_control_mode.upper() in ['CBR', 'CRF']:
                 self.media_out.mode = args.rate_control_mode
             else:
-                print(f"Warning: rate control mode not recognized: {self.args.rate_control_mode}; falling back to CRF.")
+                print(f"Warning: rate control mode not recognized: {self.args.rate_control_mode}; falling back to CRF.")  # noqa: E501
         if self.args.video_encoder:
             self.media_out.vcodec_norm = self.args.video_encoder
         if self.args.av1:
             self.media_out.vcodec_norm = 'libsvtav1'
-            self.media_out.vbr_norm = int(self.media_out.vbr_norm * 0.75) # reduce b/c AV1 is more efficient
+            self.media_out.vbr_norm = int(self.media_out.vbr_norm * 0.75)  # reduce b/c AV1 is more efficient  # noqa: E501
 
-
-        self.outfile_name_attribs = [] # strings appended to name stem
+        self.outfile_name_attribs = []  # strings appended to name stem
         self.action = None
         self.output_args = [self.media_out.file]
         self.output_kwargs = {
@@ -138,9 +137,9 @@ class SqueezeTask():
             "progress": '-',
         }
 
-        self.media_out.crf_h264 = 27 # verified with SSIM on corporate-like content using ffmpeg-quality-metrics
-        self.media_out.crf_svt_av1 = 42 # int((self.media_out.crf_h264 + 1) * 63 / 52) # interpolation
-        self.media_out.crf_vpx_vp9 = 42 # int(self.media_out.crf_h264 * 63 / 52) # interpolation
+        self.media_out.crf_h264 = 27  # verified with SSIM on corporate-like content using ffmpeg-quality-metrics  # noqa: E501
+        self.media_out.crf_svt_av1 = 42  # int((self.media_out.crf_h264 + 1) * 63 / 52) # interpolation  # noqa: E501
+        self.media_out.crf_vpx_vp9 = 42  # int(self.media_out.crf_h264 * 63 / 52) # interpolation  # noqa: E501
         # CRF ranges: h264: 0-51 [23]; svt-av1: 1-63 [30]; vpx-vp9: 0-63
         self.media_out.crf = str(self.media_out.crf_h264)
         if self.media_out.vcodec_norm == 'libvpx-vp9':
@@ -172,20 +171,26 @@ class SqueezeTask():
         if self.action == 'change_speed':
             # Add filters.
             filters['audio']['atempo'] = [f"{str(self.media_out.factor)}"]
-            filters['video']['setpts'] = [f"{str(1 / self.media_out.factor)}*PTS"]
-            self.media_out.duration = self.media_in.duration / self.media_out.factor
+            filters['video']['setpts'] = [f"{str(1 / self.media_out.factor)}*PTS"]  # noqa: E501
+            self.media_out.duration = self.media_in.duration / self.media_out.factor  # noqa: E501
             # Add attrib to final file name.
             self.outfile_name_attribs.append(f"{str(self.media_out.factor)}x")
         elif self.action == 'export_audio':
             self.media_out.video = None
-            self.media_out = normalize_stream_props(self.media_in, self.media_out)
+            self.media_out = normalize_stream_props(
+                self.media_in,
+                self.media_out
+            )
             del self.output_kwargs['crf']
             del self.output_kwargs['profile:v']
-            abitrate = round(self.media_out.abr/1000) if self.media_out.abr is not None else 0
+            abitrate = round(self.media_out.abr/1000) if self.media_out.abr is not None else 0  # noqa: E501
             self.outfile_name_attribs.append(f"a{round(abitrate)}kbps")
         elif self.action == 'normalize':
             # Normalize media_out properties.
-            self.media_out = normalize_stream_props(self.media_in, self.media_out)
+            self.media_out = normalize_stream_props(
+                self.media_in,
+                self.media_out
+            )
             # Add video filters: Define video max height.
             filters['video']['scale'] = [
                 "trunc(oh*a/2)*2",
@@ -193,15 +198,15 @@ class SqueezeTask():
             ]
             # Define video max framerate.
             filters['video']['fps'] = [self.media_out.fps]
-            abitrate = round(self.media_out.abr/1000) if self.media_out.abr is not None else 0
+            abitrate = round(self.media_out.abr/1000) if self.media_out.abr is not None else 0  # noqa: E501
             self.outfile_name_attribs.extend([
                 f"crf{self.media_out.crf}",
                 f"{round(self.media_out.fps, 2)}fps",
                 f"a{abitrate}kbps"
             ])
         elif self.action == 'trim':
-            self.media_out.endpoints = [parse_timestamp(e) for e in self.media_out.endpoints]
-            self.media_out.duration = self.media_out.endpoints[1] - self.media_out.endpoints[0]
+            self.media_out.endpoints = [parse_timestamp(e) for e in self.media_out.endpoints]  # noqa: E501
+            self.media_out.duration = self.media_out.endpoints[1] - self.media_out.endpoints[0]  # noqa: E501
             self.output_kwargs['ss'] = self.media_out.endpoints[0]
             self.output_kwargs['to'] = self.media_out.endpoints[1]
             if self.media_out.audio is not None:
@@ -215,8 +220,8 @@ class SqueezeTask():
             self.output_kwargs['c:v'] = self.media_out.vcodec
 
         # Modify command args according to variables.
-        tile_col_exp = "1" # 2**1 = 2 columns
-        tile_row_exp = "1" # 2**1 = 2 rows
+        tile_col_exp = "1"  # 2**1 = 2 columns
+        tile_row_exp = "1"  # 2**1 = 2 rows
         if config.VERBOSE:
             self.output_kwargs["loglevel"] = "verbose"
         if config.DEBUG:
@@ -226,37 +231,48 @@ class SqueezeTask():
 
         if self.media_out.mode == 'CBR':
             # Note: Some codecs require max vbr > target vbr.
-            self.output_kwargs['video_bitrate'] = self.media_out.vbr - 1 if self.media_out.vbr > 0 else 0
+            self.output_kwargs['video_bitrate'] = self.media_out.vbr - 1 if self.media_out.vbr > 0 else 0  # noqa: E501
             self.output_kwargs['maxrate'] = self.media_out.vbr
             self.output_kwargs['bufsize'] = self.media_out.vbr/2
             self.outfile_name_attribs.remove(f"crf{self.media_out.crf}")
-            vbitrate = round(self.media_out.vbr/1000) if self.media_out.vbr is not None else 0
+            vbitrate = round(self.media_out.vbr/1000) if self.media_out.vbr is not None else 0  # noqa: E501
             self.outfile_name_attribs.insert(0, f"v{vbitrate}kbps")
         if self.media_out.vcodec == 'libvpx-vp9':
             del self.output_kwargs['profile:v']
             self.output_kwargs['b:v'] = "0"
             self.output_kwargs["row-mt"] = "1"
-            self.output_kwargs["cpu-used"] = str(len(os.sched_getaffinity(0))) # available proc count
+            self.output_kwargs["cpu-used"] = str(len(os.sched_getaffinity(0)))  # available proc count  # noqa: E501
             self.output_kwargs["tile-columns"] = tile_col_exp
             self.output_kwargs["tile-rows"] = tile_row_exp
         if self.media_out.vcodec == 'libsvtav1':
             del self.output_kwargs['profile:v']
-            self.output_kwargs["svtav1-params"] = f"tile-columns={tile_col_exp}:tile-rows={tile_row_exp}:fast-decode=1"
+            self.output_kwargs["svtav1-params"] = f"tile-columns={tile_col_exp}:tile-rows={tile_row_exp}:fast-decode=1"  # noqa: E501
 
         # Apply filters & create command stream.
         if self.media_out.video is not None:
             for k, vs in filters.get('video').items():
-                self.media_out.video = ffmpeg.filter(self.media_out.video, k, *vs)
-            self.output_args.insert(0, self.media_out.video) # index 0 is video, 1 is currently outfile
+                self.media_out.video = ffmpeg.filter(
+                    self.media_out.video,
+                    k,
+                    *vs
+                )
+            self.output_args.insert(0, self.media_out.video)  # index 0 is video, 1 is currently outfile  # noqa: E501
         if self.media_out.audio is not None:
             for k, vs in filters.get('audio').items():
-                self.media_out.audio = ffmpeg.filter(self.media_out.audio, k, *vs)
-            self.output_args.insert(-2, self.media_out.audio) # index 0 is video, 1 is audio, 2 is outfile
+                self.media_out.audio = ffmpeg.filter(
+                    self.media_out.audio,
+                    k,
+                    *vs
+                )
+            self.output_args.insert(-2, self.media_out.audio)  # index 0 is video, 1 is audio, 2 is outfile  # noqa: E501
         specs_str = '_'.join(self.outfile_name_attribs)
-        stem = self.media_out.file.stem.rstrip('_') # removes '_' from earlier addition
-        self.media_out.file = f"{self.media_out.file.parent}/{stem}_{specs_str}{self.media_out.suffix}"
-        self.output_args[-1] = self.media_out.file # replaces fallback outfile
-        self.ffmpeg_output_stream = ffmpeg.output(*self.output_args, **self.output_kwargs)
+        stem = self.media_out.file.stem.rstrip('_')  # removes '_' from earlier addition  # noqa: E501
+        self.media_out.file = f"{self.media_out.file.parent}/{stem}_{specs_str}{self.media_out.suffix}"  # noqa: E501
+        self.output_args[-1] = self.media_out.file  # replaces fallback outfile
+        self.ffmpeg_output_stream = ffmpeg.output(
+            *self.output_args,
+            **self.output_kwargs
+        )
 
     def run(self):
         if self.args.command:
@@ -275,7 +291,7 @@ def normalize_stream_props(media_in, media_out):
         media_out.suffix = media_out.suffix_norm_a
         # Determine vcodec for media_out.
         if media_in.acodec is not None:
-            media_out.acodec = media_out.acodec_norm_a # set for audio-only first
+            media_out.acodec = media_out.acodec_norm_a  # set for audio-only first  # noqa: E501
         # Determine audio bitrate for media_out.
         if media_in.abr is not None:
             media_out.abr = min([media_in.abr, media_out.abr_norm])
@@ -285,7 +301,7 @@ def normalize_stream_props(media_in, media_out):
         media_out.format = media_out.format_norm_v
         media_out.suffix = media_out.suffix_norm_v
         if media_in.acodec is not None:
-            media_out.acodec = media_out.acodec_norm # set for video; overwrite setting for audio-only
+            media_out.acodec = media_out.acodec_norm  # set for video; overwrite setting for audio-only  # noqa: E501
         # Determine vcodec for media_out.
         if media_in.vcodec is not None:
             media_out.vcodec = media_out.vcodec_norm
@@ -297,6 +313,6 @@ def normalize_stream_props(media_in, media_out):
             media_out.fps = min([media_in.fps, media_out.fps_norm])
         # Determine video height from first video stream in input file.
         if media_in.height is not None and media_in.width is not None:
-            height_in = min([media_in.height, media_in.width]) # min in case of portrait orientation
+            height_in = min([media_in.height, media_in.width])  # min in case of portrait orientation  # noqa: E501
             media_out.height = min([height_in, media_out.height_norm])
     return media_out

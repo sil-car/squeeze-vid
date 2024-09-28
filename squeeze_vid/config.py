@@ -1,4 +1,4 @@
 DEBUG = False
 VERBOSE = False
-VERSION = '0.9'
+VERSION = '0.9.1'
 FFMPEG_EXPERIMENTAL = False
