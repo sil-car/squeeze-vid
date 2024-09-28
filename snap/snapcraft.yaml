@@ -19,7 +19,9 @@ description: |
 adopt-info: squeeze-vid # for setting version and grade
 confinement: strict
 base: core24
-platforms: [arm64, amd64]
+platforms:
+  arm64:
+  amd64:
 
 apps:
   squeeze-vid:
