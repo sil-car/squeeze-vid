@@ -82,7 +82,8 @@ parts:
       - libmp3lame-dev
       # - libopus-dev
       - libsdl1.2-dev
-      - libsvtav1-dev # 22.04+; or build from src
+      - libsvtav1dec-dev # 22.04+; or build from src
+      - libstvav1enc-dev
       # - libtheora-dev
       - libtool
       - libva-dev
