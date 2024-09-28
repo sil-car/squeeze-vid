@@ -191,21 +191,15 @@ parts:
         rm -rf "$CRAFT_PRIME/$x"
       done
       find $CRAFT_PRIME/usr/share/doc/ -type f -not -name 'copyright' -delete
-      find $CRAFT_PRIME/usr/share -type d -empty -delete
+      # find $CRAFT_PRIME/usr/share -type d -empty -delete
       find $CRAFT_PRIME -type d -empty -delete
 
-      rm -f $CRAFT_PRIME/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libGLX_mesa*
-      rm -f $CRAFT_PRIME/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicuio.so*
-      rm -f $CRAFT_PRIME/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicutest.so*
-      rm -f $CRAFT_PRIME/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libpixman-1.so*
-      rm -f $CRAFT_PRIME/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libpulse-simple.so*
-      rm -f $CRAFT_PRIME/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libvulkan.so*
-      rm -f $CRAFT_PRIME/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libxcb-render.so*
-      # rm -f $CRAFT_PRIME/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libLLVM-17.so*  # needed for DRI libs
-      rm -f $CRAFT_PRIME/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libXxf86vm.so
-      rm -f $CRAFT_PRIME/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicutu.so
-      rm -f $CRAFT_PRIME/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libxcb-dri2.so
-      rm -f $CRAFT_PRIME/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libxcb-glx.so
-      rm -f $CRAFT_PRIME/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libxcb-present.so
-      rm -f $CRAFT_PRIME/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libxcb-sync.so
-      rm -f $CRAFT_PRIME/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libxshmfence.so
+      # Remove extra python modules.
+      for x in pip setuptools wheel; do
+        rm -rf $CRAFT_PRIME/$x*
+      done
+
+      # Remove unneeded libs.
+      for x in GLX_mesa icuio pixman-1 pulse-simple vulkan xcb-render Xxf86vm icutu xcb-dri2 xcb-glx xcb-present xcb-sync xshmfence; do
+        rm -f $CRAFT_PRIME/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/lib${x}.so*
+      done
