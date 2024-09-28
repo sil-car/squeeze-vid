@@ -130,21 +130,33 @@ parts:
       - libasound2t64
       - libaom3 # encoder way too slow on 20.04, but decoder is still useful
       - libass9
-      - libcairo2
+      - libasyncns0
+      # - libcairo2
+      - libdecor-0-0
+      - libflac12t64
       - libfontconfig1
       # - libfreetype6
       - libfribidi0
-      - libglu1-mesa
+      - libgbm1
+      - libgl1
+      # - libglu1-mesa
+      - libglx0
       - libgraphite2-3
       - libharfbuzz0b
       - libmp3lame0
-      - libnuma1
+      - libmpg123-0t64
+      # - libnuma1
       - libogg0
-      # - libopus0
+      - libopus0
       - libpixman-1-0
       - libpng16-16t64
-      - libsvtav1dec0 # 22.04+; or build from src
-      - libsvtav1enc1d1
+      - libpulse0
+      - libsamplerate0
+      - libsdl2-2.0-0
+      - libsndfile1
+      - libsndio7.0
+      # - libsvtav1dec0
+      - libsvtav1enc1d1  # 22.04+; or build from src
       # - libtheora0
       - libva-drm2
       - libva-x11-2
@@ -153,12 +165,23 @@ parts:
       - libvorbis0a
       - libvorbisenc2
       - libvpx9
+      - libwayland-client0
+      - libwayland-cursor0
+      - libwayland-egl1
+      - libwayland-server0
       - libx264-164
       # - libx265-179
+      - libxcb-randr0
       - libxcb-render0
       - libxcb-shape0
+      - libxcb-xfixes0
       - libxcb1
+      - libxcursor1
+      - libxi6
+      - libxrandr2
       - libxrender1
+      - libxss1
+      - libxv1
 
       # External libraries providing hardware acceleration:
       # v4l2_m2m                vaapi                   vdpau
