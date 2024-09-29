@@ -89,7 +89,6 @@ parts:
       - libxcb1-dev
       - libxcb-shm0-dev
       - libxcb-xfixes0-dev
-      - nvidia-vaapi-driver
       - pkg-config
       - texinfo
       - yasm
@@ -100,7 +99,8 @@ parts:
       # https://ffmpeg.org/general.html#Supported-File-Formats_002c-Codecs-or-Features
       - --prefix=/usr
       - --disable-debug
-      - --disable-doc # removes all docs --disable-{htmlpages,manpages,txtpages}
+      - --disable-doc  # removes all docs --disable-{htmlpages,manpages,txtpages}
+      - --disable-hwaccels  # remove all hw acceleration; seems to give limited benefit
       - --disable-ffplay
       - --disable-static
       - --enable-gpl
@@ -156,7 +156,7 @@ parts:
       - libva-drm2
       - libva-x11-2
       - libva2
-      - libvdpau1
+      # - libvdpau1
       - libvorbis0a
       - libvorbisenc2
       - libvpx9
@@ -177,58 +177,54 @@ parts:
       - libxrender1
       - libxss1
       - libxv1
-      - nvidia-vaapi-driver
-      - vdpau-driver-all
-      # External libraries providing hardware acceleration:
-      # v4l2_m2m, vaapi
-    prime:  # removed unused libs (according to snap lint warnings)
-      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libdconf.so*
-      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libEGL_mesa.so*
-      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstadaptivedemux-1.0.so*
-      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstanalytics-1.0.so*
-      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstapp-1.0.so*
-      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstbadaudio-1.0.so*
-      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstcheck-1.0.so*
-      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstcodecs-1.0.so*
-      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstcontroller-1.0.so*
-      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstcuda-1.0.so*
-      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstdxva-1.0.so*
-      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstfft-1.0.so*
-      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstgl-1.0.so*
-      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstinsertbin-1.0.so*
-      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstisoff-1.0.so*
-      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstmpegts-1.0.so*
-      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstmse-1.0.so*
-      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstnet-1.0.so*
-      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstplay-1.0.so*
-      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstplayer-1.0.so*
-      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstriff-1.0.so*
-      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstrtsp-1.0.so*
-      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstsctp-1.0.so*
-      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgsttranscoder-1.0.so*
-      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgsturidownloader-1.0.so*
-      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstva-1.0.so*
-      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstvulkan-1.0.so*
-      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstwayland-1.0.so*
-      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstwebrtcnice-1.0.so*
-      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstwebrtc-1.0.so*
-      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libGLX_mesa.so*
-      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicui18n.so*
-      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicuio.so*
-      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicutest.so*
-      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicutu.so*
-      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libnice.so*
-      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/liborc-test-0.4.so*
-      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libpixman-1.so*
-      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libpulse-simple.so*
-      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libunwind-coredump.so*
-      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libunwind-ptrace.so*
-      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libunwind-x86_64.so*
-      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libvulkan.so*
-      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libxcb-glx.so*
-      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libxcb-render.so*
-      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libxkbcommon-x11.so*
-      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libXxf86vm.so*
+    prime:  # removed unused files & libs (according to snap lint warnings)
+      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libdconf.so*
+      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libEGL_mesa.so*
+      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstadaptivedemux-1.0.so*
+      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstanalytics-1.0.so*
+      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstapp-1.0.so*
+      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstbadaudio-1.0.so*
+      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstcheck-1.0.so*
+      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstcodecs-1.0.so*
+      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstcontroller-1.0.so*
+      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstcuda-1.0.so*
+      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstdxva-1.0.so*
+      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstfft-1.0.so*
+      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstgl-1.0.so*
+      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstinsertbin-1.0.so*
+      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstisoff-1.0.so*
+      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstmpegts-1.0.so*
+      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstmse-1.0.so*
+      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstnet-1.0.so*
+      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstplay-1.0.so*
+      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstplayer-1.0.so*
+      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstriff-1.0.so*
+      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstrtsp-1.0.so*
+      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstsctp-1.0.so*
+      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgsttranscoder-1.0.so*
+      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgsturidownloader-1.0.so*
+      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstva-1.0.so*
+      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstvulkan-1.0.so*
+      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstwayland-1.0.so*
+      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstwebrtcnice-1.0.so*
+      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstwebrtc-1.0.so*
+      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libGLX_mesa.so*
+      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicui18n.so*
+      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicuio.so*
+      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicutest.so*
+      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicutu.so*
+      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libnice.so*
+      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/liborc-test-0.4.so*
+      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libpixman-1.so*
+      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libpulse-simple.so*
+      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libunwind-coredump.so*
+      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libunwind-ptrace.so*
+      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libunwind-x86_64.so*
+      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libvulkan.so*
+      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libxcb-glx.so*
+      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libxcb-render.so*
+      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libxkbcommon-x11.so*
+      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libXxf86vm.so*
       - -usr/share/ffmpeg/examples
 
   cleanup:
