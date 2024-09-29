@@ -85,10 +85,11 @@ parts:
       # - libvorbis-dev
       - libvpx-dev
       - libx264-dev
-      # - libx265-dev
+      - libx265-dev
       - libxcb1-dev
       - libxcb-shm0-dev
       - libxcb-xfixes0-dev
+      - nvidia-vaapi-driver
       - pkg-config
       - texinfo
       - yasm
@@ -104,12 +105,13 @@ parts:
       - --disable-static
       - --enable-gpl
       - --enable-libaom         # AV1 video encoder
-      - --disable-encoder=libaom
+      # - --disable-encoder=libaom
       - --enable-libass         # subtitles support
       - --enable-libmp3lame
       - --enable-libsvtav1      # SVT-AV1 video encoder; requires packages libsvtav1{,-dev}; or build from src
       - --enable-libvpx         # VP9 video encoder
       - --enable-libx264        # H.264 video encoder
+      - --enable-libx265
       # - --enable-nonfree # makes binary unredistributable; ref: ffmpeg/LICENSE.md
       - --enable-opengl
       - --enable-shared
@@ -149,7 +151,6 @@ parts:
       - libsdl2-2.0-0
       - libsndfile1
       - libsndio7.0
-      # - libsvtav1dec0
       - libsvtav1enc1d1
       # - libtheora0
       - libva-drm2
@@ -164,7 +165,7 @@ parts:
       - libwayland-egl1
       - libwayland-server0
       - libx264-164
-      # - libx265-179
+      - libx265-199
       - libxcb-randr0
       - libxcb-render0
       - libxcb-shape0
@@ -176,8 +177,10 @@ parts:
       - libxrender1
       - libxss1
       - libxv1
+      - nvidia-vaapi-driver
+      - vdpau-driver-all
       # External libraries providing hardware acceleration:
-      # v4l2_m2m                vaapi                   vdpau
+      # v4l2_m2m, vaapi
     prime:
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libGLX_mesa.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicui18n.so*
@@ -196,22 +199,25 @@ parts:
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libXxf86vm.so*
       - -usr/share/ffmpeg/examples
 
-  # cleanup:
-  #   # https://forum.snapcraft.io/t/reduce-size-of-qt5-app-snap/31030/7
-  #   after:
-  #     - ffmpeg
-  #     - squeeze-vid
-  #   plugin: nil
-  #   build-snaps:
-  #     - core24
-  #   override-prime: |
-  #     set -eux
-  #     # Remove any files that are also provided by the core snap.
-  #     cd "/snap/core24/current" && find . -type f,l -exec rm -f "$CRAFT_PRIME/{}" \;
-  #     # Remove other unneeded files.
-  #     for x in include lib64 usr/include usr/lib/pkgconfig usr/share/doc-base usr/share/man; do
-  #       rm -rf "$CRAFT_PRIME/$x"
-  #     done
-  #     find $CRAFT_PRIME/usr/share/doc/ -type f -not -name 'copyright' -delete
-  #     # find $CRAFT_PRIME/usr/share -type d -empty -delete
-  #     find $CRAFT_PRIME -type d -empty -delete
+  cleanup:
+    # https://forum.snapcraft.io/t/reduce-size-of-qt5-app-snap/31030/7
+    after:
+      - ffmpeg
+      - squeeze-vid
+    plugin: nil
+    build-snaps:
+      - core24
+    override-prime: |
+      set -eux
+      craftctl default
+      # # Remove any files that are also provided by the core snap.
+      # cd "/snap/core24/current" && find . -type f,l -exec rm -f "$CRAFT_PRIME/{}" \;
+      find $CRAFT_PRIME/usr/share/doc/ -type f -not -name 'copyright' -delete
+      find $CRAFT_PRIME -type d -empty -delete
+    prime:
+      - -include
+      - -lib64
+      - -usr/include
+      - -usr/lib/pkgconfig
+      - -usr/share/doc-base
+      - -usr/share/man
