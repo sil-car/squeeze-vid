@@ -150,7 +150,7 @@ parts:
       - libsndfile1
       - libsndio7.0
       # - libsvtav1dec0
-      - libsvtav1enc1d1  # 22.04+; or build from src
+      # - libsvtav1enc1d1  # is this needed if included in ffmpeg build?
       # - libtheora0
       - libva-drm2
       - libva-x11-2
@@ -180,6 +180,7 @@ parts:
       # v4l2_m2m                vaapi                   vdpau
     prime:
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libGLX_mesa.so*
+      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicui18n.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicuio.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicutest.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicutu.so*
@@ -211,8 +212,3 @@ parts:
       find $CRAFT_PRIME/usr/share/doc/ -type f -not -name 'copyright' -delete
       # find $CRAFT_PRIME/usr/share -type d -empty -delete
       find $CRAFT_PRIME -type d -empty -delete
-
-      # # Remove unneeded libs.
-      # for x in GLX_mesa icuio icutest icutu pixman-1 pulse-simple vulkan xcb-dri2 xcb-glx xcb-present xcb-render xcb-sync xshmfence Xxf86vm; do
-      #   rm -f $CRAFT_PRIME/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/lib${x}.so*
-      # done
