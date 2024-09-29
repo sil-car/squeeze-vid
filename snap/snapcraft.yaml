@@ -54,6 +54,10 @@ parts:
       ffmpeg_ver="ffmpeg7.0" # needs to match parts > ffmpeg > source-branch below
       craftctl set version="${snap_ver}+${ffmpeg_ver}"
       craftctl set grade="stable"
+    prime:  # why are these auto-included in the built snap?
+      - -lib/python3.12/site-packages/pip*
+      - -lib/python3.12/site-packages/setuptools*
+      - -lib/python3.12/site-packages/wheel*
 
   # Build ffmpeg from source.
   # https://forum.snapcraft.io/t/proper-way-to-leverage-another-snap-in-a-snap/3893/2
@@ -172,9 +176,23 @@ parts:
       - libxrender1
       - libxss1
       - libxv1
-
       # External libraries providing hardware acceleration:
       # v4l2_m2m                vaapi                   vdpau
+    prime:
+      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libGLX_mesa.so*
+      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicuio.so*
+      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicutest.so*
+      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicutu.so*
+      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libpixman-1.so*
+      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libpulse-simple.so*
+      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libvulkan.so*
+      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libxcb-dri2.so*
+      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libxcb-glx.so*
+      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libxcb-present.so*
+      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libxcb-render.so*
+      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libxcb-sync.so*
+      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libxshmfence.so*
+      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libXxf86vm.so*
 
   cleanup:
     # https://forum.snapcraft.io/t/reduce-size-of-qt5-app-snap/31030/7
@@ -194,12 +212,7 @@ parts:
       # find $CRAFT_PRIME/usr/share -type d -empty -delete
       find $CRAFT_PRIME -type d -empty -delete
 
-      # Remove extra python modules.
-      for x in pip setuptools wheel; do
-        rm -rf $CRAFT_PRIME/$x*
-      done
-
-      # Remove unneeded libs.
-      for x in GLX_mesa icuio pixman-1 pulse-simple vulkan xcb-render Xxf86vm icutu xcb-dri2 xcb-glx xcb-present xcb-sync xshmfence; do
-        rm -f $CRAFT_PRIME/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/lib${x}.so*
-      done
+      # # Remove unneeded libs.
+      # for x in GLX_mesa icuio icutest icutu pixman-1 pulse-simple vulkan xcb-dri2 xcb-glx xcb-present xcb-render xcb-sync xshmfence Xxf86vm; do
+      #   rm -f $CRAFT_PRIME/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/lib${x}.so*
+      # done
