@@ -107,7 +107,7 @@ parts:
       - --disable-encoder=libaom
       - --enable-libass         # subtitles support
       - --enable-libmp3lame
-      - --enable-libsvtav1      # SVT-AV1 video encoder; requires 22.04+ packages libsvtav1{,-dev}; or build from src
+      - --enable-libsvtav1      # SVT-AV1 video encoder; requires packages libsvtav1{,-dev}; or build from src
       - --enable-libvpx         # VP9 video encoder
       - --enable-libx264        # H.264 video encoder
       # - --enable-nonfree # makes binary unredistributable; ref: ffmpeg/LICENSE.md
@@ -150,7 +150,7 @@ parts:
       - libsndfile1
       - libsndio7.0
       # - libsvtav1dec0
-      # - libsvtav1enc1d1  # is this needed if included in ffmpeg build?
+      - libsvtav1enc1d1
       # - libtheora0
       - libva-drm2
       - libva-x11-2
@@ -194,21 +194,24 @@ parts:
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libxcb-sync.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libxshmfence.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libXxf86vm.so*
+      - -usr/share/ffmpeg/examples
 
-  cleanup:
-    # https://forum.snapcraft.io/t/reduce-size-of-qt5-app-snap/31030/7
-    after:
-      - ffmpeg
-      - squeeze-vid
-    plugin: nil
-    build-snaps:
-      - core24
-    override-prime: |
-      set -eux
-      cd "/snap/core24/current" && find . -type f,l -exec rm -f "$CRAFT_PRIME/{}" \;
-      for x in include lib64 usr/include usr/lib/pkgconfig usr/share/doc-base usr/share/ffmpeg/examples usr/share/man; do
-        rm -rf "$CRAFT_PRIME/$x"
-      done
-      find $CRAFT_PRIME/usr/share/doc/ -type f -not -name 'copyright' -delete
-      # find $CRAFT_PRIME/usr/share -type d -empty -delete
-      find $CRAFT_PRIME -type d -empty -delete
+  # cleanup:
+  #   # https://forum.snapcraft.io/t/reduce-size-of-qt5-app-snap/31030/7
+  #   after:
+  #     - ffmpeg
+  #     - squeeze-vid
+  #   plugin: nil
+  #   build-snaps:
+  #     - core24
+  #   override-prime: |
+  #     set -eux
+  #     # Remove any files that are also provided by the core snap.
+  #     cd "/snap/core24/current" && find . -type f,l -exec rm -f "$CRAFT_PRIME/{}" \;
+  #     # Remove other unneeded files.
+  #     for x in include lib64 usr/include usr/lib/pkgconfig usr/share/doc-base usr/share/man; do
+  #       rm -rf "$CRAFT_PRIME/$x"
+  #     done
+  #     find $CRAFT_PRIME/usr/share/doc/ -type f -not -name 'copyright' -delete
+  #     # find $CRAFT_PRIME/usr/share -type d -empty -delete
+  #     find $CRAFT_PRIME -type d -empty -delete
