@@ -186,31 +186,38 @@ parts:
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libEGL_mesa.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstadaptivedemux-1.0.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstanalytics-1.0.so*
+      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstapp-1.0.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstbadaudio-1.0.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstcheck-1.0.so*
+      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstcodecs-1.0.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstcontroller-1.0.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstcuda-1.0.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstdxva-1.0.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstfft-1.0.so*
+      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstgl-1.0.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstinsertbin-1.0.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstisoff-1.0.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstmpegts-1.0.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstmse-1.0.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstnet-1.0.so*
+      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstplay-1.0.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstplayer-1.0.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstriff-1.0.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstrtsp-1.0.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstsctp-1.0.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgsttranscoder-1.0.so*
+      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgsturidownloader-1.0.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstva-1.0.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstvulkan-1.0.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstwayland-1.0.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstwebrtcnice-1.0.so*
+      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstwebrtc-1.0.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libGLX_mesa.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicui18n.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicuio.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicutest.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicutu.so*
+      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libnice.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/liborc-test-0.4.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libpixman-1.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libpulse-simple.so*
@@ -220,6 +227,7 @@ parts:
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libvulkan.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libxcb-glx.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libxcb-render.so*
+      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libxkbcommon-x11.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libXxf86vm.so*
       - -usr/share/ffmpeg/examples
 
