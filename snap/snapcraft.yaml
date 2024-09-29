@@ -205,8 +205,8 @@ parts:
       - ffmpeg
       - squeeze-vid
     plugin: nil
-    build-snaps:
-      - core24
+    # build-snaps:
+    #   - core24
     override-prime: |
       set -eux
       craftctl default
