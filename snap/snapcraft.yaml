@@ -209,7 +209,7 @@ parts:
       # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstwebrtcnice-1.0.so*
       # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstwebrtc-1.0.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libGLX_mesa.so*
-      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicui18n.so*
+      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicui18n.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicuio.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicutest.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicutu.so*
