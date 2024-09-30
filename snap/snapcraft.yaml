@@ -156,7 +156,7 @@ parts:
       - libva-drm2
       - libva-x11-2
       - libva2
-      # - libvdpau1
+      - libvdpau1
       - libvorbis0a
       - libvorbisenc2
       - libvpx9
@@ -208,21 +208,21 @@ parts:
       # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstwayland-1.0.so*
       # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstwebrtcnice-1.0.so*
       # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libgstwebrtc-1.0.so*
-      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libGLX_mesa.so*
+      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libGLX_mesa.so*
       # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicui18n.so*
-      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicuio.so*
-      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicutest.so*
+      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicuio.so*
+      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicutest.so*
       # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicutu.so*
       # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libnice.so*
       # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/liborc-test-0.4.so*
-      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libpixman-1.so*
-      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libpulse-simple.so*
+      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libpixman-1.so*
+      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libpulse-simple.so*
       # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libunwind-coredump.so*
       # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libunwind-ptrace.so*
       # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libunwind-x86_64.so*
-      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libvulkan.so*
+      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libvulkan.so*
       # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libxcb-glx.so*
-      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libxcb-render.so*
+      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libxcb-render.so*
       # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libxkbcommon-x11.so*
       # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libXxf86vm.so*
       - -usr/share/ffmpeg/examples
