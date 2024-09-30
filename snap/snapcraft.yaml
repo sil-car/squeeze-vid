@@ -208,6 +208,7 @@ parts:
     prime:
       - -include
       - -lib64
+      - -usr/bin/X11  # weird, recursive link to usr/bin
       - -usr/include
       - -usr/lib/pkgconfig
       - -usr/share/doc-base
