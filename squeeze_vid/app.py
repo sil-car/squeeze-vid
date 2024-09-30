@@ -93,7 +93,10 @@ def main():
     parser.add_argument(
         '--video_encoder',
         type=str,
-        help="specify video encoder [libx264]: libx264, libsvtav1, libvpx-vp9"
+        help=(
+            "specify video encoder [libx264]:",
+            "use 'squeeze-vid.ffmpeg -encoders' for details",
+        )
     )
     parser.add_argument(
         '-x', '--experimental',
