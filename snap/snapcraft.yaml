@@ -212,7 +212,7 @@ parts:
       # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicui18n.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicuio.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicutest.so*
-      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicutu.so*
+      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicutu.so*
       # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libnice.so*
       # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/liborc-test-0.4.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libpixman-1.so*
@@ -221,10 +221,14 @@ parts:
       # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libunwind-ptrace.so*
       # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libunwind-x86_64.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libvulkan.so*
-      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libxcb-glx.so*
+      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libxcb-dri2.so*
+      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libxcb-glx.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libxcb-render.so*
+      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libxcb-present.so*
+      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libxcb-sync.so*
       # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libxkbcommon-x11.so*
-      # - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libXxf86vm.so*
+      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libxshmfence.so*
+      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libXxf86vm.so*
       - -usr/share/ffmpeg/examples
 
   cleanup:
