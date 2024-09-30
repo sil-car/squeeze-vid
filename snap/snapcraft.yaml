@@ -121,7 +121,7 @@ parts:
     stage-packages:
       # Ref: snapcraftctl build output.
       - libasound2t64
-      - libaom3 # encoder way too slow on 20.04, but decoder is still useful
+      # - libaom3 # encoder way too slow on 20.04, but decoder is still useful
       - libass9
       - libasyncns0
       # - libcairo2
