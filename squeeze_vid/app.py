@@ -94,8 +94,8 @@ def main():
         '--video_encoder',
         type=str,
         help=(
-            "specify video encoder [libx264]:",
-            "use 'squeeze-vid.ffmpeg -encoders' for details",
+            "specify video encoder [libx264]:"
+            "use 'squeeze-vid.ffmpeg -encoders' for details"
         )
     )
     parser.add_argument(
