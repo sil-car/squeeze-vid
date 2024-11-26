@@ -46,7 +46,7 @@ def print_command(stream):
 def run_conversion(output_stream, duration):
     duration = float(duration)
     if config.DEBUG:
-        print(f"{duration = }")
+        print(f"{duration=}")
     filepath = output_stream.node.kwargs.get('filename')
     print(filepath)
 
@@ -62,9 +62,9 @@ def run_conversion(output_stream, duration):
         u_ct = min(int(w - d_ct - 1), w - 1)
 
         if config.DEBUG:
-            print(f"{p_pct = }")
-            print(f"{d_ct = }")
-            print(f"{u_ct = }")
+            print(f"{p_pct=}")
+            print(f"{d_ct=}")
+            print(f"{u_ct=}")
 
         bar = '  '
         if d_ct == 0:
@@ -101,7 +101,7 @@ def run_conversion(output_stream, duration):
                     if current < 0:
                         current = 0
                     if config.DEBUG:
-                        print(f"{current = }")
+                        print(f"{current=}")
                     p_pct = int(round(current * 100 / duration, 0))
                     progressbar = get_progressbar(p_pct)
                     sys.stdout.write(progressbar)

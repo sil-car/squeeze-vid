@@ -237,7 +237,7 @@ class SqueezeTask():
             self.outfile_name_attribs.remove(f"crf{self.media_out.crf}")
             vbitrate = round(self.media_out.vbr/1000) if self.media_out.vbr is not None else 0  # noqa: E501
             self.outfile_name_attribs.insert(0, f"v{vbitrate}kbps")
-        if self.media_out.vcodec != 'libx264':
+        if self.media_out.vcodec != 'libx264' and self.output_kwargs.get('profile:v'):  # noqa: E501
             del self.output_kwargs['profile:v']  # remove irrelevant option
         if self.media_out.vcodec == 'libsvtav1':
             self.output_kwargs["svtav1-params"] = f"tile-columns={tile_col_exp}:tile-rows={tile_row_exp}:fast-decode=1"  # noqa: E501
