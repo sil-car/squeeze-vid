@@ -10,6 +10,9 @@ name = "squeeze_vid"
 readme = "README.md"
 dynamic = ["version"]
 
+[project.optional-dependencies]
+test = ["coverage"]
+
 [project.scripts]
 squeeze-vid = "squeeze_vid.app:main"
 
