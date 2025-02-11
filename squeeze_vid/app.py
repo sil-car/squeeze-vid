@@ -12,7 +12,7 @@ from .media import SqueezeTask
 from .util import validate_file
 
 
-def main():
+def get_parser():
     # Build arguments and options list.
     description = (
         "Convert video file to MP4, ensuring baseline video quality:\n"
@@ -108,8 +108,11 @@ def main():
         nargs='*',
         help="space-separated list of media files to modify"
     )
+    return parser
 
-    args = parser.parse_args()
+
+def main():
+    args = get_parser().parse_args()
     if args.version:
         print(config.VERSION)
         exit()
@@ -146,10 +149,7 @@ def main():
 
         if args.trim:
             # Trim the file using given timestamps.
-            task.action = 'trim'
-            task.media_out.endpoints = args.trim
-            task.setup()
-            mod_file = task.run()
+            task.trim()
 
         if args.speed:
             # Use mod_file from previous step as input_file if it exists.
@@ -159,10 +159,7 @@ def main():
                 task = SqueezeTask(args=args, media_in=media_in)
                 # mod_file_prev = mod_file
             # Attempt to change the playback speed of all passed video files.
-            task.action = 'change_speed'
-            task.media_out.factor = float(args.speed)
-            task.setup()
-            mod_file = task.run()
+            mod_file = task.change_speed()
 
         if args.audio:
             # Use mod_file from previous step as input_file if it exists.
@@ -173,10 +170,7 @@ def main():
                 task.media_out.suffix = '.mp3'
                 # mod_file_prev = mod_file
             # Convert file(s) to normalized MP3.
-            task.action = 'export_audio'
-            task.media_out.suffix = task.media_out.suffix_norm_a
-            task.setup()
-            mod_file = task.run()
+            mod_file = task.export_audio()
 
         if (args.normalize or args.rates[2] == 10 or
                 (not args.info and not args.trim and not args.speed and not args.audio)):  # noqa: E501
@@ -187,9 +181,7 @@ def main():
                 task = SqueezeTask(args=args, media_in=media_in)
                 # mod_file_prev = mod_file
             # Attempt to normalize all passed files.
-            task.action = 'normalize'
-            task.setup()
-            mod_file = task.run()
+            task.normalize()
 
 
 if __name__ == '__main__':

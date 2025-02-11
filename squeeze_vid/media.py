@@ -2,7 +2,6 @@ import ffmpeg
 # ffmpeg API: https://kkroening.github.io/ffmpeg-python
 # ffmpeg Ex: https://github.com/kkroening/ffmpeg-python
 import os
-
 from pathlib import Path
 
 from . import config
@@ -44,17 +43,17 @@ class MediaObject():
         self.acodec_norm_a = 'mp3'
         self.format_norm_v = 'mp4'
         self.suffix_norm_v = '.mp4'
-        if self.file:
+        if self.file.is_file():
             self.suffix = self.file.suffix
             self.stream = ffmpeg.input(str(self.file))
-            self.props = self.get_properties(str(self.file))
+            self.props = self._get_properties(str(self.file))
             self.duration = float(self.props.get('format').get('duration'))
-            self.astreams = self.get_astreams(self.props.get('streams'))
+            self.astreams = self._get_astreams(self.props.get('streams'))
             if len(self.astreams) > 0:
                 self.audio = self.stream.audio
                 self.acodec = self.astreams[0].get('codec_name')
                 self.abr = int(self.astreams[0].get('bit_rate'))
-            self.vstreams = self.get_vstreams(self.props.get('streams'))
+            self.vstreams = self._get_vstreams(self.props.get('streams'))
             if len(self.vstreams) > 0:
                 self.video = self.stream.video
                 self.vcodec = self.vstreams[0].get('codec_name')
@@ -69,19 +68,28 @@ class MediaObject():
                 self.nb_frames = int(self.vstreams[0].get('nb_frames', 0))
             self.format = self.props.get('format').get('format_name')
 
-    def get_astreams(self, streams):
+    def show_properties(self):
+        for s in self.props.get('streams'):
+            for k, v in s.items():
+                skip = ['disposition', 'tags']
+                if k in skip:
+                    continue
+                print(f"{k:<24} {v}")
+            print()
+
+    def _get_astreams(self, streams) -> list:
         if streams == 'placeholder':
             return [streams]
         else:
             return [a for a in streams if a.get('codec_type') == 'audio']
 
-    def get_vstreams(self, streams):
+    def _get_vstreams(self, streams) -> list:
         if streams == 'placeholder':
             return [streams]
         else:
             return [v for v in streams if v.get('codec_type') == 'video']
 
-    def get_properties(self, file):
+    def _get_properties(self, file):
         if file == '<infile>':
             # Dummy file for printing command.
             return 'placeholder'
@@ -91,15 +99,6 @@ class MediaObject():
             print(e.stderr.decode('utf8'))
             exit(1)
         return probe
-
-    def show_properties(self):
-        for s in self.props.get('streams'):
-            for k, v in s.items():
-                skip = ['disposition', 'tags']
-                if k in skip:
-                    continue
-                print(f"{k:<24} {v}")
-            print()
 
 
 class SqueezeTask():
@@ -111,6 +110,11 @@ class SqueezeTask():
 
         self.media_out = self.media_in
         self.media_out.file = Path(f"{self.media_in.file.parent}/{self.media_in.file.stem}_{self.media_out.suffix}")  # noqa: E501
+
+        self.filters = {
+            'audio': {},
+            'video': {},
+        }
 
         # Set attribs based on input args.
         self.media_out.abr_norm = self.args.rates[0]
@@ -148,77 +152,46 @@ class SqueezeTask():
             self.media_out.crf = str(self.media_out.crf_svt_av1)
         self.output_kwargs['crf'] = self.media_out.crf
 
-    def setup(self):
-        # actions: 'change_speed', 'export_audio', 'normalize', 'trim'
-        filters = {
-            'audio': {},
-            'video': {},
-        }
+    def change_speed(self) -> Path|str:
+        self.media_out.factor = float(self.args.speed)
+        self._setprops_change_speed()
+        return self._run_task()
 
-        # Set the output format.
-        media_in_formats = self.media_in.format.split(',')
-        if self.media_out.suffix == '.mp3':
-            self.media_out.acodec = self.media_out.acodec_norm_a
-            self.media_out.format = 'mp3'
-        elif len(media_in_formats) > 1:
-            if 'mp3' in media_in_formats:
-                self.media_out.format = 'mp3'
-            elif 'mp4' in media_in_formats:
-                self.media_out.format = 'mp4'
-        self.output_kwargs['format'] = self.media_out.format
+    def export_audio(self) -> Path|str:
+        self.media_out.suffix = self.media_out.suffix_norm_a
+        self._setprops_export_audio()
+        return self._run_task()
 
-        # Set properties and ffmpeg args depending on the action.
-        if self.action == 'change_speed':
-            # Add filters.
-            filters['audio']['atempo'] = [f"{str(self.media_out.factor)}"]
-            filters['video']['setpts'] = [f"{str(1 / self.media_out.factor)}*PTS"]  # noqa: E501
-            self.media_out.duration = self.media_in.duration / self.media_out.factor  # noqa: E501
-            # Add attrib to final file name.
-            self.outfile_name_attribs.append(f"{str(self.media_out.factor)}x")
-        elif self.action == 'export_audio':
-            self.media_out.video = None
-            self.media_out = normalize_stream_props(
-                self.media_in,
-                self.media_out
-            )
-            del self.output_kwargs['crf']
-            del self.output_kwargs['profile:v']
-            abitrate = round(self.media_out.abr/1000) if self.media_out.abr is not None else 0  # noqa: E501
-            self.outfile_name_attribs.append(f"a{round(abitrate)}kbps")
-        elif self.action == 'normalize':
-            # Normalize media_out properties.
-            self.media_out = normalize_stream_props(
-                self.media_in,
-                self.media_out
-            )
-            # Add video filters: Define video max height.
-            filters['video']['scale'] = [
-                "trunc(oh*a/2)*2",
-                f"min({self.media_out.height}, ih)",
-            ]
-            # Define video max framerate.
-            filters['video']['fps'] = [self.media_out.fps]
-            abitrate = round(self.media_out.abr/1000) if self.media_out.abr is not None else 0  # noqa: E501
-            self.outfile_name_attribs.extend([
-                f"crf{self.media_out.crf}",
-                f"{round(self.media_out.fps, 2)}fps",
-                f"a{abitrate}kbps"
-            ])
-        elif self.action == 'trim':
-            self.media_out.endpoints = [parse_timestamp(e) for e in self.media_out.endpoints]  # noqa: E501
-            self.media_out.duration = self.media_out.endpoints[1] - self.media_out.endpoints[0]  # noqa: E501
-            self.output_kwargs['ss'] = self.media_out.endpoints[0]
-            self.output_kwargs['to'] = self.media_out.endpoints[1]
-            if self.media_out.audio is not None:
-                self.output_kwargs['c:a'] = 'copy'
-            self.outfile_name_attribs.append(f"{self.media_out.duration}s")
+    def normalize(self) -> Path|str:
+        self._setprops_normalize()
+        return self._run_task()
 
-        # Set codecs.
+    def trim(self) -> Path|str:
+        self.media_out.endpoints = self.args.trim
+        self._setprops_trim()
+        return self._run_task()
+
+    def _run_task(self) -> Path|str:
+        self._set_output_format()
+        self._set_codecs()
+        self._set_ffmpeg_command_args()
+        self._set_ffmpeg_command_stream()
+        return self._run_ffmpeg()
+
+    def _run_ffmpeg(self) -> Path|str:
+        if self.args.command:
+            # Print command if desired.
+            return print_command(self.ffmpeg_output_stream)
+        run_conversion(self.ffmpeg_output_stream, self.media_out.duration)
+        return Path(self.media_out.file)
+
+    def _set_codecs(self) -> None:
         if self.media_out.audio is not None:
             self.output_kwargs['c:a'] = self.media_out.acodec
         if self.media_out.video is not None:
             self.output_kwargs['c:v'] = self.media_out.vcodec
 
+    def _set_ffmpeg_command_args(self) -> None:
         # Modify command args according to variables.
         tile_col_exp = "1"  # 2**1 = 2 columns
         tile_row_exp = "1"  # 2**1 = 2 rows
@@ -248,9 +221,10 @@ class SqueezeTask():
             self.output_kwargs["tile-columns"] = tile_col_exp
             self.output_kwargs["tile-rows"] = tile_row_exp
 
+    def _set_ffmpeg_command_stream(self) -> None:
         # Apply filters & create command stream.
         if self.media_out.video is not None:
-            for k, vs in filters.get('video').items():
+            for k, vs in self.filters.get('video').items():
                 self.media_out.video = ffmpeg.filter(
                     self.media_out.video,
                     k,
@@ -258,7 +232,7 @@ class SqueezeTask():
                 )
             self.output_args.insert(0, self.media_out.video)  # index 0 is video, 1 is currently outfile  # noqa: E501
         if self.media_out.audio is not None:
-            for k, vs in filters.get('audio').items():
+            for k, vs in self.filters.get('audio').items():
                 self.media_out.audio = ffmpeg.filter(
                     self.media_out.audio,
                     k,
@@ -274,13 +248,65 @@ class SqueezeTask():
             **self.output_kwargs
         )
 
-    def run(self):
-        if self.args.command:
-            # Print command if desired.
-            print_command(self.ffmpeg_output_stream)
-            return
-        run_conversion(self.ffmpeg_output_stream, self.media_out.duration)
-        return Path(self.media_out.file)
+    def _set_output_format(self) -> None:
+        media_in_formats = self.media_in.format.split(',')
+        if self.media_out.suffix == '.mp3':
+            self.media_out.acodec = self.media_out.acodec_norm_a
+            self.media_out.format = 'mp3'
+        elif len(media_in_formats) > 1:
+            if 'mp3' in media_in_formats:
+                self.media_out.format = 'mp3'
+            elif 'mp4' in media_in_formats:
+                self.media_out.format = 'mp4'
+        self.output_kwargs['format'] = self.media_out.format
+
+    def _setprops_change_speed(self) -> None:
+        # Add filters.
+        self.filters['audio']['atempo'] = [f"{str(self.media_out.factor)}"]
+        self.filters['video']['setpts'] = [f"{str(1 / self.media_out.factor)}*PTS"]  # noqa: E501
+        self.media_out.duration = self.media_in.duration / self.media_out.factor  # noqa: E501
+        # Add attrib to final file name.
+        self.outfile_name_attribs.append(f"{str(self.media_out.factor)}x")
+
+    def _setprops_export_audio(self) -> None:
+        self.media_out.video = None
+        self.media_out = normalize_stream_props(
+            self.media_in,
+            self.media_out
+        )
+        del self.output_kwargs['crf']
+        del self.output_kwargs['profile:v']
+        abitrate = round(self.media_out.abr/1000) if self.media_out.abr is not None else 0  # noqa: E501
+        self.outfile_name_attribs.append(f"a{round(abitrate)}kbps")
+
+    def _setprops_normalize(self) -> None:
+        # Normalize media_out properties.
+        self.media_out = normalize_stream_props(
+            self.media_in,
+            self.media_out
+        )
+        # Add video filters: Define video max height.
+        self.filters['video']['scale'] = [
+            "trunc(oh*a/2)*2",
+            f"min({self.media_out.height}, ih)",
+        ]
+        # Define video max framerate.
+        self.filters['video']['fps'] = [self.media_out.fps]
+        abitrate = round(self.media_out.abr/1000) if self.media_out.abr is not None else 0  # noqa: E501
+        self.outfile_name_attribs.extend([
+            f"crf{self.media_out.crf}",
+            f"{round(self.media_out.fps, 2)}fps",
+            f"a{abitrate}kbps"
+        ])
+
+    def _setprops_trim(self) -> None:
+        self.media_out.endpoints = [parse_timestamp(e) for e in self.media_out.endpoints]  # noqa: E501
+        self.media_out.duration = self.media_out.endpoints[1] - self.media_out.endpoints[0]  # noqa: E501
+        self.output_kwargs['ss'] = self.media_out.endpoints[0]
+        self.output_kwargs['to'] = self.media_out.endpoints[1]
+        if self.media_out.audio is not None:
+            self.output_kwargs['c:a'] = 'copy'
+        self.outfile_name_attribs.append(f"{self.media_out.duration}s")
 
 
 def normalize_stream_props(media_in, media_out):

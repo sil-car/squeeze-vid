@@ -40,7 +40,9 @@ def print_command(stream):
         if item == '-filter_complex' or item == '-i':
             command[i+1] = f"\"{command[i+1]}\""
     command[-1] = f"\"{command[-1]}\""  # outfile
-    print(f"squeeze-vid.ffmpeg {' '.join(command)}\n")
+    command_str = f"squeeze-vid.ffmpeg {' '.join(command)}\n"
+    print(command_str)
+    return command_str
 
 
 def run_conversion(output_stream, duration):
