@@ -14,7 +14,8 @@ description: |
   from a video file.
 
   Use the --help option for more information:
-  $ squeeze-vid --help
+
+     $ squeeze-vid --help
 
 adopt-info: squeeze-vid  # for setting version and grade
 confinement: strict
@@ -51,7 +52,7 @@ parts:
     override-pull: |
       craftctl default
       snap_ver=$(grep 'VERSION =' $CRAFT_PART_SRC/squeeze_vid/config.py | grep -Eo '[0-9.]+')
-      ffmpeg_ver="ffmpeg7.0" # needs to match parts > ffmpeg > source-branch below
+      ffmpeg_ver="ffmpeg7.1" # needs to match parts > ffmpeg > source-branch below
       craftctl set version="${snap_ver}+${ffmpeg_ver}"
       craftctl set grade="stable"
     prime:  # why are these auto-included in the built snap?
@@ -116,8 +117,8 @@ parts:
       - --enable-version3
     source: https://git.ffmpeg.org/ffmpeg.git
     source-type: git
-    source-depth: 1 # faster clone?
-    source-branch: 'n7.0'
+    source-depth: 1
+    source-branch: 'n7.1'
     stage-packages:
       # Ref: snapcraftctl build output.
       - libasound2t64
@@ -201,8 +202,6 @@ parts:
     override-prime: |
       set -eux
       craftctl default
-      # # Remove any files that are also provided by the core snap.
-      # cd "/snap/core24/current" && find . -type f,l -exec rm -f "$CRAFT_PRIME/{}" \;
       find $CRAFT_PRIME/usr/share/doc/ -type f -not -name 'copyright' -delete
       find $CRAFT_PRIME -type d -empty -delete
     prime:
