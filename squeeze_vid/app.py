@@ -1,14 +1,10 @@
-# When testing, use:
-# (env) $ python3 -c 'import squeeze_vid.app; squeeze_vid.app.main()' [ARGS]
-# This makes it run the same way as installed version, which makes imports
-# work correctly.
-
 import argparse
+import sys
 from pathlib import Path
 
 from . import config
 from .media import MediaObject
-from .media import SqueezeTask
+from .task import SqueezeTask
 from .util import validate_file
 
 
@@ -115,7 +111,7 @@ def main():
     args = get_parser().parse_args()
     if args.version:
         print(config.VERSION)
-        exit()
+        sys.exit()
     if args.verbose:
         config.VERBOSE = True
     if args.debug:
@@ -139,7 +135,7 @@ def main():
             task.action = 'trim'
             task.setup()
             mod_file = task.run()
-            exit()
+            sys.exit()
 
         if args.info:
             # Show the video file info.

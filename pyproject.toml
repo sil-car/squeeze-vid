@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 dependencies = [
-    "ffmpeg-python",
+    "python-ffmpeg",
 ]
 name = "squeeze_vid"
 readme = "README.md"
