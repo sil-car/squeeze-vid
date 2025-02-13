@@ -140,6 +140,7 @@ parts:
       - libmpg123-0t64
       - libogg0
       - libopus0
+      - libpciaccess0
       - libpixman-1-0
       - libpng16-16t64
       - libpulse0
