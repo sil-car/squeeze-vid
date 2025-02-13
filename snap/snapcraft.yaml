@@ -162,15 +162,19 @@ parts:
       - libwayland-server0
       - libx264-164
       - libx265-199
+      - libxcb-dri2-0
+      - libxcb-present0
       - libxcb-randr0
       - libxcb-render0
       - libxcb-shape0
+      - libxcb-sync1
       - libxcb-xfixes0
       - libxcb1
       - libxcursor1
       - libxi6
       - libxrandr2
       - libxrender1
+      - libxshmfence1
       - libxss1
       - libxv1
     prime:  # removed unused files & libs (according to snap lint warnings)
