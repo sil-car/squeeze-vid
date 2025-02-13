@@ -186,12 +186,8 @@ parts:
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libpixman-1.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libpulse-simple.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libvulkan.so*
-      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libxcb-dri2.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libxcb-glx.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libxcb-render.so*
-      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libxcb-present.so*
-      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libxcb-sync.so*
-      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libxshmfence.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libXxf86vm.so*
       - -usr/share/ffmpeg/examples
 
