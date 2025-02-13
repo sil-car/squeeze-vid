@@ -1,5 +1,7 @@
 # Squeeze Vid
 
+[![Get it from the Snap Store](https://snapcraft.io/en/light/install.svg)](https://snapcraft.io/squeeze-vid)
+
 Normalize videos and audio files to a standardized frame rate and quality to minimize the file size while maintaining adequate quality for video projection.
 
 Property | Default Video | Tutorial Video
