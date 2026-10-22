@@ -112,9 +112,10 @@ class SqueezeTask:
             self.output_kwargs['crf'] = self.media_out.crf
             if self.media_out.mode == 'CBR':
                 # Note: Some codecs require max vbr > target vbr.
-                self.output_kwargs['video_bitrate'] = self.media_out.vbr - 1 if self.media_out.vbr > 0 else 0
+                self.output_kwargs.pop('crf', None)
+                self.output_kwargs['b:v'] = self.media_out.vbr - 1 if self.media_out.vbr > 0 else 0
                 self.output_kwargs['maxrate'] = self.media_out.vbr
-                self.output_kwargs['bufsize'] = self.media_out.vbr/2
+                self.output_kwargs['bufsize'] = int(self.media_out.vbr / 2)
                 self.outfile_name_attribs.remove(f"crf{self.media_out.crf}")
                 vbitrate = round(self.media_out.vbr/1000) if self.media_out.vbr is not None else 0
                 self.outfile_name_attribs.insert(0, f"v{vbitrate}kbps")
@@ -168,7 +169,7 @@ class SqueezeTask:
                 self.media_out.format = 'mp3'
             elif 'mp4' in media_in_formats:
                 self.media_out.format = 'mp4'
-        self.output_kwargs['format'] = self.media_out.format
+        self.output_kwargs['f'] = self.media_out.format
 
     def _setprops_change_speed(self) -> None:
         # Add filters.
