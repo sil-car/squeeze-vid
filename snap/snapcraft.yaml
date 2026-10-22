@@ -18,7 +18,7 @@ description: |
 
      $ squeeze-vid --help
 
-adopt-info: squeeze-vid  # for setting version and grade
+adopt-info: squeeze-vid  # for setting version
 grade: stable
 confinement: strict
 base: core24
@@ -50,12 +50,6 @@ parts:
       - ffmpeg
     plugin: python
     source: .
-    # override-pull: |
-    #   craftctl default
-    #   snap_ver=$(grep 'VERSION =' $CRAFT_PART_SRC/squeeze_vid/config.py | grep -Eo '[0-9.]+')
-    #   ffmpeg_ver="ffmpeg7.1" # needs to match parts > ffmpeg > source-branch below
-    #   craftctl set version="${snap_ver}+${ffmpeg_ver}"
-    #   craftctl set grade="stable"
     override-build: |
       craftctl default
       app_ver=$(grep 'VERSION =' "$CRAFT_PART_SRC/squeeze_vid/config.py" | grep -Eo '[0-9.]+')
@@ -84,7 +78,6 @@ parts:
       - --disable-autodetect  # link only what's explicitly enabled below
       - --disable-debug
       - --disable-doc  # removes all docs --disable-{htmlpages,manpages,txtpages}
-      # - --disable-hwaccels  # remove all hw acceleration; seems to give limited benefit
       - --disable-ffplay
       - --disable-static
       - --enable-shared
@@ -92,7 +85,6 @@ parts:
       - --enable-version3
       - --enable-zlib
       - --enable-iconv
-      # - --disable-encoder=libaom
       - --enable-libass         # subtitles support
       - --enable-libmp3lame
       - --enable-libsvtav1      # SVT-AV1 video encoder; requires packages libsvtav1{,-dev}; or build from src
@@ -109,110 +101,23 @@ parts:
       - build-essential
       - cmake
       - libass-dev
-      # - libfreetype6-dev
       - libmp3lame-dev
-      # - libopus-dev
-      # - libsdl1.2-dev
-      # - libsvtav1dec-dev # 22.04+; or build from src
       - libsvtav1enc-dev
-      # - libtheora-dev
-      # - libtool
-      # - libva-dev
-      # - libvdpau-dev
-      # - libvorbis-dev
       - libvpx-dev
       - libx264-dev
       - libx265-dev
-      # - libxcb1-dev
-      # - libxcb-shm0-dev
-      # - libxcb-xfixes0-dev
       - nasm
       - pkg-config
-      # - texinfo
       - zlib1g-dev
     stage-packages:
-      # Ref: snapcraftctl build output.
-      # - libasound2t64
-      # - libaom3 # encoder way too slow on 20.04, but decoder is still useful
       - libass9
-      # - libasyncns0
-      # # - libcairo2
-      # - libdecor-0-0
-      # - libflac12t64
-      # - libfontconfig1
-      # # - libfreetype6
-      # - libfribidi0
-      # - libgbm1
-      # - libgl1
-      # - libglx0
-      # - libgraphite2-3
-      # - libharfbuzz0b
       - libmp3lame0
-      # - libmpg123-0t64
-      # - libogg0
-      # - libopus0
-      # - libpciaccess0
-      # - libpixman-1-0
-      # - libpng16-16t64
-      # - libpulse0
-      # - libsamplerate0
-      # - libsdl2-2.0-0
-      # - libsndfile1
-      # - libsndio7.0
       - libsvtav1enc1d1
-      # - libtheora0
-      # - libva-drm2
-      # - libva-x11-2
-      # - libva2
-      # - libvdpau1
-      # - libvorbis0a
-      # - libvorbisenc2
       - libvpx9
-      # - libwayland-client0
-      # - libwayland-cursor0
-      # - libwayland-egl1
-      # - libwayland-server0
       - libx264-164
       - libx265-199
-      # - libxcb-dri2-0
-      # - libxcb-present0
-      # - libxcb-randr0
-      # - libxcb-render0
-      # - libxcb-shape0
-      # - libxcb-sync1
-      # - libxcb-xfixes0
-      # - libxcb1
-      # - libxcursor1
-      # - libxi6
-      # - libxrandr2
-      # - libxrender1
-      # - libxshmfence1
-      # - libxss1
-      # - libxv1
     prime:  # removed unused files & libs (according to snap lint warnings)
       - -usr/include
       - -usr/lib/pkgconfig
       - -usr/share/ffmpeg/examples
       - -usr/share/man
-
-  # cleanup:
-  #   # https://forum.snapcraft.io/t/reduce-size-of-qt5-app-snap/31030/7
-  #   after:
-  #     - ffmpeg
-  #     - squeeze-vid
-  #   plugin: nil
-  #   # build-snaps:
-  #   #   - core24
-  #   override-prime: |
-  #     set -eux
-  #     craftctl default
-  #     find $CRAFT_PRIME/usr/share/doc/ -type f -not -name 'copyright' -delete
-  #     find $CRAFT_PRIME -type d -empty -delete
-  #   prime:
-  #     - -include
-  #     - -lib64
-  #     - -usr/bin/X11  # weird, recursive link to usr/bin
-  #     - -usr/include
-  #     - -usr/lib/pkgconfig
-  #     - -usr/share/doc-base
-  #     - -usr/share/man
