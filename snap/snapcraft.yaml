@@ -3,6 +3,7 @@ summary: Normalize videos to a minimal, projection-compatible quality.
 website: https://github.com/sil-car/squeeze-vid
 contact: https://github.com/sil-car/squeeze-vid/issues
 issues: https://github.com/sil-car/squeeze-vid/issues
+source-code: https://github.com/sil-car/squeeze-vid
 license: GPL-3.0-or-later
 title: Squeeze Vid
 icon: pkg-data/video-editor_512.png
@@ -18,6 +19,7 @@ description: |
      $ squeeze-vid --help
 
 adopt-info: squeeze-vid  # for setting version and grade
+grade: stable
 confinement: strict
 base: core24
 platforms:
@@ -60,7 +62,6 @@ parts:
       ff_ver=$(grep -Po '(?<=FFMPEG_VERSION ")[^"]+' "$CRAFT_STAGE/usr/include/libavutil/ffversion.h")
       [ -n "$app_ver" ] && [ -n "$ff_ver" ]  # fail the build rather than publish a bad version
       craftctl set version="${app_ver}+ffmpeg${ff_ver#n}"
-      craftctl set grade=stable
     prime:  # why are these auto-included in the built snap?
       - -include
       - -lib64
