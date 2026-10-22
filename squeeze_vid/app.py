@@ -46,22 +46,22 @@ def get_parser():
         '-k', '--trim',
         nargs=2,
         type=str,
-        help="trim the file to keep content between given timestamps (HH:MM:SS)",  # noqa: E501
+        help="trim the file to keep content between given timestamps (HH:MM:SS)",
     )
     parser.add_argument(
         '-m', '--rate-control-mode',
         type=str,
-        help="specify the rate control mode [CRF]: CBR, CRF; if CBR is specified, the video bitrate is set to 2Mbps",  # noqa: E501
+        help="specify the rate control mode [CRF]: CBR, CRF; if CBR is specified, the video bitrate is set to 2Mbps",
     )
     parser.add_argument(
         '-n', '--normalize',
         action='store_true',
-        help="normalize video resolution, bitrate, and framerate; this is the default action if no options are given",  # noqa: E501
+        help="normalize video resolution, bitrate, and framerate; this is the default action if no options are given",
     )
     parser.add_argument(
         '-s', '--speed',
         type=float,
-        help="change the playback speed of the video using the given factor (0.5 to 100)",  # noqa: E501
+        help="change the playback speed of the video using the given factor (0.5 to 100)",
     )
     parser.add_argument(
         '-t', '--tutorial',
@@ -169,7 +169,7 @@ def main():
             mod_file = task.export_audio()
 
         if (args.normalize or args.rates[2] == 10 or
-                (not args.info and not args.trim and not args.speed and not args.audio)):  # noqa: E501
+                (not args.info and not args.trim and not args.speed and not args.audio)):
             # Use mod_file from previous step as input_file if it exists.
             if mod_file.is_file():
                 input_file = mod_file
